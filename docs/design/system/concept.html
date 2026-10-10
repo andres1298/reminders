@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lukas · Vista de concepto</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=DM+Sans:opsz,wght@9..40,400..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+/* solo pegamento de layout; todo lo visual viene de los componentes */
+body{padding:28px 20px 60px;background:color-mix(in srgb,var(--bg) 88%,var(--ink))}
+.top{display:flex;justify-content:space-between;align-items:center;gap:12px;max-width:900px;margin:0 auto 28px}
+.frames{display:flex;flex-wrap:wrap;gap:40px;justify-content:center}
+figure{display:flex;flex-direction:column;align-items:center;gap:12px}
+figcaption{font:700 14px/1.3 var(--font-text);color:var(--ink-muted)}
+.phone{position:relative;width:375px;height:780px;border-radius:44px;overflow:hidden;background:var(--bg);border:8px solid #151515;--safe-top:44px;--safe-bottom:20px}
+.scroll{height:100%;overflow:hidden}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:var(--gutter);padding:12px var(--margin)}
+.filters{display:flex;gap:8px;overflow:hidden;padding:16px var(--margin) 4px}
+.tabwrap{position:absolute;left:14px;right:14px;bottom:calc(var(--safe-bottom) + 6px)}
+.hero{background:var(--card);color:var(--card-ink);border-bottom:var(--stroke-w) solid var(--stroke);border-radius:0 0 var(--r-sheet) var(--r-sheet);padding:calc(var(--safe-top) + 4px) 12px 22px;box-shadow:var(--stamp);display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center}
+:root[data-theme="dark"] .hero{border-color:transparent}
+.hero .bar{align-self:stretch;display:flex;justify-content:space-between}
+.hero .bar .icon-btn{background:rgb(255 255 255 / .55);color:var(--card-ink)}
+.actions{position:absolute;left:0;right:0;bottom:0;display:grid;gap:10px;padding:14px var(--margin) calc(var(--safe-bottom) + 10px);background:linear-gradient(to top,var(--bg) 72%,transparent)}
+</style>
+</head>
+<body>
+<script src="icons.js"></script>
+<script src="lukas-art.js"></script>
+<div class="top">
+  <a class="btn btn--bordered btn--sm" href="index.html">← Volver al style guide</a>
+  <button class="btn btn--gray btn--sm" onclick="document.documentElement.dataset.theme=document.documentElement.dataset.theme==='dark'?'light':'dark'">Cambiar tema</button>
+</div>
+<div class="frames">
+  <figure><div class="phone"><div class="scroll">
+    <div class="navbar navbar--large" style="padding-top:calc(var(--safe-top) + 4px)">
+      <div class="navbar__row"><button class="btn btn--filled btn--sm"><svg class="ico ico--sm"><use href="#i-plus"/></svg>Nueva tarea</button><span style="display:flex;gap:8px;align-items:center"><span class="menu-btn">🏡 Casa<svg class="ico"><use href="#i-chevron-updown"/></svg></span><span class="avatar avatar--lg">🌵</span></span></div>
+      <div class="navbar__title">Hola, Andrés</div><p class="t-subhead t-muted" style="margin-top:6px"><b style="color:var(--ink)">1 vencida</b> · <b style="color:var(--ink)">1 para hoy</b>. Lo demás va bien.</p>
+    </div>
+    <div class="filters"><span class="chip" aria-pressed="true">Todas <span class="chip__count">8</span></span><span class="chip">Mías</span><span class="chip">Hoy</span><span class="chip">🧹 Limpieza</span></div>
+    <div class="grid" id="g"></div>
+  </div><div class="tabwrap"><nav class="tabbar"><span class="tabbar__item" aria-current="page"><svg class="ico"><use href="#i-home"/></svg><span class="tabbar__label">Inicio</span></span><span class="tabbar__item"><svg class="ico"><use href="#i-manage"/></svg></span><span class="tabbar__item"><svg class="ico"><use href="#i-stats"/></svg></span><span class="tabbar__item"><svg class="ico"><use href="#i-settings"/></svg></span></nav></div></div>
+  <figcaption>Inicio · navbar large · chips · grid de tarjetas · tab bar</figcaption></figure>
+
+  <figure><div class="phone"><div class="scroll">
+    <header class="hero" style="--card:var(--leaf)">
+      <div class="bar"><span class="icon-btn"><svg class="ico"><use href="#i-back"/></svg></span><span class="icon-btn"><svg class="ico"><use href="#i-more-h"/></svg></span></div>
+      <div class="ring ring--lg" style="--p:.79"><svg viewBox="0 0 100 100"><circle class="ring__track" cx="50" cy="50" r="45"/><circle class="ring__bar" cx="50" cy="50" r="45" pathLength="100"/></svg><span class="ring__emoji">🌱</span></div>
+      <h1 class="t-title1">Regar plantas</h1><p class="t-callout" style="color:var(--card-ink-muted)">Cada 3 días desde la última vez · 09:00</p>
+      <span class="status status--soon"><svg class="ico" style="--icon-size:13px;--icon-stroke:3"><use href="#i-clock"/></svg>mañana 9:00</span>
+    </header>
+    <div style="padding-top:18px" class="list list--inset">
+      <div class="row"><span class="row__main"><span class="row__title">Próximo</span></span><span class="row__value">dom 11 oct, 09:00</span></div>
+      <div class="row"><span class="row__main"><span class="row__title">Le toca a</span></span><span class="row__value">🌸 Mari</span></div>
+      <div class="row"><span class="row__main"><span class="row__title">Lista</span></span><span class="row__value">🪴 Plantas</span></div>
+    </div>
+    <p class="t-body" style="margin:14px var(--margin) 0;padding:14px 16px;border-radius:var(--r-lg);background:var(--surface-2)">Las del balcón y el helecho de la sala. El cactus no.</p>
+  </div>
+  <div class="actions"><button class="btn btn--filled btn--lg btn--block"><svg class="ico"><use href="#i-check"/></svg>Hecha</button><button class="btn btn--bordered btn--block"><svg class="ico ico--md"><use href="#i-hand"/></svg>La hizo alguien más</button></div></div>
+  <figcaption>Detalle · tarjeta como encabezado · anillo grande · lista inset · barra de acción</figcaption></figure>
+</div>
+<script>
+const R=(p,e,o)=>`<div class="ring ${o?'is-overdue':''}" style="--p:${p}"><svg viewBox="0 0 100 100"><circle class="ring__track" cx="50" cy="50" r="44"/><circle class="ring__bar" cx="50" cy="50" r="44" pathLength="100"/></svg><span class="ring__emoji">${e}</span><i class="ring__alert"></i></div>`;
+const C={overdue:l=>`<span class="status status--overdue"><i class="status__dot"></i>${l}</span>`,soon:l=>`<span class="status status--soon"><svg class="ico" style="--icon-size:13px;--icon-stroke:3"><use href="#i-clock"/></svg>${l}</span>`,ok:l=>`<span class="status status--ok">${l}</span>`};
+g.innerHTML=[['stone','🗑️','Sacar la basura',1,'overdue','vencida hace 2 d','🌵'],['mint','🪣','Limpiar arenero',.9,'soon','hoy 20:00','🏡'],['leaf','🌱','Regar plantas',.79,'soon','mañana 9:00','🌸'],['calico','💊','Desparasitante de Lukas',.83,'soon','en 5 d','🌸']]
+ .map(([c,e,t,p,s,l,a])=>`<div class="task-card" style="--card:var(--${c})"><div class="task-card__top"><span class="avatar avatar--sm">${a}</span><span class="icon-btn icon-btn--on-card"><svg class="ico ico--md"><use href="#i-more-h"/></svg></span></div>${R(p,e,s==='overdue')}<div class="task-card__title">${t}</div><div class="task-card__foot">${C[s](l)}</div></div>`).join('');
+</script>
+</body>
+</html>

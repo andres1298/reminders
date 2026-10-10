@@ -1,0 +1,666 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Lukas · Sistema de diseño</title>
+<link rel="icon" id="favicon">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=DM+Sans:opsz,wght@9..40,400..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+/* chrome del style guide (los componentes viven en styles.css) */
+body{display:flex;min-height:100vh}
+nav.side{position:sticky;top:0;align-self:flex-start;height:100vh;width:228px;flex:0 0 228px;background:var(--surface);border-right:1px solid var(--separator);padding:20px 14px 40px;overflow:auto}
+.brand{display:flex;align-items:center;gap:10px;margin:0 6px 18px}
+.brand .mark{width:40px;height:40px;border-radius:12px;overflow:hidden;border:2px solid var(--stroke)}
+.brand b{font:800 20px/1 var(--font-display);letter-spacing:-.02em}
+.brand small{display:block;font:500 12px/1.2 var(--font-text);color:var(--ink-muted)}
+nav.side a{display:block;padding:7px 10px;border-radius:10px;font:500 13.5px/1.2 var(--font-text);color:var(--ink-muted);text-decoration:none}
+nav.side a:hover{background:var(--fill-1);color:var(--ink)}
+nav.side a.concept-link{margin:0 0 6px;padding:12px;font-weight:800;color:var(--on-accent);background:var(--accent);border:2px solid var(--stroke);box-shadow:var(--stamp);border-radius:14px}
+nav.side a.proto-link{margin:0 0 8px;padding:10px 12px;font-weight:700;color:var(--ink);background:var(--surface-2);border-radius:14px}
+nav.side .grp{font:700 11.5px/1 var(--font-text);color:var(--ink-muted);margin:18px 10px 6px}
+main{flex:1;min-width:0;padding:40px 48px 140px;max-width:1100px}
+header.hero{display:grid;grid-template-columns:1fr 200px;gap:32px;align-items:center;margin-bottom:48px}
+header.hero .art{width:200px}
+section{margin-bottom:64px;scroll-margin-top:24px}
+h2.sec{display:flex;align-items:center;flex-wrap:wrap;gap:8px;font:800 26px/1.1 var(--font-display);letter-spacing:-.02em;margin-bottom:6px}
+h3.sub{font:700 15px/1.2 var(--font-text);margin:22px 0 10px}
+.sec-desc{color:var(--ink-muted);font-size:15px;line-height:1.55;margin-bottom:20px;max-width:70ch}
+.stage{background:var(--surface);border-radius:var(--r-card);padding:28px;display:flex;flex-wrap:wrap;gap:28px;align-items:flex-start;border:1px solid var(--separator)}
+.stage--bg{background:var(--bg)}
+.stage--col{flex-direction:column;align-items:stretch}
+.cell{display:flex;flex-direction:column;align-items:center;gap:10px}
+.cell--start{align-items:flex-start}
+.spec{font:500 11.5px/1.3 ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--ink-muted)}
+.phone{width:360px;border-radius:36px;overflow:hidden;background:var(--bg);border:2px solid var(--fill-3);position:relative}
+.colors{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px}
+.sw{border-radius:16px;overflow:hidden;background:var(--surface);border:1px solid var(--separator)}
+.sw .c{height:64px;display:flex;align-items:flex-end;padding:8px 10px;font:800 15px/1 var(--font-display);color:var(--card-ink)}
+.sw .m{padding:8px 10px}.sw .n{font:700 12.5px/1.2 var(--font-text)}.sw .v{font:11px/1.4 ui-monospace,monospace;color:var(--ink-muted)}
+.typerow{display:grid;grid-template-columns:150px 1fr;align-items:baseline;gap:18px;padding:12px 0;border-bottom:1px solid var(--separator)}
+.typerow .tk{font:11.5px/1.4 ui-monospace,monospace;color:var(--ink-muted)}
+.sprow{display:flex;align-items:center;gap:12px;margin-bottom:8px}
+.sprow .bar{background:var(--ink);height:14px;border-radius:4px}.sprow .lbl{width:120px;font:12px ui-monospace,monospace;color:var(--ink-muted)}
+.iconGrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:10px}
+.iconGrid .it{background:var(--surface);border:1px solid var(--separator);border-radius:16px;padding:16px 6px 10px;display:flex;flex-direction:column;align-items:center;gap:8px}
+.iconGrid .nm{font:11px ui-monospace,monospace;color:var(--ink-muted)}
+.mat{position:relative;height:140px;border-radius:20px;overflow:hidden;background:repeating-linear-gradient(45deg,var(--leaf) 0 18px,var(--coral) 18px 36px,var(--sky) 36px 54px)}
+.mat div{position:absolute;inset:auto 12px 12px 12px;height:60px;border-radius:14px;display:grid;place-items:center;font:700 13px var(--font-text);-webkit-backdrop-filter:var(--mat-blur);backdrop-filter:var(--mat-blur)}
+.motion-demo{display:flex;gap:16px;flex-wrap:wrap}
+.motion-demo .lane{width:220px;height:44px;border-radius:999px;background:var(--surface-2);position:relative}
+.motion-demo .ball{position:absolute;left:4px;top:4px;width:36px;height:36px;border-radius:50%;background:var(--accent);border:2px solid var(--stroke)}
+.motion-demo.go .ball{transform:translateX(176px)}
+.grid2{display:grid;grid-template-columns:repeat(2,168px);gap:12px}
+.art-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:16px}
+.art-grid figure{background:var(--surface);border-radius:var(--r-card);padding:16px;border:1px solid var(--separator)}
+.art-grid figcaption{margin-top:10px;font:600 13px/1.3 var(--font-text)}
+.art-grid figcaption span{display:block;font-weight:400;color:var(--ink-muted)}
+.contrast td,.contrast th{padding:6px 10px;text-align:left;font:13px/1.3 var(--font-text);border-bottom:1px solid var(--separator)}
+.contrast th{color:var(--ink-muted);font-weight:600}
+/* top controls + Dev Mode + Inspector + Copy-as-prompt */
+#topctl{position:fixed;top:14px;right:18px;z-index:50;display:flex;gap:8px;align-items:center}
+#topctl select,#topctl button{font:600 12.5px var(--font-text);border:1px solid var(--separator);border-radius:999px;padding:8px 12px;background:var(--surface);color:var(--ink);min-height:36px}
+#devToggle.on{background:var(--ink);color:var(--bg)}
+.sec-prompt{font:700 11.5px var(--font-text);border:1.5px solid var(--ink);background:var(--surface);color:var(--ink);border-radius:999px;padding:4px 10px;cursor:pointer}
+body.dev [data-insp]:hover{outline:2px dashed var(--ink-muted);outline-offset:4px;cursor:pointer}
+.insp-sel{outline:2.5px solid var(--ink)!important;outline-offset:4px}
+#inspector{position:fixed;top:0;right:0;width:350px;height:100vh;background:var(--surface);border-left:1px solid var(--separator);box-shadow:var(--elev-2);transform:translateX(100%);transition:transform var(--dur-3) var(--ease-out);z-index:49;overflow:auto;padding:64px 20px 40px}
+body.inspecting #inspector{transform:none}
+body.inspecting main{margin-right:350px}
+#inspector .iclose{position:absolute;top:14px;right:14px}
+#inspector .nm{font:800 22px var(--font-display)}
+#inspector .file{font:12px ui-monospace,monospace;color:var(--ink-muted);margin-top:2px}
+#inspector .desc{font-size:13.5px;color:var(--ink-muted);line-height:1.55;margin-top:10px}
+#inspector h4{font:700 12px var(--font-text);color:var(--ink-muted);margin:20px 0 8px}
+.prop{padding:8px 0;border-bottom:1px solid var(--separator)}.prop .pn{font:700 13px ui-monospace,monospace}.prop .pt{font:11.5px ui-monospace,monospace;color:var(--ink-muted)}.prop .pdef{font:11.5px ui-monospace,monospace;color:var(--ink-muted)}
+.tok{display:flex;align-items:center;gap:10px;padding:7px 8px;border-radius:10px;cursor:pointer}.tok:hover{background:var(--fill-1)}
+.tok .tsw{width:22px;height:22px;border-radius:7px;border:1px solid var(--separator);flex:0 0 22px}.tok .tn{font:700 12px ui-monospace,monospace}.tok .tr{font-size:11px;color:var(--ink-muted)}.tok .tv{margin-left:auto;font:11px ui-monospace,monospace;color:var(--ink-muted)}
+.metric{display:flex;justify-content:space-between;font:12px ui-monospace,monospace;padding:6px 0;border-bottom:1px dashed var(--separator)}.metric .mk{color:var(--ink-muted)}
+.copied{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:60;opacity:0;transition:opacity .2s;pointer-events:none}.copied.show{opacity:1}
+@media (max-width:860px){nav.side{display:none}main{padding:72px 16px 120px}header.hero{grid-template-columns:1fr}.phone{width:100%}.grid2{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+<script src="icons.js"></script>
+<script src="lukas-art.js"></script>
+
+<div id="topctl">
+  <button onclick="toggleTheme()" id="themeBtn">Tema: claro</button>
+  <button onclick="copyFullSystem()" title="Prompt para instalar o actualizar todo el sistema">⤓ Instalar sistema</button>
+  <select id="langSel" title="Lenguaje del prompt"></select>
+  <button id="devToggle" onclick="toggleDev()">◧ Dev Mode</button>
+</div>
+<aside id="inspector"><button class="icon-btn iclose" onclick="closeInspector()" aria-label="Cerrar inspector"><svg class="ico ico--sm"><use href="#i-close"/></svg></button><div id="inspectorBody"></div></aside>
+<div class="copied" id="copied"><div class="toast"><span class="toast__msg" id="copiedMsg">Copiado</span></div></div>
+
+<nav class="side" aria-label="Secciones">
+  <div class="brand"><div class="mark" id="brandMark"></div><div><b>Lukas</b><small>Sistema de diseño · HIG</small></div></div>
+  <a class="concept-link" href="concept.html">Vista de concepto</a>
+  <a class="proto-link" href="../prototype/index.html">Prototipo navegable</a>
+  <div class="grp">Fundamentos</div>
+  <a href="#colors">Color</a><a href="#type">Tipografía</a><a href="#materials">Materiales</a><a href="#shape">Radios</a><a href="#spacing">Espaciado y layout</a><a href="#elevation">Elevación y sello</a><a href="#motion">Movimiento</a><a href="#icons">Íconos</a><a href="#art">Ilustraciones</a>
+  <div class="grp">Barras</div>
+  <a href="#navbar">Navigation bar</a><a href="#tabbar">Tab bar</a><a href="#toolbar">Toolbar</a><a href="#searchbar">Search bar</a>
+  <div class="grp">Contenido</div>
+  <a href="#list">Listas y tablas</a><a href="#section">Section header/footer</a><a href="#card">Cards</a><a href="#disclosure">Disclosure group</a>
+  <div class="grp">Controles</div>
+  <a href="#button">Buttons</a><a href="#menubutton">Pull-down / pop-up</a><a href="#segmented">Segmented control</a><a href="#slider">Slider</a><a href="#stepper">Stepper</a><a href="#toggle">Toggle</a><a href="#pickers">Pickers</a><a href="#textfield">Text field</a><a href="#texteditor">Text editor</a><a href="#progress">Progress</a><a href="#pagecontrol">Page control</a>
+  <div class="grp">Presentación</div>
+  <a href="#sheet">Sheet</a><a href="#actionsheet">Action sheet</a><a href="#alert">Alert</a><a href="#popover">Popover</a><a href="#contextmenu">Context menu</a><a href="#activity">Activity view</a>
+  <div class="grp">Estado</div>
+  <a href="#badge">Badge</a>
+  <div class="grp">Extensiones Lukas</div>
+  <a href="#taskcard">Tarjeta de tarea</a><a href="#ring">Anillo de progreso</a><a href="#status">Chip de estado</a><a href="#chip">Chip de filtro</a><a href="#avatar">Avatar</a><a href="#swatches">Selector de color</a><a href="#weekdays">Días de la semana</a><a href="#people">Responsable</a><a href="#emojiwell">Emoji well</a><a href="#toast">Toast</a><a href="#skeleton">Skeleton</a><a href="#empty">Estado vacío</a>
+</nav>
+
+<main>
+  <header class="hero">
+    <div>
+      <h1 class="t-large-title">Lukas · sistema de diseño</h1>
+      <p class="sec-desc" style="margin-top:10px">Chunky, herbal y con sello de tinta. La estructura sigue Apple HIG (roles de color, estilos de texto, barras, controles y presentación modal); el look sale de <code>docs/SPEC.md</code> §5. Todo vive como tokens en <code>styles.css</code>: cambiar un token re-tematiza todo. Activa <b>Dev Mode</b> para inspeccionar cualquier componente y <b>Copiar como prompt</b> para implementarlo.</p>
+    </div>
+    <div class="art" id="heroArt"></div>
+  </header>
+
+  <!-- ================= FUNDAMENTOS ================= -->
+  <section id="colors"><h2 class="sec">Color</h2>
+    <p class="sec-desc">Roles semánticos con nombres HIG. Cada fondo viene con su color de texto (<code>--x</code> / <code>--on-x</code>), con el contraste verificado numéricamente. Las tarjetas usan siempre tinta <code>#151515</code>, también en oscuro.</p>
+    <h3 class="sub">Roles</h3><div class="colors" id="roleGrid"></div>
+    <h3 class="sub">Paleta de tarjetas · 20 tonos + sin color</h3><div class="colors" id="cardGrid"></div>
+    <h3 class="sub">Colores de sistema HIG → paleta herbal</h3><div class="colors" id="sysGrid"></div>
+    <h3 class="sub">Contraste verificado</h3>
+    <table class="contrast"><thead><tr><th>Par</th><th>Claro</th><th>Oscuro</th><th>Uso</th></tr></thead><tbody>
+      <tr><td>ink / bg</td><td>16.8 : 1</td><td>15.9 : 1</td><td>texto</td></tr>
+      <tr><td>ink-muted / bg</td><td>6.4 : 1</td><td>7.3 : 1</td><td>texto secundario, placeholders</td></tr>
+      <tr><td>ink-muted / surface-2</td><td>5.8 : 1</td><td>5.4 : 1</td><td>texto en inputs</td></tr>
+      <tr><td>#151515 / pasteles</td><td colspan="2">7.6 : 1 (coral) … 15.7 : 1 (paper)</td><td>todas las tarjetas</td></tr>
+      <tr><td>mostaza / #151515</td><td colspan="2">11.8 : 1</td><td>CTA, chip "pronto"</td></tr>
+      <tr><td>coral / #151515</td><td colspan="2">7.6 : 1</td><td>chip "vencida"</td></tr>
+      <tr><td>danger #9E3B1F / bg</td><td>6.2 : 1</td><td>—</td><td>texto destructivo</td></tr>
+    </tbody></table>
+  </section>
+
+  <section id="type"><h2 class="sec">Tipografía</h2>
+    <p class="sec-desc">Los 11 estilos de texto HIG. Títulos en <b>Bricolage Grotesque</b> (700–800, tamaño óptico automático); UI y texto en <b>DM Sans</b>. La escala base del spec (32/24/20/16/14) se mantiene; el tracking se cierra a medida que crece el tamaño.</p>
+    <div id="typeList"></div>
+  </section>
+
+  <section id="materials"><h2 class="sec">Materiales</h2>
+    <p class="sec-desc">Se usan en lugar de sombras pesadas: detrás de la barra de navegación, toolbars, action sheets y menús. Base crema (o casi negro) con desenfoque y saturación.</p>
+    <div class="stage" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr))">
+      <div class="mat"><div style="background:var(--mat-ultrathin)">ultraThin</div></div>
+      <div class="mat"><div style="background:var(--mat-thin)">thin</div></div>
+      <div class="mat"><div style="background:var(--mat-regular)">regular</div></div>
+      <div class="mat"><div style="background:var(--mat-thick)">thick</div></div>
+      <div class="mat"><div style="background:var(--mat-chrome)">chrome</div></div>
+    </div>
+  </section>
+
+  <section id="shape"><h2 class="sec">Radios</h2>
+    <p class="sec-desc">Esquinas muy redondeadas: tarjetas de 28, sheets de 32 arriba, botones y chips en pill.</p>
+    <div class="stage" id="radiusList"></div>
+  </section>
+
+  <section id="spacing"><h2 class="sec">Espaciado y layout</h2>
+    <p class="sec-desc">Ritmo de 4/8. Margen de layout de 20 px y separación de 12 px entre tarjetas. Objetivo táctil mínimo de 44, controles de 48 y botones principales de 56. Respeta las áreas seguras (<code>env(safe-area-inset-*)</code>).</p>
+    <div id="spacingList"></div>
+  </section>
+
+  <section id="elevation"><h2 class="sec">Elevación y sello</h2>
+    <p class="sec-desc">Casi plano. Los elementos interactivos principales llevan un <b>sello</b>: borde de tinta de 2 px y sombra dura de 3 px que desaparece al presionar (el elemento "baja"). Solo los sheets y popovers flotan con una sombra suave y cálida. En oscuro, el sello se vuelve sombra negra.</p>
+    <div class="stage stage--bg">
+      <div class="cell"><div class="card" style="width:150px;height:90px;box-shadow:none;border:0;background:var(--surface)"></div><div class="spec">elev-0 · plano</div></div>
+      <div class="cell"><div class="card" style="width:150px;height:90px"></div><div class="spec">stamp · 2px + 0 3px 0</div></div>
+      <div class="cell"><div class="card" style="width:150px;height:90px;border:0;box-shadow:var(--elev-1)"></div><div class="spec">elev-1 · popover / menú</div></div>
+      <div class="cell"><div class="card" style="width:150px;height:90px;border:0;box-shadow:var(--elev-2)"></div><div class="spec">elev-2 · sheet / alerta</div></div>
+    </div>
+  </section>
+
+  <section id="motion"><h2 class="sec">Movimiento</h2>
+    <p class="sec-desc">Se anima solo <code>transform</code> y <code>opacity</code> (60 fps). Resorte del spec (stiffness 400, damping 35) como curva <code>linear()</code>. Con <code>prefers-reduced-motion</code>, los desplazamientos pasan a fundidos cortos y se quita el confeti. Toca para reproducir.</p>
+    <div class="stage stage--col">
+      <div class="motion-demo" id="motionDemo" onclick="this.classList.toggle('go')" style="cursor:pointer">
+        <div class="cell cell--start"><div class="lane"><div class="ball" style="transition:transform var(--dur-3) var(--ease-out)"></div></div><div class="spec">--ease-out · 280ms · pantallas</div></div>
+        <div class="cell cell--start"><div class="lane"><div class="ball" style="transition:transform var(--dur-spring) var(--ease-spring)"></div></div><div class="spec">--ease-spring · 520ms · sheets, toggles</div></div>
+        <div class="cell cell--start"><div class="lane"><div class="ball" style="transition:transform var(--dur-1) var(--ease-out)"></div></div><div class="spec">--dur-1 · 120ms · press</div></div>
+      </div>
+      <table class="contrast"><tbody>
+        <tr><th>Cambio de pantalla</th><td>slide horizontal + fade (push/pop), 280 ms · View Transitions</td></tr>
+        <tr><th>Tarjeta → detalle</th><td>elemento compartido: la tarjeta crece hasta ser el encabezado del detalle</td></tr>
+        <tr><th>Bottom sheet</th><td>resorte 400/35, arrastrable para cerrar</td></tr>
+        <tr><th>Entrada del grid</th><td>escalonado de 40 ms; cada tarjeta sube 12 px</td></tr>
+        <tr><th>Completar</th><td>el anillo se vacía, squash &amp; stretch, confeti de hojitas, reordenamiento con FLIP, vibración</td></tr>
+        <tr><th>Press</th><td>baja 3 px y se aplasta el sello (escala 0.98); vuelve con resorte</td></tr>
+      </tbody></table>
+    </div>
+  </section>
+
+  <section id="icons"><h2 class="sec">Íconos</h2>
+    <p class="sec-desc">Sprite SVG propio con la geometría de Phosphor <i>bold</i> (24 px, trazo 2.25 redondeado). Se tiñe con <code>currentColor</code> y <code>--icon-stroke</code>. Los emoji son contenido (tareas, avatares), nunca íconos de UI.</p>
+    <div class="iconGrid" id="iconGrid"></div>
+  </section>
+
+  <section id="art"><h2 class="sec">Ilustraciones</h2>
+    <p class="sec-desc">Lukas en tinta tipo grabado: antifaz negro, raya blanca, mancha canela en trama y ojos verde-amarillo (el único color). Son SVG a mano en <code>lukas-art.js</code>; en oscuro van sobre una placa crema para no invertir a la gata.</p>
+    <div class="art-grid">
+      <figure><div class="art" data-art="icon"></div><figcaption>Ícono de app y favicon<span>Cara en tinta sobre crema</span></figcaption></figure>
+      <figure><div class="art" data-art="sleepingPot"></div><figcaption>Nada pendiente<span>Lukas dormida en una maceta</span></figcaption></figure>
+      <figure><div class="art" data-art="face"></div><figcaption>Avatar del bot / onboarding<span>Lukas-remind-it</span></figcaption></figure>
+      <figure><div class="art" data-art="peek"></div><figcaption>Fin de la lista<span>Lukas se asoma</span></figcaption></figure>
+      <figure><div class="art" data-art="sprout" style="width:96px;margin:auto"></div><figcaption>Carga larga<span>Brote que crece (animado)</span></figcaption></figure>
+    </div>
+  </section>
+
+  <!-- ================= BARRAS ================= -->
+  <section id="navbar"><h2 class="sec">Navigation bar</h2>
+    <p class="sec-desc">Estándar (título en línea, material regular) para pantallas profundas; título grande para las pantallas raíz. En Inicio, la fila superior lleva el pill "Nueva tarea" y el avatar.</p>
+    <div class="stage stage--bg">
+      <div class="cell"><div class="phone" data-insp="navbar"><div class="navbar" style="position:relative"><button class="icon-btn icon-btn--ghost" aria-label="Volver"><svg class="ico"><use href="#i-back"/></svg></button><div class="navbar__title">Sacar la basura</div><button class="icon-btn icon-btn--ghost" aria-label="Más"><svg class="ico"><use href="#i-more-h"/></svg></button></div></div><div class="spec">standard · inline</div></div>
+      <div class="cell"><div class="phone" data-insp="navbar"><div class="navbar navbar--large"><div class="navbar__row"><button class="btn btn--filled btn--sm"><svg class="ico ico--sm"><use href="#i-plus"/></svg>Nueva tarea</button><span class="avatar avatar--lg">🌵</span></div><div class="navbar__title">Hola, Andrés</div><p class="t-subhead t-muted" style="margin-top:4px">1 vencida · 1 para hoy</p></div></div><div class="spec">large title</div></div>
+    </div>
+  </section>
+
+  <section id="tabbar"><h2 class="sec">Tab bar</h2>
+    <p class="sec-desc">Pill flotante en tinta (como la referencia chunky): Inicio · Gestionar · Estadísticas · Ajustes. La pestaña activa se expande en mostaza y muestra su nombre; las demás llevan <code>aria-label</code>.</p>
+    <div class="stage stage--bg">
+      <div class="cell" style="width:340px"><nav class="tabbar" data-insp="tabbar" aria-label="Principal">
+        <a class="tabbar__item" aria-current="page" href="#tabbar"><svg class="ico"><use href="#i-home"/></svg><span class="tabbar__label">Inicio</span></a>
+        <a class="tabbar__item" href="#tabbar" aria-label="Gestionar"><svg class="ico"><use href="#i-manage"/></svg><span class="tabbar__label">Gestionar</span></a>
+        <a class="tabbar__item" href="#tabbar" aria-label="Estadísticas"><svg class="ico"><use href="#i-stats"/></svg><span class="tabbar__label">Estadísticas</span></a>
+        <a class="tabbar__item" href="#tabbar" aria-label="Ajustes"><svg class="ico"><use href="#i-settings"/></svg><span class="tabbar__label">Ajustes</span></a>
+      </nav><div class="spec">Inicio activo</div></div>
+    </div>
+  </section>
+
+  <section id="toolbar"><h2 class="sec">Toolbar</h2>
+    <p class="sec-desc">Barra inferior con material grueso. Dos usos: acciones secundarias con ícono y etiqueta, o la barra de acción principal del detalle ("Hecha" + "La hizo alguien más").</p>
+    <div class="stage stage--bg stage--col">
+      <div class="phone" data-insp="toolbar"><div class="toolbar toolbar--icons">
+        <button class="toolbar__action"><svg class="ico"><use href="#i-snooze"/></svg>Posponer</button>
+        <button class="toolbar__action"><svg class="ico"><use href="#i-skip"/></svg>Saltar</button>
+        <button class="toolbar__action"><svg class="ico"><use href="#i-edit"/></svg>Editar</button>
+        <button class="toolbar__action toolbar__action--danger"><svg class="ico"><use href="#i-trash"/></svg>Borrar</button>
+      </div></div>
+      <div class="phone" data-insp="toolbar"><div class="toolbar" style="flex-direction:column">
+        <button class="btn btn--filled btn--lg btn--block"><svg class="ico"><use href="#i-check"/></svg>Hecha</button>
+        <button class="btn btn--bordered btn--lg btn--block"><svg class="ico"><use href="#i-hand"/></svg>La hizo alguien más</button>
+      </div></div>
+    </div>
+  </section>
+
+  <section id="searchbar"><h2 class="sec">Search bar</h2>
+    <p class="sec-desc">Pill de 48 en <code>surface-2</code>; al enfocar aparece un borde de tinta interior. Se usa en el selector de emoji y en Gestionar.</p>
+    <div class="stage"><div class="cell" style="width:320px"><label class="search" data-insp="searchbar"><svg class="ico ico--md"><use href="#i-search"/></svg><input placeholder="Buscar emoji: planta, gato, basura…" aria-label="Buscar emoji"></label></div></div>
+  </section>
+
+  <!-- ================= CONTENIDO ================= -->
+  <section id="list"><h2 class="sec">Listas y tablas</h2>
+    <p class="sec-desc">Plain, grouped e inset-grouped. Las filas llevan elemento inicial (emoji o ícono), título, subtítulo, valor final y chevron. Separadores con sangría.</p>
+    <div class="stage stage--bg">
+      <div class="cell"><div class="phone" style="padding:16px 0" data-insp="list">
+        <div class="list list--inset">
+          <button class="row row--lead"><span class="row__lead">🗑️</span><span class="row__main"><span class="row__title">Sacar la basura</span><span class="row__sub">Mar y jue · 19:00 · Andrés</span></span><span class="status status--overdue"><i class="status__dot"></i>vencida</span></button>
+          <button class="row row--lead"><span class="row__lead">🌱</span><span class="row__main"><span class="row__title">Regar plantas</span><span class="row__sub">Cada 3 días · desde la última vez</span></span><svg class="ico row__chev"><use href="#i-chevron-right"/></svg></button>
+          <div class="row row--lead"><span class="row__lead">🧹</span><span class="row__main"><span class="row__title">Barrer</span><span class="row__sub">Jueves · 10:00</span></span><label class="switch"><input type="checkbox" checked aria-label="Activa"><span class="switch__track"></span></label></div>
+        </div>
+      </div><div class="spec">inset-grouped</div></div>
+      <div class="cell"><div class="phone" data-insp="list">
+        <div class="list list--plain">
+          <div class="row"><span class="row__main"><span class="row__title">Próximo</span></span><span class="row__value">mar 13 oct, 19:00</span></div>
+          <div class="row"><span class="row__main"><span class="row__title">Le toca a</span></span><span class="row__value">🌵 Andrés</span></div>
+          <div class="row"><span class="row__main"><span class="row__title">Lista</span></span><span class="row__value">🧹 Limpieza</span></div>
+        </div>
+      </div><div class="spec">plain</div></div>
+    </div>
+  </section>
+
+  <section id="section"><h2 class="sec">Section header / footer</h2>
+    <p class="sec-desc">Encabezado pequeño para grupos de filas; encabezado grande (Bricolage 20) para secciones de pantalla. El pie explica consecuencias.</p>
+    <div class="stage stage--bg"><div class="phone" data-insp="section" style="padding-bottom:16px">
+      <div class="section-header section-header--lg">Historial</div>
+      <div class="section-header">Avisos por Telegram</div>
+      <div class="list list--inset"><div class="row"><span class="row__main"><span class="row__title">Resumen del día</span></span><span class="row__value">07:00</span></div></div>
+      <div class="section-footer">El resumen se envía siempre, aunque no haya tareas.</div>
+    </div></div>
+  </section>
+
+  <section id="card"><h2 class="sec">Cards</h2>
+    <p class="sec-desc">Contenedor agrupado propio: superficie blanca, radio 28, sello de tinta. La variante plana (<code>surface-2</code>, sin sello) es para contenido no interactivo.</p>
+    <div class="stage stage--bg">
+      <div class="card" data-insp="card" style="width:260px"><div class="t-title3">Modo vacaciones</div><p class="t-subhead t-muted" style="margin-top:6px">Lukas cuida la casa: no hay avisos por tarea hasta que lo apagues.</p><button class="btn btn--bordered btn--sm" style="margin-top:14px"><svg class="ico ico--sm"><use href="#i-umbrella"/></svg>Activar</button></div>
+      <div class="card card--flat" data-insp="card" style="width:260px"><div class="t-headline">Resumen</div><p class="t-subhead t-muted" style="margin-top:6px">3 vencidas · 2 para hoy · 6 esta semana</p></div>
+    </div>
+  </section>
+
+  <section id="disclosure"><h2 class="sec">Disclosure group</h2>
+    <p class="sec-desc">Secciones plegables de Gestionar: Pausadas, Terminadas y Papelera.</p>
+    <div class="stage stage--bg"><div style="width:340px;display:flex;flex-direction:column;gap:10px" data-insp="disclosure">
+      <details class="disclosure" open><summary><svg class="ico ico--md"><use href="#i-pause"/></svg>Pausadas <span class="badge badge--ink">2</span><svg class="ico ico--sm"><use href="#i-chevron-right"/></svg></summary><div class="disclosure__body t-subhead t-muted">🪴 Abonar plantas · 🧺 Lavar cortinas</div></details>
+      <details class="disclosure"><summary><svg class="ico ico--md"><use href="#i-trash"/></svg>Papelera<svg class="ico ico--sm"><use href="#i-chevron-right"/></svg></summary><div class="disclosure__body t-subhead t-muted">Nada borrado.</div></details>
+    </div></div>
+  </section>
+
+  <!-- ================= CONTROLES ================= -->
+  <section id="button"><h2 class="sec">Buttons</h2>
+    <p class="sec-desc">Los seis estilos HIG más el rol destructivo. <b>Filled</b> (mostaza con sello) es la acción principal, una por pantalla. Presiona para ver cómo baja el sello.</p>
+    <div class="stage stage--bg">
+      <div class="cell"><button class="btn btn--filled btn--lg" data-insp="button"><svg class="ico"><use href="#i-check"/></svg>Hecha</button><div class="spec">filled · lg 56</div></div>
+      <div class="cell"><button class="btn btn--prominent" data-insp="button">Guardar</button><div class="spec">bordered-prominent</div></div>
+      <div class="cell"><button class="btn btn--bordered" data-insp="button"><svg class="ico ico--md"><use href="#i-hand"/></svg>La hizo alguien más</button><div class="spec">bordered</div></div>
+      <div class="cell"><button class="btn btn--tinted" data-insp="button">Posponer +1 h</button><div class="spec">tinted</div></div>
+      <div class="cell"><button class="btn btn--gray" data-insp="button">Saltar esta vez</button><div class="spec">gray</div></div>
+      <div class="cell"><button class="btn btn--plain" data-insp="button">Ver historial</button><div class="spec">plain</div></div>
+      <div class="cell"><button class="btn btn--gray btn--destructive" data-insp="button"><svg class="ico ico--md"><use href="#i-trash"/></svg>Borrar</button><div class="spec">destructive</div></div>
+      <div class="cell"><button class="btn btn--filled is-pressed" data-insp="button">Presionado</button><div class="spec">pressed</div></div>
+      <div class="cell"><button class="btn btn--filled" disabled data-insp="button">Guardar</button><div class="spec">disabled</div></div>
+      <div class="cell"><button class="btn btn--filled btn--sm" data-insp="button"><svg class="ico ico--sm"><use href="#i-plus"/></svg>Nueva tarea</button><div class="spec">sm 36 (área 44)</div></div>
+      <div class="cell"><div style="display:flex;gap:10px"><button class="icon-btn" aria-label="Volver" data-insp="iconbutton"><svg class="ico"><use href="#i-back"/></svg></button><button class="icon-btn icon-btn--bordered" aria-label="Más" data-insp="iconbutton"><svg class="ico"><use href="#i-more-h"/></svg></button><button class="icon-btn icon-btn--ink" aria-label="Agregar" data-insp="iconbutton"><svg class="ico"><use href="#i-plus"/></svg></button><span style="background:var(--leaf);padding:6px;border-radius:14px"><button class="icon-btn icon-btn--on-card" aria-label="Acciones" data-insp="iconbutton"><svg class="ico ico--md"><use href="#i-more-h"/></svg></button></span></div><div class="spec">icon buttons · 44</div></div>
+    </div>
+  </section>
+
+  <section id="menubutton"><h2 class="sec">Pull-down / pop-up menu button</h2>
+    <p class="sec-desc">Pop-up para elegir un valor (unidad del intervalo, hogar actual); pull-down para acciones. Abre un <a href="#contextmenu">menú</a>.</p>
+    <div class="stage"><div class="cell"><button class="menu-btn" data-insp="menubutton">🏡 Casa<svg class="ico"><use href="#i-chevron-updown"/></svg></button><div class="spec">pop-up · hogar</div></div>
+      <div class="cell"><button class="menu-btn" data-insp="menubutton">días<svg class="ico"><use href="#i-chevron-down"/></svg></button><div class="spec">pop-up · unidad</div></div></div>
+  </section>
+
+  <section id="segmented"><h2 class="sec">Segmented control</h2>
+    <p class="sec-desc">Pill en <code>surface-2</code> con un indicador de tinta que se desliza con resorte. Se usa para el tipo de programación y el ancla del intervalo.</p>
+    <div class="stage stage--col" style="max-width:420px">
+      <div class="segmented" style="--n:4;--i:0" data-insp="segmented" role="group" aria-label="Tipo de programación" id="segDemo"><span class="segmented__thumb"></span>
+        <button aria-pressed="true">Intervalo</button><button aria-pressed="false">Días</button><button aria-pressed="false">Día del mes</button><button aria-pressed="false">Una vez</button></div>
+      <div class="segmented segmented--sm" style="--n:2;--i:0" data-insp="segmented" id="segDemo2"><span class="segmented__thumb"></span><button aria-pressed="true">Desde la última vez</button><button aria-pressed="false">Desde la fecha</button></div>
+    </div>
+  </section>
+
+  <section id="slider"><h2 class="sec">Slider</h2>
+    <p class="sec-desc">Pista de tinta con pulgar mostaza sellado. Uso previsto: hora del resumen diario (pasos de 15 min).</p>
+    <div class="stage"><div class="cell cell--start" style="width:320px"><input type="range" class="slider" min="0" max="100" value="30" style="--v:30%" data-insp="slider" aria-label="Hora del resumen" oninput="this.style.setProperty('--v',this.value+'%')"><div class="spec">--v controla el relleno</div></div></div>
+  </section>
+
+  <section id="stepper"><h2 class="sec">Stepper</h2>
+    <p class="sec-desc">Para "cada <i>n</i>": botones de 40 sobre una pill; el número va en Bricolage tabular.</p>
+    <div class="stage"><div class="stepper" data-insp="stepper"><button aria-label="Menos" onclick="step(this,-1)">−</button><output>3</output><button aria-label="Más" onclick="step(this,1)">+</button></div></div>
+  </section>
+
+  <section id="toggle"><h2 class="sec">Toggle</h2>
+    <p class="sec-desc">Switch de 56×34. Encendido en verde musgo (no depende solo del color: la perilla se desplaza).</p>
+    <div class="stage">
+      <div class="cell"><label class="switch" data-insp="toggle"><input type="checkbox" checked aria-label="Encendido"><span class="switch__track"></span></label><div class="spec">on</div></div>
+      <div class="cell"><label class="switch" data-insp="toggle"><input type="checkbox" aria-label="Apagado"><span class="switch__track"></span></label><div class="spec">off</div></div>
+      <div class="cell"><label class="switch" data-insp="toggle"><input type="checkbox" disabled aria-label="Deshabilitado"><span class="switch__track"></span></label><div class="spec">disabled</div></div>
+    </div>
+  </section>
+
+  <section id="pickers"><h2 class="sec">Pickers</h2>
+    <p class="sec-desc">En la web se usan los inputs nativos de fecha y hora (que en iPhone abren la rueda del sistema), vestidos como pill. La rueda se documenta como referencia visual.</p>
+    <div class="stage">
+      <div class="cell"><div class="wheel" style="width:220px" data-insp="pickers"><div class="wheel__col"><span>07</span><span>08</span><span class="is-sel">09</span><span>10</span><span>11</span></div><div class="wheel__col"><span>45</span><span>50</span><span class="is-sel">00</span><span>05</span><span>10</span></div></div><div class="spec">wheel</div></div>
+      <div class="cell"><label class="time-pill" data-insp="pickers"><svg class="ico ico--md"><use href="#i-clock"/></svg><input type="time" value="09:00" class="sr-only" aria-label="Hora">09:00</label><div class="spec">time</div></div>
+      <div class="cell"><input type="date" class="input" value="2026-10-20" style="width:190px" data-insp="pickers" aria-label="Fecha"><div class="spec">date</div></div>
+    </div>
+  </section>
+
+  <section id="textfield"><h2 class="sec">Text field</h2>
+    <p class="sec-desc">Campo de 48 en <code>surface-2</code>; al enfocar pasa a blanco con borde de tinta. La variante de título (Bricolage 22, centrada) es el nombre de la tarea en el sheet de crear.</p>
+    <div class="stage" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr))">
+      <div class="field" data-insp="textfield"><label class="field__label" for="tf1">Nombre</label><input id="tf1" class="input" placeholder="¿Qué hay que hacer?"></div>
+      <div class="field" data-insp="textfield"><label class="field__label" for="tf2">Nombre</label><input id="tf2" class="input" value="Regar plantas"></div>
+      <div class="field" data-insp="textfield"><label class="field__label" for="tf3">Nombre</label><input id="tf3" class="input is-error" value=""><span class="field__help is-error">Ponle un nombre para poder guardarla.</span></div>
+      <div class="field" data-insp="textfield"><label class="field__label" for="tf4">Hogar</label><input id="tf4" class="input" value="Casa" disabled></div>
+      <div class="field" data-insp="textfield"><input class="input input--title" value="Regar plantas" aria-label="Nombre de la tarea"></div>
+    </div>
+  </section>
+
+  <section id="texteditor"><h2 class="sec">Text editor</h2>
+    <p class="sec-desc">Descripción multilínea, texto plano, hasta 500 caracteres.</p>
+    <div class="stage"><div class="field" style="width:340px" data-insp="texteditor"><label class="field__label" for="te">Descripción</label><textarea id="te" class="textarea" placeholder="Opcional: detalles, dónde está, cómo se hace"></textarea><span class="field__help">0 / 500</span></div></div>
+  </section>
+
+  <section id="progress"><h2 class="sec">Progress</h2>
+    <p class="sec-desc">Barra determinada (estadísticas por persona) y actividad indeterminada. Para cargas largas se usa el brote animado de Lukas.</p>
+    <div class="stage">
+      <div class="cell cell--start" style="width:260px"><div class="progress" style="--v:68%" data-insp="progress"><i></i></div><div class="spec">bar · 68%</div></div>
+      <div class="cell"><div class="spinner" data-insp="progress" role="status" aria-label="Cargando"></div><div class="spec">activity</div></div>
+      <div class="cell"><div class="art" data-art="sprout" style="width:72px" data-insp="progress"></div><div class="spec">brote</div></div>
+    </div>
+  </section>
+
+  <section id="pagecontrol"><h2 class="sec">Page control</h2>
+    <p class="sec-desc">Onboarding y plantillas sugeridas. El punto activo se alarga.</p>
+    <div class="stage"><div class="page-control" data-insp="pagecontrol"><i class="is-on"></i><i></i><i></i></div></div>
+  </section>
+
+  <!-- ================= PRESENTACIÓN ================= -->
+  <section id="sheet"><h2 class="sec">Sheet</h2>
+    <p class="sec-desc">Sheet inferior con radio 32, agarradera arrastrable, encabezado (Cancelar · título · acción) y pie fijo con la acción principal a todo el ancho. Entra con resorte.</p>
+    <div class="stage stage--bg"><div class="phone" style="height:440px;background:var(--surface-2)" data-insp="sheet">
+      <div class="sheet is-open" style="max-height:400px">
+        <div class="sheet__grabber"></div>
+        <div class="sheet__head"><button class="btn btn--plain btn--sm">Cancelar</button><div class="sheet__title">Nueva tarea</div><span style="width:72px"></span></div>
+        <div class="sheet__body"><div style="display:grid;place-items:center;padding:8px 0 12px"><div class="emoji-well" style="--card:var(--leaf)">🌱</div></div><input class="input input--title" value="Regar plantas" aria-label="Nombre"></div>
+        <div class="sheet__foot"><button class="btn btn--filled btn--lg btn--block">Guardar</button></div>
+      </div></div></div>
+  </section>
+
+  <section id="actionsheet"><h2 class="sec">Action sheet</h2>
+    <p class="sec-desc">El botón "…" de una tarjeta abre las mismas acciones que el detalle. Cancelar va separado y en peso fuerte.</p>
+    <div class="stage stage--bg"><div style="width:340px" data-insp="actionsheet"><div class="action-sheet">
+      <div class="action-sheet__group"><div class="action-sheet__title">🗑️ Sacar la basura · vencida hace 2 d</div>
+        <button class="action-sheet__btn"><svg class="ico ico--md"><use href="#i-check"/></svg>Hecha</button>
+        <button class="action-sheet__btn"><svg class="ico ico--md"><use href="#i-hand"/></svg>La hizo alguien más</button>
+        <button class="action-sheet__btn"><svg class="ico ico--md"><use href="#i-snooze"/></svg>Posponer</button>
+        <button class="action-sheet__btn"><svg class="ico ico--md"><use href="#i-skip"/></svg>Saltar esta vez</button>
+        <button class="action-sheet__btn action-sheet__btn--danger"><svg class="ico ico--md"><use href="#i-trash"/></svg>Borrar</button></div>
+      <div class="action-sheet__group"><button class="action-sheet__btn action-sheet__btn--cancel">Cancelar</button></div>
+    </div></div></div>
+  </section>
+
+  <section id="alert"><h2 class="sec">Alert</h2>
+    <p class="sec-desc">Solo para confirmar algo con consecuencias. Borrar es lógico y se puede deshacer, así que el texto lo dice.</p>
+    <div class="stage stage--bg"><div class="alert" data-insp="alert"><div class="alert__body"><div class="alert__title">¿Borrar "Barrer"?</div><p class="alert__msg">Desaparece para todos. Un admin puede restaurarla desde la Papelera.</p></div><div class="alert__actions"><button>Cancelar</button><button class="is-danger">Borrar</button></div></div></div>
+  </section>
+
+  <section id="popover"><h2 class="sec">Popover</h2>
+    <p class="sec-desc">Burbuja de tinta para pistas cortas, con flecha posicionable (<code>--arrow-x</code>).</p>
+    <div class="stage"><div class="popover" data-insp="popover">Si nadie elige quién la hizo, el crédito es para quien le tocaba.</div></div>
+  </section>
+
+  <section id="contextmenu"><h2 class="sec">Context menu</h2>
+    <p class="sec-desc">Menú en material chrome con ítems de 44, separadores y rol destructivo. También sirve para los pull-down y pop-up.</p>
+    <div class="stage stage--bg"><div class="menu" data-insp="contextmenu" role="menu">
+      <button class="menu__item" role="menuitemradio" aria-checked="true">🏡 Casa<svg class="ico ico--sm menu__check"><use href="#i-check"/></svg></button>
+      <button class="menu__item" role="menuitemradio" aria-checked="false">🏖️ Casa de playa<svg class="ico ico--sm menu__check"><use href="#i-check"/></svg></button>
+      <div class="menu__sep"></div>
+      <button class="menu__item" role="menuitem">Crear hogar<svg class="ico ico--sm"><use href="#i-plus"/></svg></button>
+      <button class="menu__item menu__item--danger" role="menuitem">Salir del hogar<svg class="ico ico--sm"><use href="#i-close"/></svg></button>
+    </div></div>
+  </section>
+
+  <section id="activity"><h2 class="sec">Activity view</h2>
+    <p class="sec-desc">Hoja para compartir el enlace de invitación (Telegram, WhatsApp, copiar). En la web llama a <code>navigator.share</code>; esto es el fallback propio. Los destinos usan íconos genéricos, no logos de marcas.</p>
+    <div class="stage stage--bg"><div class="phone" style="background:var(--surface)" data-insp="activity"><div class="share">
+      <div class="share__target"><span class="avatar avatar--lg" style="background:var(--leaf)">🏡</span><div><div class="t-headline">Invitación a Casa</div><div class="t-footnote t-muted">Un solo uso · vence en 7 días</div></div></div>
+      <div class="share__apps">
+        <div class="share__app"><i style="background:var(--sky)"><svg class="ico"><use href="#i-send"/></svg></i>Telegram</div>
+        <div class="share__app"><i style="background:var(--mint)"><svg class="ico"><use href="#i-chat"/></svg></i>WhatsApp</div>
+        <div class="share__app"><i style="background:var(--butter)"><svg class="ico"><use href="#i-mail"/></svg></i>Correo</div>
+        <div class="share__app"><i style="background:var(--stone)"><svg class="ico"><use href="#i-copy"/></svg></i>Copiar</div>
+      </div></div></div></div>
+  </section>
+
+  <!-- ================= ESTADO ================= -->
+  <section id="badge"><h2 class="sec">Badge</h2>
+    <p class="sec-desc">Conteo coral (vencidas) o en tinta (neutro), con aro del color del fondo para despegarse.</p>
+    <div class="stage"><div class="cell"><span class="badge" data-insp="badge">3</span><div class="spec">alerta</div></div><div class="cell"><span class="badge badge--ink" data-insp="badge">12</span><div class="spec">neutro</div></div><div class="cell"><span class="badge badge--dot" data-insp="badge"></span><div class="spec">punto</div></div></div>
+  </section>
+
+  <!-- ================= EXTENSIONES ================= -->
+  <section id="taskcard"><h2 class="sec">Tarjeta de tarea</h2>
+    <p class="sec-desc">El corazón de Lukas. Grid de 2 columnas estilo Mindr: color elegido por la persona, anillo con el emoji al centro, nombre, chip de estado en tinta (se lee sobre cualquier pastel), avatar del responsable y botón "…".</p>
+    <div class="stage stage--bg"><div class="grid2" id="cardDemo"></div></div>
+  </section>
+
+  <section id="ring"><h2 class="sec">Anillo de progreso</h2>
+    <p class="sec-desc"><code>progreso = (ahora − inicio) / (vencimiento − inicio)</code>. Track en tinta al 15 % y progreso en tinta al 100 %, con punta redonda y arranque a las 12. Si está vencida, el anillo queda lleno y un punto coral pulsa arriba.</p>
+    <div class="stage" id="ringDemo"></div>
+  </section>
+
+  <section id="status"><h2 class="sec">Chip de estado</h2>
+    <p class="sec-desc">El estado nunca depende solo del color: siempre lleva texto. Los chips de "pronto", "vencida" y "hecha" son de tinta con texto de color, para que se lean igual sobre cualquier tarjeta.</p>
+    <div class="stage" style="background:var(--lilac)">
+      <div class="cell"><span class="status status--ok" data-insp="status">en 4 d</span><div class="spec" style="color:var(--card-ink)">al día</div></div>
+      <div class="cell"><span class="status status--soon" data-insp="status"><svg class="ico" style="--icon-size:13px;--icon-stroke:3"><use href="#i-clock"/></svg>hoy 19:00</span><div class="spec" style="color:var(--card-ink)">pronto</div></div>
+      <div class="cell"><span class="status status--overdue" data-insp="status"><i class="status__dot"></i>vencida hace 2 d</span><div class="spec" style="color:var(--card-ink)">vencida</div></div>
+      <div class="cell"><span class="status status--done" data-insp="status"><svg class="ico" style="--icon-size:13px;--icon-stroke:3.2"><use href="#i-check"/></svg>hecha</span><div class="spec" style="color:var(--card-ink)">recién hecha</div></div>
+    </div>
+  </section>
+
+  <section id="chip"><h2 class="sec">Chip de filtro</h2>
+    <p class="sec-desc">Todas · Mías · Hoy y una por lista. Pill de 40; seleccionado en tinta. Hilera con scroll horizontal.</p>
+    <div class="stage"><div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="chip" aria-pressed="true" data-insp="chip">Todas <span class="chip__count">8</span></button><button class="chip" aria-pressed="false" data-insp="chip">Mías</button><button class="chip" aria-pressed="false" data-insp="chip">Hoy</button><button class="chip" aria-pressed="false" data-insp="chip">🧹 Limpieza</button><button class="chip" aria-pressed="false" data-insp="chip">🐱 Lukas</button></div></div>
+  </section>
+
+  <section id="avatar"><h2 class="sec">Avatar</h2>
+    <p class="sec-desc">Emoji en un círculo papel con borde de tinta. Tamaños 28 / 32 / 44 / 64, y una pila superpuesta para la rotación.</p>
+    <div class="stage">
+      <div class="cell"><span class="avatar avatar--sm" data-insp="avatar">🌵</span><div class="spec">28</div></div><div class="cell"><span class="avatar" data-insp="avatar">🌸</span><div class="spec">32</div></div><div class="cell"><span class="avatar avatar--lg" data-insp="avatar">🏡</span><div class="spec">44 · Hogar</div></div><div class="cell"><span class="avatar avatar--xl" data-insp="avatar">🌵</span><div class="spec">64</div></div>
+      <div class="cell"><span class="avatar-stack" data-insp="avatar"><span class="avatar">🌵</span><span class="avatar">🌸</span></span><div class="spec">rotación</div></div>
+    </div>
+  </section>
+
+  <section id="swatches"><h2 class="sec">Selector de color</h2>
+    <p class="sec-desc">Los 20 tonos más "sin color", en círculos chunky de 44 con check animado (el trazo se dibuja).</p>
+    <div class="stage"><div class="swatches" style="width:360px" id="swDemo" data-insp="swatches" role="radiogroup" aria-label="Color de la tarjeta"></div></div>
+  </section>
+
+  <section id="weekdays"><h2 class="sec">Días de la semana</h2>
+    <p class="sec-desc">Círculos de 44, de lunes a domingo; los seleccionados en tinta.</p>
+    <div class="stage"><div class="weekdays" style="width:340px" data-insp="weekdays" id="wdDemo"></div></div>
+  </section>
+
+  <section id="people"><h2 class="sec">Selector de responsable</h2>
+    <p class="sec-desc">Cualquiera (Hogar) · personas. Se reutiliza en "¿Quién la hizo?".</p>
+    <div class="stage"><div class="people" style="width:340px" data-insp="people" role="radiogroup" aria-label="Responsable">
+      <button class="person" role="radio" aria-checked="false"><span class="avatar">🏡</span>Cualquiera</button><button class="person" role="radio" aria-checked="true"><span class="avatar">🌵</span>Andrés</button><button class="person" role="radio" aria-checked="false"><span class="avatar">🌸</span>Mari</button></div></div>
+  </section>
+
+  <section id="emojiwell"><h2 class="sec">Emoji well</h2>
+    <p class="sec-desc">Emoji grande tocable en el sheet de crear. Toma el color elegido para la tarjeta y sirve de vista previa.</p>
+    <div class="stage"><div class="cell"><button class="emoji-well" style="--card:var(--leaf)" data-insp="emojiwell" aria-label="Cambiar emoji">🌱<span class="emoji-well__edit"><svg class="ico ico--sm"><use href="#i-edit"/></svg></span></button></div><div class="cell"><button class="emoji-well" data-insp="emojiwell" aria-label="Elegir emoji">✨</button><div class="spec">sin color</div></div></div>
+  </section>
+
+  <section id="toast"><h2 class="sec">Toast</h2>
+    <p class="sec-desc">Confirmación con "Deshacer" durante 5 s y la patita de Lukas. Tinta sobre claro, crema sobre oscuro.</p>
+    <div class="stage stage--bg"><div class="toast" style="width:340px" data-insp="toast"><svg class="ico toast__paw"><use href="#i-paw"/></svg><span class="toast__msg">Hecha · próximo: mar 13, 19:00</span><button class="toast__action">Deshacer</button></div></div>
+  </section>
+
+  <section id="skeleton"><h2 class="sec">Skeleton</h2>
+    <p class="sec-desc">Con forma de tarjeta y un brillo suave. Con movimiento reducido queda estático.</p>
+    <div class="stage stage--bg"><div class="grid2" data-insp="skeleton"><div class="skeleton skeleton--card"></div><div class="skeleton skeleton--card"></div></div></div>
+  </section>
+
+  <section id="empty"><h2 class="sec">Estado vacío</h2>
+    <p class="sec-desc">Ilustración, un título corto y la siguiente acción. El tono es de calma doméstica, sin celebración ruidosa.</p>
+    <div class="stage stage--bg"><div class="phone" data-insp="empty"><div class="empty"><div class="art" data-art="sleepingPot"></div><div class="empty__title">Nada pendiente 🙌</div><p class="empty__msg">Lukas aprueba. Lo próximo es «Regar plantas», mañana a las 9:00.</p></div></div></div>
+  </section>
+</main>
+
+<script>
+/* ===== Datos de fundamentos ===== */
+const cs=()=>getComputedStyle(document.documentElement);
+const ROLES=['bg','surface','surface-2','ink','ink-muted','ink-faint','separator-opaque','accent','accent-soft','danger','danger-fill','stroke'];
+const CARD=['leaf','sage','mint','moss','olive','mustard','butter','calico','sand','clay','coral','peach','rose','berry','sky','lake','periwinkle','lilac','stone','paper'];
+const SYS=[['red','coral'],['orange','clay'],['yellow','mustard'],['green','leaf'],['mint','mint'],['teal','lake'],['cyan','sky'],['blue','periwinkle'],['indigo','periwinkle'],['purple','lilac'],['pink','rose'],['brown','calico']];
+function paintFoundations(){
+  const v=n=>cs().getPropertyValue('--'+n).trim();
+  roleGrid.innerHTML=ROLES.map(n=>`<div class="sw"><div class="c" style="background:var(--${n})"></div><div class="m"><div class="n">--${n}</div><div class="v">${v(n)}</div></div></div>`).join('');
+  cardGrid.innerHTML=CARD.map(n=>`<div class="sw"><div class="c" style="background:var(--${n})">Aa</div><div class="m"><div class="n">${n}</div><div class="v">${v(n)}</div></div></div>`).join('')+`<div class="sw"><div class="c swatch--none" style="border-bottom:1px solid var(--separator)">Aa</div><div class="m"><div class="n">sin color</div><div class="v">= surface</div></div></div>`;
+  sysGrid.innerHTML=SYS.map(([s,c])=>`<div class="sw"><div class="c" style="background:var(--${c})"></div><div class="m"><div class="n">system${s[0].toUpperCase()+s.slice(1)}</div><div class="v">→ ${c}</div></div></div>`).join('');
+}
+const TYPE=[['t-large-title','largeTitle · Bricolage 800 / 32','Hola, Andrés'],['t-title1','title1 · Bricolage 800 / 28','Sacar la basura'],['t-title2','title2 · Bricolage 750 / 24','Nada pendiente'],['t-title3','title3 · Bricolage 700 / 20','Historial'],['t-headline','headline · DM Sans 600 / 16','Le toca a Mari'],['t-body','body · DM Sans 400 / 16','Cada 3 días desde la última vez que se hizo.'],['t-callout','callout · DM Sans 500 / 15','Lukas cuida la casa hasta el 20/10'],['t-subhead','subheadline · DM Sans 500 / 14','1 vencida · 1 para hoy'],['t-footnote','footnote · DM Sans 400 / 13','El resumen se envía siempre.'],['t-caption1','caption1 · DM Sans 500 / 12','hace 2 d'],['t-caption2','caption2 · DM Sans 600 / 11','Lun 12 oct']];
+typeList.innerHTML=TYPE.map(([c,m,s])=>`<div class="typerow"><div class="tk">.${c}<br>${m}</div><div class="${c}">${s}</div></div>`).join('');
+radiusList.innerHTML=[['r-xs',8],['r-sm',12],['r-md',16],['r-lg',22],['r-card',28],['r-sheet',32],['r-full','pill']].map(([n,v])=>`<div class="cell"><div style="width:84px;height:84px;background:var(--surface-2);border:2px solid var(--ink);border-radius:var(--${n})"></div><div class="spec">--${n} · ${v}</div></div>`).join('');
+spacingList.innerHTML=[['sp-4',4],['sp-8',8],['sp-12',12],['sp-16',16],['sp-20',20],['sp-24',24],['sp-32',32],['sp-48',48],['sp-64',64],['hit',44],['control-h',48],['btn-h',56]].map(([n,v])=>`<div class="sprow"><div class="lbl">--${n} · ${v}</div><div class="bar" style="width:${v*3}px"></div></div>`).join('');
+iconGrid.innerHTML=LukasIcons.names.map(n=>`<div class="it"><svg class="ico ico--lg"><use href="#i-${n}"/></svg><div class="nm">${n}</div></div>`).join('');
+function paintArt(){document.querySelectorAll('[data-art]').forEach(el=>{el.innerHTML=LukasArt[el.dataset.art]()});heroArt.innerHTML=LukasArt.sleepingPot();brandMark.innerHTML=LukasArt.icon({radius:0});
+  favicon.href='data:image/svg+xml,'+encodeURIComponent(LukasArt.icon().replace('<svg ','<svg xmlns="http://www.w3.org/2000/svg" '));}
+
+/* demos de extensiones */
+const ringSVG=p=>`<svg viewBox="0 0 100 100"><circle class="ring__track" cx="50" cy="50" r="44"/><circle class="ring__bar" cx="50" cy="50" r="44" pathLength="100"/></svg>`;
+const ring=(p,e,cls='')=>`<div class="ring ${cls}" style="--p:${p}">${ringSVG(p)}<span class="ring__emoji">${e}</span><i class="ring__alert"></i></div>`;
+const DEMO=[{c:'stone',e:'🗑️',t:'Sacar la basura',p:1,s:'overdue',l:'vencida hace 2 d',a:'🌵'},{c:'mint',e:'🪣',t:'Limpiar arenero',p:.9,s:'soon',l:'hoy 20:00',a:'🏡'},{c:'leaf',e:'🌱',t:'Regar plantas',p:.79,s:'soon',l:'mañana 9:00',a:'🌸'},{c:'butter',e:'🧹',t:'Barrer',p:.33,s:'ok',l:'en 5 d',a:'🌵'}];
+const statusChip=(s,l)=>s==='overdue'?`<span class="status status--overdue"><i class="status__dot"></i>${l}</span>`:s==='soon'?`<span class="status status--soon"><svg class="ico" style="--icon-size:13px;--icon-stroke:3"><use href="#i-clock"/></svg>${l}</span>`:s==='done'?`<span class="status status--done"><svg class="ico" style="--icon-size:13px;--icon-stroke:3.2"><use href="#i-check"/></svg>${l}</span>`:`<span class="status status--ok">${l}</span>`;
+cardDemo.innerHTML=DEMO.map(d=>`<button class="task-card" style="--card:var(--${d.c})" data-insp="taskcard"><div class="task-card__top"><span class="avatar avatar--sm">${d.a}</span><span class="icon-btn icon-btn--on-card" aria-label="Acciones"><svg class="ico ico--md"><use href="#i-more-h"/></svg></span></div>${ring(d.p,d.e,d.s==='overdue'?'is-overdue':'')}<div class="task-card__title">${d.t}</div><div class="task-card__foot">${statusChip(d.s,d.l)}</div></button>`).join('');
+ringDemo.innerHTML=[[.2,'🧹','al día · 0.2'],[.6,'🛏️','al día · 0.6'],[.86,'🌱','pronto · 0.86'],[1,'🗑️','vencida']].map(([p,e,l])=>`<div class="cell" style="background:var(--sand);padding:16px;border-radius:24px"><div data-insp="ring">${ring(p,e,p===1?'is-overdue':'')}</div><div class="spec" style="color:var(--card-ink)">${l}</div></div>`).join('')+`<div class="cell" style="background:var(--periwinkle);padding:16px;border-radius:24px"><div data-insp="ring">${ring(.62,'🏠','ring--lg')}</div><div class="spec" style="color:var(--card-ink)">ring--lg · detalle</div></div>`;
+swDemo.innerHTML=[...CARD,'none'].map((c,i)=>`<button class="swatch ${c==='none'?'swatch--none':''}" style="--c:var(--${c})" role="radio" aria-checked="${i===0}" aria-label="${c==='none'?'Sin color':c}"><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></button>`).join('');
+swDemo.onclick=e=>{const b=e.target.closest('.swatch');if(!b)return;swDemo.querySelectorAll('.swatch').forEach(x=>x.setAttribute('aria-checked',x===b))};
+wdDemo.innerHTML=['L','M','M','J','V','S','D'].map((d,i)=>`<button aria-pressed="${i===1||i===3}" aria-label="${['lunes','martes','miércoles','jueves','viernes','sábado','domingo'][i]}">${d}</button>`).join('');
+wdDemo.onclick=e=>{const b=e.target.closest('button');if(b)b.setAttribute('aria-pressed',b.getAttribute('aria-pressed')!=='true')};
+document.querySelectorAll('.segmented').forEach(seg=>seg.addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const bs=[...seg.querySelectorAll('button')];bs.forEach(x=>x.setAttribute('aria-pressed',x===b));seg.style.setProperty('--i',bs.indexOf(b))}));
+document.querySelectorAll('.people').forEach(g=>g.addEventListener('click',e=>{const b=e.target.closest('.person');if(!b)return;g.querySelectorAll('.person').forEach(x=>x.setAttribute('aria-checked',x===b))}));
+function step(b,d){const o=b.parentElement.querySelector('output');o.textContent=Math.max(1,Math.min(99,+o.textContent+d))}
+
+/* tema */
+function setTheme(t){document.documentElement.dataset.theme=t;themeBtn.textContent='Tema: '+(t==='dark'?'oscuro':'claro');paintFoundations();try{localStorage.setItem('lukas-ds-theme',t)}catch(e){}}
+function toggleTheme(){setTheme(document.documentElement.dataset.theme==='dark'?'light':'dark')}
+let saved=null;try{saved=localStorage.getItem('lukas-ds-theme')}catch(e){}
+setTheme(saved||'light');paintArt();
+
+/* ===== SPECS: un registro por componente (Inspector + Copiar como prompt) ===== */
+const T=(r,n)=>{const v=cs().getPropertyValue('--'+n).trim();return {r,n:'--'+n,v,c:/^#|rgb/.test(v)?v:undefined}};
+const SPECS={
+ navbar:{name:'Navigation bar',file:'components/NavBar.tsx',desc:'Barra superior HIG. Variantes: standard (título en línea, material regular con blur, botones de 44 a los lados) y large (título grande Bricolage 32 alineado a la izquierda; en Inicio, fila con pill "Nueva tarea" + avatar y resumen debajo).',
+  props:[{n:'variant',t:"'standard'|'large'",def:'standard'},{n:'title',t:'string'},{n:'leading',t:'ReactNode?'},{n:'trailing',t:'ReactNode?'},{n:'subtitle',t:'string?'}],
+  tokens:()=>[T('fondo standard','mat-regular'),T('blur','mat-blur'),T('título large','font-display')],metrics:[['alto standard','52 + safe-top'],['botones','44×44'],['título large','800 / 32 / -0.025em'],['padding large','20 lateral']]},
+ tabbar:{name:'Tab bar (pill flotante)',file:'components/TabBar.tsx',desc:'Navegación principal: Inicio · Gestionar · Estadísticas · Ajustes. Pill en tinta flotando sobre el contenido; la pestaña activa se expande en mostaza con ícono y nombre (resorte); las inactivas son círculos de 48 con aria-label.',
+  props:[{n:'items',t:'{id,label,icon,href}[]'},{n:'current',t:'string'}],tokens:()=>[T('fondo','ink-black'),T('activo','accent'),T('texto activo','on-accent'),T('texto inactivo','ink-cream')],metrics:[['alto','64'],['ítem','48'],['radio','pill'],['margen inferior','16 + safe-bottom'],['transición','flex-grow · --ease-spring']]},
+ toolbar:{name:'Toolbar',file:'components/Toolbar.tsx',desc:'Barra inferior con material grueso. Modo íconos (acción con ícono + etiqueta de 12, destructiva en coral oscuro) o modo acción principal (botones de 56 a todo el ancho, apilados).',
+  props:[{n:'variant',t:"'icons'|'actions'",def:'icons'},{n:'children',t:'ReactNode'}],tokens:()=>[T('fondo','mat-thick'),T('separador','separator'),T('destructivo','danger')],metrics:[['padding','12 20 (12 + safe-bottom)'],['acción','min 64×44']]},
+ searchbar:{name:'Search bar',file:'components/SearchBar.tsx',desc:'Pill de 48 con lupa; borde interior de tinta al enfocar. Placeholder en ink-muted (≥ 4.5:1).',
+  props:[{n:'value',t:'string'},{n:'placeholder',t:'string'},{n:'onChange',t:'(v)=>void'}],tokens:()=>[T('fondo','surface-2'),T('placeholder','ink-muted'),T('foco','ink')],metrics:[['alto','48'],['radio','pill']]},
+ list:{name:'Lista / tabla',file:'components/List.tsx',desc:'Variantes plain, grouped e inset-grouped (radio 22, margen 20). Fila: elemento inicial de 32 (emoji o ícono), título 16/600, subtítulo 13 en ink-muted, valor final tabular, chevron o control. Separador con sangría de 60 cuando hay elemento inicial.',
+  props:[{n:'variant',t:"'plain'|'grouped'|'inset'",def:'inset'},{n:'rows',t:'Row[]'},{n:'Row.leading',t:'emoji|icon?'},{n:'Row.title',t:'string'},{n:'Row.subtitle',t:'string?'},{n:'Row.trailing',t:"value|chevron|switch|status"}],
+  tokens:()=>[T('fondo','surface'),T('separador','separator'),T('subtítulo','ink-muted')],metrics:[['alto fila','min 52'],['padding','8 16'],['radio inset','22']]},
+ section:{name:'Section header / footer',file:'components/Section.tsx',desc:'Encabezado pequeño (13/700 ink-muted) sobre grupos de filas; grande (Bricolage 20) para secciones; pie de 13 que explica consecuencias.',
+  props:[{n:'title',t:'string'},{n:'size',t:"'sm'|'lg'",def:'sm'},{n:'footer',t:'string?'}],tokens:()=>[T('texto','ink-muted')],metrics:[['padding','24 36 8']]},
+ card:{name:'Card',file:'components/Card.tsx',desc:'Contenedor agrupado propio. Superficie blanca con radio 28 y sello (borde de tinta 2 + sombra dura 0 3px 0). La variante plana (surface-2, sin sello) es para contenido no interactivo. En oscuro, el borde se oculta y la sombra pasa a negra.',
+  props:[{n:'variant',t:"'stamp'|'flat'",def:'stamp'},{n:'children',t:'ReactNode'}],tokens:()=>[T('fondo','surface'),T('borde','stroke'),T('sello','stamp')],metrics:[['radio','28'],['padding','20'],['borde','2']]},
+ disclosure:{name:'Disclosure group',file:'components/Disclosure.tsx',desc:'Sección plegable (<details>) con ícono, conteo y chevron que rota 90° (280 ms). Para Pausadas, Terminadas y Papelera en Gestionar.',
+  props:[{n:'title',t:'string'},{n:'icon',t:'IconName'},{n:'count',t:'number?'},{n:'defaultOpen',t:'boolean',def:'false'}],tokens:()=>[T('fondo','surface')],metrics:[['alto summary','52'],['radio','22']]},
+ button:{name:'Button',file:'components/Button.tsx',desc:'Estilos HIG: filled (mostaza + sello; acción principal, una por pantalla), bordered-prominent (tinta), bordered (blanco + sello), tinted (mostaza suave), gray (fill-2), plain (texto subrayado); destructive como rol. Press: baja 3 px y el sello se aplasta (scale 0.98); suelta con resorte. Tamaños sm 36 (área 44), md 48, lg 56.',
+  props:[{n:'variant',t:"'filled'|'prominent'|'bordered'|'tinted'|'gray'|'plain'",def:'filled'},{n:'role',t:"'default'|'destructive'",def:'default'},{n:'size',t:"'sm'|'md'|'lg'",def:'md'},{n:'icon',t:'IconName?'},{n:'block',t:'boolean',def:'false'},{n:'disabled',t:'boolean',def:'false'}],
+  tokens:()=>[T('filled · fondo','accent'),T('filled · texto','on-accent'),T('borde / sello','stroke'),T('sombra','stamp'),T('destructivo','danger'),T('press','ease-spring')],metrics:[['radio','pill'],['alto','36 / 48 / 56'],['padding','0 20 (lg 24)'],['borde','2'],['label','DM Sans 700 / 16 (lg 17)'],['disabled','opacity .42, sin sello']]},
+ iconbutton:{name:'Icon button',file:'components/IconButton.tsx',desc:'Círculo de 44 con ícono de 24. Variantes: fill (fill-2), ghost, ink, bordered (sello) y on-card (36 visibles en blanco 55 % sobre pastel, área de 44). Siempre con aria-label.',
+  props:[{n:'icon',t:'IconName'},{n:'label',t:'string'},{n:'variant',t:"'fill'|'ghost'|'ink'|'bordered'|'onCard'",def:'fill'}],tokens:()=>[T('fill','fill-2'),T('ink','ink')],metrics:[['tamaño','44 (on-card 36 + 4 de área)'],['press','scale .92']]},
+ menubutton:{name:'Pull-down / pop-up button',file:'components/MenuButton.tsx',desc:'Botón pill que abre un Menu. Pop-up muestra el valor actual con un chevron arriba/abajo; pull-down muestra acciones.',
+  props:[{n:'kind',t:"'popup'|'pulldown'"},{n:'value',t:'string'},{n:'items',t:'MenuItem[]'}],tokens:()=>[T('fondo','fill-2')],metrics:[['alto','44'],['padding','0 12 0 16']]},
+ segmented:{name:'Segmented control',file:'components/Segmented.tsx',desc:'Pill surface-2 con indicador de tinta que se desliza (translateX, --ease-spring). El texto del segmento activo va en el color del fondo. Para el tipo de programación (Intervalo · Días · Día del mes · Una vez) y el ancla.',
+  props:[{n:'options',t:'{value,label}[]'},{n:'value',t:'string'},{n:'size',t:"'md'|'sm'",def:'md'}],tokens:()=>[T('pista','surface-2'),T('indicador','ink'),T('texto inactivo','ink-muted')],metrics:[['alto segmento','40 (sm 34)'],['padding','4'],['radio','pill']]},
+ slider:{name:'Slider',file:'components/Slider.tsx',desc:'Pista de 8 en tinta/fill-3 con pulgar mostaza de 28, borde de tinta y sombra dura de 2.',props:[{n:'min',t:'number'},{n:'max',t:'number'},{n:'step',t:'number'},{n:'value',t:'number'}],tokens:()=>[T('relleno','ink'),T('pulgar','accent')],metrics:[['pista','8'],['pulgar','28']]},
+ stepper:{name:'Stepper',file:'components/Stepper.tsx',desc:'Botones − / + de 40 sobre una pill; valor en Bricolage 800/20 tabular. Para "cada n días/semanas/meses".',props:[{n:'value',t:'number'},{n:'min',t:'number',def:'1'},{n:'max',t:'number',def:'99'}],tokens:()=>[T('pista','surface-2'),T('botón','surface')],metrics:[['botón','40'],['padding','4']]},
+ toggle:{name:'Toggle',file:'components/Switch.tsx',desc:'Switch de 56×34; la perilla de 28 se desplaza con resorte. Encendido en moss. Estados: on, off, disabled y foco.',props:[{n:'checked',t:'boolean'},{n:'disabled',t:'boolean',def:'false'}],tokens:()=>[T('on','moss'),T('off','fill-3')],metrics:[['tamaño','56×34'],['perilla','28']]},
+ pickers:{name:'Pickers',file:'components/Pickers.tsx',desc:'Fecha y hora usan los inputs nativos (en iOS abren la rueda del sistema), vestidos como pill (time-pill) o campo. La rueda se documenta como referencia visual.',props:[{n:'type',t:"'time'|'date'|'wheel'"},{n:'value',t:'string'}],tokens:()=>[T('fondo','surface-2'),T('valor','font-display')],metrics:[['alto','48'],['rueda','180, fila 40']]},
+ textfield:{name:'Text field',file:'components/TextField.tsx',desc:'Campo de 48, radio 16, en surface-2. Al enfocar: fondo surface y borde de tinta de 2. Estados: vacío, enfocado, lleno, error (borde y ayuda en danger), deshabilitado. Variante title: Bricolage 22 centrado con línea punteada inferior.',
+  props:[{n:'label',t:'string?'},{n:'value',t:'string'},{n:'placeholder',t:'string'},{n:'error',t:'string?'},{n:'variant',t:"'default'|'title'",def:'default'},{n:'maxLength',t:'number?'}],tokens:()=>[T('fondo','surface-2'),T('foco','ink'),T('placeholder','ink-muted'),T('error','danger')],metrics:[['alto','48 (title 56)'],['radio','16'],['padding','0 16']]},
+ texteditor:{name:'Text editor',file:'components/TextArea.tsx',desc:'Multilínea (mín. 96), texto plano, contador de caracteres.',props:[{n:'value',t:'string'},{n:'maxLength',t:'number',def:'500'}],tokens:()=>[T('fondo','surface-2')],metrics:[['alto mín.','96'],['padding','12 16']]},
+ progress:{name:'Progress',file:'components/Progress.tsx',desc:'Barra determinada de 8 (tinta sobre fill-3), spinner de 28 y brote de Lukas para cargas largas. role="status".',props:[{n:'kind',t:"'bar'|'spinner'|'sprout'"},{n:'value',t:'0..1?'}],tokens:()=>[T('relleno','ink'),T('pista','fill-3')],metrics:[['barra','8'],['spinner','28 / 3']]},
+ pagecontrol:{name:'Page control',file:'components/PageControl.tsx',desc:'Puntos de 8; el activo se alarga a 22 en tinta.',props:[{n:'count',t:'number'},{n:'index',t:'number'}],tokens:()=>[T('activo','ink'),T('inactivo','fill-4')],metrics:[['punto','8'],['activo','22×8']]},
+ sheet:{name:'Sheet',file:'components/Sheet.tsx',desc:'Bottom sheet (vaul en la app): radio 32 arriba, agarradera, encabezado Cancelar · título · acción, cuerpo con scroll y pie fijo con la acción principal de 56 a todo el ancho. Entra con resorte (400/35), se arrastra para cerrar y deja un scrim detrás.',
+  props:[{n:'open',t:'boolean'},{n:'title',t:'string'},{n:'onClose',t:'()=>void'},{n:'footer',t:'ReactNode'}],tokens:()=>[T('fondo','bg'),T('scrim','scrim'),T('sombra','elev-2'),T('resorte','ease-spring')],metrics:[['radio','32'],['agarradera','40×5'],['máx. alto','100% − 48']]},
+ actionsheet:{name:'Action sheet',file:'components/ActionSheet.tsx',desc:'Grupo de acciones en material chrome (filas de 56) con un título opcional y Cancelar separado. Destructivo en danger.',props:[{n:'title',t:'string?'},{n:'actions',t:'{label,icon,role}[]'}],tokens:()=>[T('fondo','mat-chrome'),T('destructivo','danger')],metrics:[['fila','56'],['radio','22'],['gap','8']]},
+ alert:{name:'Alert',file:'components/Alert.tsx',desc:'Diálogo centrado para confirmar algo con consecuencias. Título en Bricolage 18, mensaje de 14, dos acciones; la destructiva en danger/800.',props:[{n:'title',t:'string'},{n:'message',t:'string'},{n:'actions',t:'Action[2]'}],tokens:()=>[T('fondo','surface'),T('borde','stroke')],metrics:[['ancho','300'],['radio','22'],['acción','50']]},
+ popover:{name:'Popover',file:'components/Popover.tsx',desc:'Burbuja de tinta para pistas cortas, con flecha posicionable.',props:[{n:'children',t:'ReactNode'},{n:'arrowX',t:'px'}],tokens:()=>[T('fondo','ink'),T('texto','bg')],metrics:[['radio','16'],['máx. ancho','260']]},
+ contextmenu:{name:'Context menu / Menu',file:'components/Menu.tsx',desc:'Menú en material chrome con ítems de 44, separadores, checks y rol destructivo. Base de los pull-down y pop-up.',props:[{n:'items',t:'{label,icon?,checked?,role?}[]'}],tokens:()=>[T('fondo','mat-chrome'),T('sombra','elev-2')],metrics:[['ítem','44'],['radio','22'],['ancho mín.','240']]},
+ activity:{name:'Activity view',file:'components/ShareSheet.tsx',desc:'Compartir la invitación: usa navigator.share cuando existe; si no, esta hoja con el destino (avatar + nombre) y destinos genéricos (sin logos de marca).',props:[{n:'url',t:'string'},{n:'title',t:'string'}],tokens:()=>[T('fondo','surface')],metrics:[['ícono destino','60, radio 18']]},
+ badge:{name:'Badge',file:'components/Badge.tsx',desc:'Conteo coral (alerta) o en tinta (neutro), con aro de 2 del color del fondo. Variante punto de 10.',props:[{n:'count',t:'number?'},{n:'tone',t:"'alert'|'ink'",def:'alert'}],tokens:()=>[T('alerta','danger-fill'),T('neutro','ink')],metrics:[['alto','20'],['punto','10']]},
+ taskcard:{name:'Tarjeta de tarea',file:'components/TaskCard.tsx',desc:'Tarjeta del grid de Inicio (2 columnas; 3 desde 768 px). Fondo con el color elegido (20 pasteles o sin color), texto siempre #151515, borde de tinta y sello. Contenido: arriba, avatar del responsable a la izquierda y botón "…" a la derecha (action sheet); anillo de 92 con el emoji; nombre en Bricolage 17 (máx. 2 líneas); chip de estado abajo (ancho completo disponible a 168 px). Press: baja 3 px. Al completar: el anillo se vacía, squash & stretch, hojitas y reordenamiento con FLIP. Orden: vencidas → pronto → al día.',
+  props:[{n:'task',t:'{emoji,title,color,progress,status,dueLabel,assignee}'},{n:'onOpen',t:'()=>void'},{n:'onMore',t:'()=>void'}],tokens:()=>[T('fondo (ej.)','leaf'),T('texto','card-ink'),T('borde','stroke'),T('sello','stamp')],metrics:[['radio','28'],['alto mín.','224'],['padding','12 12 12 16'],['gap grid','12'],['anillo','92 / trazo 8']]},
+ ring:{name:'Anillo de progreso',file:'components/ProgressRing.tsx',desc:'SVG con pathLength=100: el track va en tinta al 15 % y la barra en tinta al 100 % con punta redonda, empezando a las 12 (stroke-dashoffset = 100 − p·100). Vencida: lleno + punto coral de 16 con borde de tinta que pulsa arriba. Tamaños 92 (tarjeta) y 184 (detalle). Transición de 420 ms en --ease-out; al completar anima de p a 0.',
+  props:[{n:'progress',t:'0..1'},{n:'emoji',t:'string'},{n:'overdue',t:'boolean'},{n:'size',t:"'md'|'lg'",def:'md'}],tokens:()=>[T('trazo','card-ink'),T('alerta','coral')],metrics:[['tamaño','92 / 184'],['trazo','8 / 7 (de 100)'],['track','opacity .15']]},
+ status:{name:'Chip de estado',file:'components/StatusChip.tsx',desc:'Comunica el estado de la tarjeta con texto. Al día: blanco 62 % con tinta. Pronto: tinta con texto mostaza y reloj. Vencida: tinta con texto coral y punto que pulsa. Hecha: tinta con texto hoja y check. Se lee sobre cualquier pastel.',
+  props:[{n:'status',t:"'ok'|'soon'|'overdue'|'done'"},{n:'label',t:'string'}],tokens:()=>[T('pronto','on-status-soon'),T('vencida','on-status-overdue'),T('hecha','on-status-done'),T('fondo','status-soon')],metrics:[['alto','28'],['padding','0 10'],['texto','DM Sans 700 / 12.5']]},
+ chip:{name:'Chip de filtro',file:'components/FilterChip.tsx',desc:'Pill de 40 en surface-2; seleccionado en tinta con texto del color del fondo (aria-pressed). Conteo opcional. Hilera con scroll horizontal y padding inferior para no recortar.',props:[{n:'label',t:'string'},{n:'emoji',t:'string?'},{n:'count',t:'number?'},{n:'selected',t:'boolean'}],tokens:()=>[T('fondo','surface-2'),T('seleccionado','ink')],metrics:[['alto','40'],['padding','0 16']]},
+ avatar:{name:'Avatar',file:'components/Avatar.tsx',desc:'Emoji en un círculo papel con borde de tinta. 28/32/44/64. Pila con solape de −10 para la rotación. Hogar = 🏡.',props:[{n:'emoji',t:'string'},{n:'size',t:"'sm'|'md'|'lg'|'xl'",def:'md'}],tokens:()=>[T('fondo','paper'),T('borde','card-ink')],metrics:[['tamaños','28 / 32 / 44 / 64'],['borde','2 (xl 3)']]},
+ swatches:{name:'Selector de color',file:'components/ColorPicker.tsx',desc:'Grid de 21 círculos de 44 (20 pasteles + sin color con rayas). El seleccionado crece a 1.08 con doble aro y el check se dibuja (stroke-dashoffset).',props:[{n:'value',t:'ColorToken|null'},{n:'onChange',t:'(c)=>void'}],tokens:()=>[T('borde','card-ink'),T('aro','ink')],metrics:[['círculo','44'],['gap','12 × 8']]},
+ weekdays:{name:'Días de la semana',file:'components/WeekdayPicker.tsx',desc:'Siete círculos de 44, de lunes a domingo; los seleccionados en tinta (aria-pressed), con escala de resorte.',props:[{n:'value',t:'number[]'}],tokens:()=>[T('fondo','surface-2'),T('seleccionado','ink')],metrics:[['círculo','44']]},
+ people:{name:'Selector de responsable',file:'components/PersonPicker.tsx',desc:'Tarjetitas con avatar de 40 y nombre: Cualquiera (🏡) + miembros. Seleccionado: surface con borde de tinta. Se reutiliza en "¿Quién la hizo?".',props:[{n:'members',t:'Member[]'},{n:'value',t:'id|anyone'},{n:'allowAnyone',t:'boolean',def:'true'}],tokens:()=>[T('fondo','surface-2'),T('seleccionado','ink')],metrics:[['radio','16'],['avatar','40']]},
+ emojiwell:{name:'Emoji well',file:'components/EmojiWell.tsx',desc:'Círculo de 112 con el emoji de 52 y un anillo punteado interior. El fondo toma el color elegido (vista previa de la tarjeta). Insignia de editar en tinta.',props:[{n:'emoji',t:'string'},{n:'color',t:'ColorToken?'}],tokens:()=>[T('fondo por defecto','surface-2'),T('borde','card-ink')],metrics:[['tamaño','112'],['emoji','52']]},
+ toast:{name:'Toast',file:'components/Toast.tsx',desc:'Confirmación con "Deshacer" (5 s) y la patita de Lukas. Tinta con texto crema en claro; crema en oscuro. Entra desde abajo con resorte.',props:[{n:'message',t:'string'},{n:'action',t:'{label,onClick}?'},{n:'duration',t:'ms',def:'5000'}],tokens:()=>[T('fondo','ink-black'),T('acción','accent')],metrics:[['alto mín.','56'],['radio','22']]},
+ skeleton:{name:'Skeleton',file:'components/Skeleton.tsx',desc:'Con forma de tarjeta (radio 28, alto 224) en fill-2, con un brillo suave de 1.4 s. Estático con movimiento reducido.',props:[{n:'shape',t:"'card'|'line'|'circle'"}],tokens:()=>[T('fondo','fill-2')],metrics:[['tarjeta','224'],['duración','1.4 s']]},
+ empty:{name:'Estado vacío',file:'components/EmptyState.tsx',desc:'Ilustración de Lukas (máx. 260), título en Bricolage 24 y mensaje de 15 que dice qué sigue. En oscuro, la ilustración va sobre una placa crema.',props:[{n:'art',t:"'sleepingPot'|'peek'|'sprout'"},{n:'title',t:'string'},{n:'message',t:'string'},{n:'action',t:'ReactNode?'}],tokens:()=>[T('placa (oscuro)','art-plate'),T('mensaje','ink-muted')],metrics:[['ilustración','≤ 260'],['padding','24 24 32']]},
+};
+
+/* ===== Copiar como prompt ===== */
+const LANGS=['React (Next.js + Tailwind v4)','React Native','SwiftUI','Flutter (Dart)','Jetpack Compose (Kotlin)','HTML + CSS'];
+let promptLang=LANGS[0];langSel.innerHTML=LANGS.map(l=>`<option>${l}</option>`).join('');langSel.onchange=()=>promptLang=langSel.value;
+const TOKEN_GROUPS={'Color (cada fondo con su --on-*)':['--bg','--surface','--surface-2','--ink','--ink-muted','--ink-faint','--separator','--fill-1','--fill-2','--fill-3','--fill-4','--accent','--on-accent','--accent-soft','--status-ok','--status-soon','--on-status-soon','--on-status-overdue','--on-status-done','--danger','--danger-fill','--card-ink','--stroke','--scrim'],
+ 'Paleta de tarjetas':CARD.map(c=>'--'+c),'Sello y elevación':['--stroke-w','--stamp','--stamp-lift','--elev-1','--elev-2'],'Materiales':['--mat-thin','--mat-regular','--mat-thick','--mat-chrome','--mat-blur'],
+ 'Espaciado':['--sp-4','--sp-8','--sp-12','--sp-16','--sp-20','--sp-24','--sp-32','--sp-48','--margin','--gutter','--hit','--control-h','--btn-h'],'Radios':['--r-xs','--r-sm','--r-md','--r-lg','--r-card','--r-sheet','--r-full'],
+ 'Tipografía':['--font-display','--font-text'],'Movimiento':['--dur-1','--dur-2','--dur-3','--dur-4','--ease-out','--ease-spring','--dur-spring','--stagger'],'Íconos':['--icon-size','--icon-stroke']};
+function tokenLines(){const out=[];for(const[g,ns]of Object.entries(TOKEN_GROUPS)){const r=ns.map(n=>{const v=cs().getPropertyValue(n).trim();return v?`- ${n} = ${v}`:null}).filter(Boolean);if(r.length)out.push(`### ${g}`,...r,'')}return out}
+function foundationsBody(){const L=[`## Fundamentos — tokens (fuente única de verdad)`,`Define cada token como constante con nombre en UN archivo de tema, idiomático para ${promptLang} (en Next + Tailwind v4: @theme en globals.css; tema oscuro con [data-theme="dark"]). Los componentes referencian tokens por nombre; nunca valores sueltos. Tema actual: ${document.documentElement.dataset.theme}.`,'',...tokenLines(),'### Estilos de texto'];TYPE.forEach(([n,m])=>L.push(`- ${n}: ${m}`));
+ L.push('','### Reglas','- Cada fondo va con su --on-* (contraste AA verificado). Las tarjetas usan siempre texto #151515.','- Sello de tinta (borde 2 + sombra 0 3px 0) en elementos interactivos principales; al presionar baja 3 px.','- El estado nunca depende solo del color: siempre lleva texto.','- prefers-reduced-motion: cambia desplazamientos por fundidos y quita el confeti.','- Íconos: sprite SVG propio estilo Phosphor bold; los emoji son contenido, no íconos de UI.');return L.join('\n')}
+function buildPrompt(k){const s=SPECS[k];const L=[`# Agregar o actualizar el componente \`${s.name}\` — ${promptLang}`,'',`Componente del sistema de diseño de Lukas (web app mobile-first de tareas del hogar). Si ya existe un componente con este rol, modifícalo EN SU LUGAR para que cumpla esta spec (la fuente de verdad) y anota los cambios incompatibles. Si no existe, créalo reutilizando los tokens y átomos existentes.`,'','## Qué es',s.desc,'','## Props'];
+ s.props.forEach(p=>L.push(`- \`${p.n}\`: ${p.t}${p.def?` (default ${p.def})`:''}`));L.push('','## Tokens (definidos en la capa de fundamentos; nunca en línea)');s.tokens().forEach(t=>L.push(`- ${t.n} = ${t.v}   // ${t.r}`));
+ L.push('','## Métricas');s.metrics.forEach(([a,b])=>L.push(`- ${a}: ${b}`));L.push('','## Requisitos','- Implementa todas las variantes y estados listados.','- Objetivos táctiles ≥ 44; foco visible; textos en español (es) con soporte para inglés.',`- Entrega código ${promptLang} completo + un ejemplo de uso corto.`);return L.join('\n')}
+function copyPrompt(k){copyText(buildPrompt(k));toast(`Copiado: ${SPECS[k].name} → ${promptLang}`)}
+function copyFullSystem(){const ks=Object.keys(SPECS);const L=[`# Instalar o actualizar TODO el sistema de diseño de Lukas — ${promptLang}`,'','Si no existe, créalo desde cero; si ya existen partes, actualízalas en su lugar para que cumplan esta spec.','','## Orden','1. Capa de tokens (abajo) como fuente única.','2. Componentes: pueden repartirse entre varios agentes en paralelo, pero TODOS importan la misma capa de tokens; nunca redefinas colores ni tamaños localmente.','3. Conciliación: un índice de componentes y una pasada que confirme que solo se usan tokens con nombre.','','---','',foundationsBody(),'','---','',`## Componentes (${ks.length})`];
+ ks.forEach(k=>{const s=SPECS[k];L.push('',`### ${s.name} — \`${s.file}\``,s.desc,`- props: ${s.props.map(p=>p.n+': '+p.t).join(', ')}`,`- tokens: ${s.tokens().map(t=>t.n).join(', ')}`,`- métricas: ${s.metrics.map(m=>m[0]+' '+m[1]).join(', ')}`)});copyText(L.join('\n'));toast(`Copiado: sistema completo (${ks.length} componentes) → ${promptLang}`)}
+function copyText(t){navigator.clipboard&&navigator.clipboard.writeText(t).catch(()=>{})}
+document.querySelectorAll('main section[id]').forEach(sec=>{if(!SPECS[sec.id])return;const h=sec.querySelector('h2.sec');const b=document.createElement('button');b.className='sec-prompt';b.type='button';b.textContent='Copiar como prompt';b.onclick=()=>copyPrompt(sec.id);h.appendChild(b)});
+
+/* ===== Dev Mode + Inspector ===== */
+function toggleDev(){const on=document.body.classList.toggle('dev');devToggle.classList.toggle('on',on);devToggle.textContent=on?'◧ Dev Mode · ON':'◧ Dev Mode';if(!on)closeInspector()}
+function closeInspector(){document.body.classList.remove('inspecting');document.querySelectorAll('.insp-sel').forEach(e=>e.classList.remove('insp-sel'))}
+document.addEventListener('click',e=>{if(e.target.closest('#inspector,#topctl')||!document.body.classList.contains('dev'))return;const el=e.target.closest('[data-insp]');if(el&&SPECS[el.dataset.insp]){e.preventDefault();selectComp(el,el.dataset.insp)}},true);
+function selectComp(el,k){document.querySelectorAll('.insp-sel').forEach(x=>x.classList.remove('insp-sel'));el.classList.add('insp-sel');document.body.classList.add('inspecting');const s=SPECS[k];
+ inspectorBody.innerHTML=`<div class="nm">${s.name}</div><div class="file">${s.file}</div><div class="desc">${s.desc}</div><h4>Propiedades</h4>${s.props.map(p=>`<div class="prop"><span class="pn">${p.n}</span> <span class="pt">${p.t}</span>${p.def?` <span class="pdef">= ${p.def}</span>`:''}</div>`).join('')}<h4>Tokens · clic para copiar</h4>${s.tokens().map(t=>`<div class="tok" onclick="copyVal('${t.v.replace(/'/g,"\\'")}')"><div class="tsw" style="background:${t.c||'var(--fill-1)'}"></div><div><div class="tn">${t.n}</div><div class="tr">${t.r}</div></div><div class="tv">${t.v.length>18?t.v.slice(0,18)+'…':t.v}</div></div>`).join('')}<h4>Métricas</h4>${s.metrics.map(([a,b])=>`<div class="metric"><span class="mk">${a}</span><span>${b}</span></div>`).join('')}<button class="btn btn--filled btn--block" style="margin-top:18px" onclick="copyPrompt('${k}')">Copiar como prompt</button>`}
+function copyVal(v){copyText(v);toast('Copiado '+v)}
+function toast(m){copiedMsg.textContent=m;copied.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>copied.classList.remove('show'),1500)}
+</script>
+</body>
+</html>

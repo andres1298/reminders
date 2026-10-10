@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Lukas · Íconos</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,400..700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="styles.css">
+<style>
+body{padding:32px 20px;max-width:960px;margin:auto}
+h1{margin-bottom:8px}
+.g{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px;margin-top:20px}
+.it{display:flex;flex-direction:column;align-items:center;gap:8px;padding:16px 6px 10px;border-radius:16px;background:var(--surface);border:1px solid var(--separator)}
+.it span{font:11px ui-monospace,monospace;color:var(--ink-muted)}
+</style>
+</head>
+<body>
+<script src="icons.js"></script>
+<a class="btn btn--plain btn--sm" href="index.html">← Style guide</a>
+<h1 class="t-large-title">Íconos</h1>
+<p class="t-body t-muted">Sprite propio en <code>icons.js</code> (geometría estilo Phosphor <i>bold</i>, 24 px, trazo <code>--icon-stroke</code> 2.25). Uso: <code>&lt;svg class="ico"&gt;&lt;use href="#i-home"/&gt;&lt;/svg&gt;</code>.</p>
+<div class="g" id="g"></div>
+<script>g.innerHTML=LukasIcons.names.map(n=>`<div class="it"><svg class="ico ico--lg"><use href="#i-${n}"/></svg><span>${n}</span></div>`).join('')</script>
+</body>
+</html>
