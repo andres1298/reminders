@@ -15,3 +15,25 @@ const out = src.replace(/<!--INLINE:(.+?)-->[\s\S]*?<!--\/INLINE-->/g, (_, rel) 
 
 writeFileSync(resolve(here, 'lukas-prototype.html'), out);
 console.log(`lukas-prototype.html · ${(out.length / 1024).toFixed(1)} KB`);
+
+// --artifact <ruta>: fragmento para publicar como Artifact de claude.ai (el visor pone su
+// propio <html>/<head>/<body> y ya rellena las áreas seguras del teléfono).
+const i = process.argv.indexOf('--artifact');
+if (i > 0) {
+  const frag = out
+    .replace(/<!doctype html>\s*/i, '')
+    .replace(/<html[^>]*>|<\/html>|<head>|<\/head>|<\/body>/g, '')
+    .replace(/<meta [^>]*>\s*/g, '')
+    .replace(/<title>.*?<\/title>/, '<title>Prototipo Lukas</title>')
+    .replace('<body class="proto">', `<script>document.body.classList.add('proto')</script>
+<style>
+body.proto{overflow:auto}
+@media (max-width:520px),(max-height:700px) and (max-width:900px){
+  html,body{height:100%}
+  .device{height:100%}
+  .app{--safe-top:0px;--safe-bottom:0px}
+}
+</style>`);
+  writeFileSync(resolve(process.argv[i + 1]), frag);
+  console.log(`artifact · ${(frag.length / 1024).toFixed(1)} KB`);
+}
