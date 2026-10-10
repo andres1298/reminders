@@ -11,6 +11,7 @@ Scope: prototipo navegable mobile (viewport iPhone, claro y oscuro) para validar
 Audiencia: Andrés y Mari, en el celular, pocos segundos por visita. Tarea: ver qué toca, marcar hecha, crear una tarea en < 10 s.
 Constraints: paleta, tipos, radios y sello de tinta 2px fijados por SPEC §5 (dirección fijada por el brief; no se tiró concept-seed). Tema claro crema primero. Lukas en tinta + ojos verdes. Sensación: calma doméstica.
 Momento memorable: completar una tarea — el anillo se vacía de vuelta, la tarjeta hace squash y salen hojitas.
+Estado de tarjeta: SPEC §4.7 manda — "pronto" = progreso ≥ 0.75 o vence hoy; una tarea a pocos días con progreso < 0.75 se ve neutra a propósito (calma doméstica). Pendiente de confirmar con el usuario.
 
 ## Direction contract
 

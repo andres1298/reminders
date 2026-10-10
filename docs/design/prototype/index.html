@@ -90,7 +90,7 @@ body.proto{display:flex;align-items:center;justify-content:center;gap:56px;min-h
 .quick .toolbar__action{background:var(--surface);border-radius:var(--r-md);min-height:68px;justify-content:center;gap:6px}
 .history .row__lead{background:var(--surface-2)}
 .detail-actions{position:sticky;bottom:0;z-index:3;display:grid;gap:10px;padding:14px var(--margin) calc(var(--safe-bottom) + 14px);
-  background:linear-gradient(to top,var(--bg) 70%,color-mix(in srgb,var(--bg) 0%,transparent));margin-top:12px}
+  background:linear-gradient(to top,var(--bg) calc(100% - 24px),color-mix(in srgb,var(--bg) 0%,transparent));padding-top:38px;margin-top:0}
 .rot{display:inline-flex;align-items:center;gap:8px}
 
 /* Tab bar global */
@@ -156,10 +156,11 @@ body.proto{display:flex;align-items:center;justify-content:center;gap:56px;min-h
 .toast__paw{animation:paw 600ms var(--ease-spring) 120ms both}
 @keyframes paw{from{transform:scale(0) rotate(-30deg)}}
 .fx{position:absolute;inset:0;z-index:45;pointer-events:none;overflow:hidden}
-.fx .leaf{position:absolute;width:22px;height:22px;margin:-11px 0 0 -11px}
+.fx .leaf{position:absolute;width:26px;height:26px;margin:-13px 0 0 -13px}
 .fx .leaf svg{width:100%;height:100%}
-.skel-card{display:flex;flex-direction:column;align-items:center;gap:14px;padding:20px 16px}
-.skel-card .skeleton--circle{width:84px;height:84px;margin-top:22px}
+.skel-card{display:flex;flex-direction:column;align-items:flex-start;gap:12px;min-height:216px;padding:44px 16px 16px;border-radius:var(--r-card);background:var(--fill-1)}
+.skel-card .skeleton--circle{width:84px;height:84px;align-self:center;margin-bottom:6px}
+.skel-card .skeleton--line{height:16px}
 
 /* ===================== Transiciones de pantalla ===================== */
 ::view-transition-old(root),::view-transition-new(root){animation:none}
@@ -261,14 +262,14 @@ html.rm .screen.enter-push,html.rm .screen.enter-pop{animation:vt-fade-in 160ms 
       </div>
     </header>
     <div class="detail-body">
-      <div class="list list--inset" id="detailInfo"></div>
-      <div id="detailDesc"></div>
-      <div class="quick">
+      <div class="quick" style="margin-top:0;margin-bottom:16px">
         <button class="toolbar__action" data-act="snooze"><svg class="ico"><use href="#i-snooze"/></svg>Posponer</button>
         <button class="toolbar__action" data-act="skip"><svg class="ico"><use href="#i-skip"/></svg>Saltar</button>
         <button class="toolbar__action" data-act="edit"><svg class="ico"><use href="#i-edit"/></svg>Editar</button>
         <button class="toolbar__action toolbar__action--danger" data-act="delete"><svg class="ico"><use href="#i-trash"/></svg>Borrar</button>
       </div>
+      <div class="list list--inset" id="detailInfo"></div>
+      <div id="detailDesc"></div>
       <div class="section-header">Historial</div>
       <div class="list list--inset history" id="detailHistory"></div>
       <div class="detail-actions">
@@ -566,8 +567,8 @@ function renderSummary() {
 }
 function renderEmpty() {
   const next = tasks.filter((t) => !t.finished).sort((a, b) => a.due - b.due)[0];
-  const title = filter === 'today' ? 'Nada para hoy 🙌' : filter === 'all' ? 'Nada pendiente 🙌' : 'Aquí no hay nada';
-  const msg = next ? `Lukas aprueba. Lo próximo es «${next.title}», ${dueLabel(next).replace('en ', 'en ')}.` : 'Lukas aprueba. Crea una tarea cuando haga falta.';
+  const title = filter === 'today' ? 'Nada para hoy' : filter === 'all' ? 'Nada pendiente' : 'Aquí no hay nada';
+  const msg = next ? `Lo próximo es «${next.title}», ${dueLabel(next)}.` : 'Crea una tarea cuando haga falta.';
   $('#homeEmpty').innerHTML = `<div class="empty"><div class="art">${LukasArt.sleepingPot()}</div><div class="empty__title">${title}</div><p class="empty__msg">${msg}</p>${filter !== 'all' ? '<button class="btn btn--bordered btn--sm" data-filter="all" style="margin-top:8px">Ver todas</button>' : ''}</div>`;
   if (!reduced()) $('#homeEmpty .empty').animate([{ opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }], { duration: 420, easing: 'cubic-bezier(.16,1,.3,1)', delay: 150, fill: 'backwards' });
 }
@@ -577,7 +578,9 @@ function simulateLoad(ms = 900) {
   const grid = $('#grid'); cardEls.forEach((el) => el.remove()); cardEls.clear();
   $('#homeEmpty').hidden = true;
   grid.setAttribute('aria-busy', 'true');
-  grid.innerHTML = Array.from({ length: 6 }, () => `<div class="skeleton skeleton--card skel-card"></div>`).join('');
+  grid.innerHTML = Array.from({ length: 6 }, () => `<div class="skel-card"><div class="skeleton skeleton--circle"></div><div class="skeleton skeleton--line" style="width:80%"></div><div class="skeleton skeleton--line" style="width:46%;height:28px"></div></div>`).join('');
+  $('#summary').innerHTML = '<span class="skeleton skeleton--line" style="display:block;width:60%;height:16px;margin-top:4px"></span>';
+  $$('#filters .chip__count').forEach((c) => c.style.visibility = 'hidden');
   setTimeout(() => { grid.innerHTML = ''; grid.removeAttribute('aria-busy'); renderHome({ animateIn: true }); }, ms);
 }
 
@@ -644,7 +647,7 @@ function renderDetail(t) {
 /* =================== completar =================== */
 function leafBurst(x, y, n = 14) {
   if (reduced()) return;
-  const fx = $('#fx'), a = app.getBoundingClientRect(), fills = ['var(--leaf)', 'var(--moss)', 'var(--sage)', 'var(--mint)', 'var(--olive)'];
+  const fx = $('#fx'), a = app.getBoundingClientRect(), fills = ['var(--leaf)', 'var(--moss)', 'var(--olive)'];
   for (let i = 0; i < n; i++) {
     const el = document.createElement('div'); el.className = 'leaf'; el.innerHTML = LukasArt.leaf(fills[i % fills.length]);
     el.style.left = (x - a.left) + 'px'; el.style.top = (y - a.top) + 'px'; fx.appendChild(el);

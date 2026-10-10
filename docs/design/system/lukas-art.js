@@ -172,7 +172,7 @@
 
     /* hojita para el confeti al completar */
     leaf(fill = 'var(--leaf)') {
-      return `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21 C3 10 10 3 21 3 C21 14 14 21 3 21 Z" style="fill:${fill}" stroke="#151515" stroke-width="1.6" stroke-linejoin="round"/><path d="M4 20 L15 9" stroke="#151515" stroke-width="1.4" stroke-linecap="round"/></svg>`;
+      return `<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 21 C3 10 10 3 21 3 C21 14 14 21 3 21 Z" style="fill:${fill}" stroke="#151515" stroke-width="2" stroke-linejoin="round"/><path d="M4 20 L15 9" stroke="#151515" stroke-width="1.4" stroke-linecap="round"/></svg>`;
     },
   };
 
