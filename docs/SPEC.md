@@ -1,30 +1,34 @@
-# Spec — App de tareas recurrentes del hogar
+# Lukas — Spec
 
-> **Estado:** Borrador v0.1 · **Fecha:** 2026-10-10
-> Este documento es una primera versión basada en la idea inicial. Las decisiones marcadas con **[SUPUESTO]** son propuestas que deben confirmarse; las preguntas pendientes están en la sección 14.
+> **Estado:** Borrador v0.2 · **Fecha:** 2026-10-10
+> v0.2 incorpora las respuestas de la ronda 1 de preguntas. Lo marcado **[SUPUESTO]** es una propuesta por confirmar; las preguntas abiertas están en la sección 15.
 
 ---
 
 ## 1. Visión
 
-Una web app minimalista para que un hogar (p. ej. Andrés y Mari) lleve control de **cada cuánto se hace cada tarea** y **a quién le toca**. No es un calendario de eventos: cada tarea es un "widget" con un anillo de progreso que se va llenando a medida que se acerca la fecha en que toca hacerla de nuevo. Al marcarla como hecha, el anillo se reinicia.
+**Lukas** es una web app mobile-first para que un hogar lleve control de **cada cuánto se hace cada tarea** y **a quién le toca**. No es un calendario de eventos: cada tarea es una tarjeta "widget" con un anillo de progreso que se llena a medida que se acerca el momento de hacerla de nuevo. Al marcarla como hecha, el anillo se reinicia.
 
-Inspiración visual: app *Mindr* (tarjetas con emoji dentro de un anillo, "due in 4d", estado vacío "Nada que hacer 🙌").
+El nombre y la mascota vienen de **Lukas**, la gata calicó de la casa (blanca con manchas negras y canela, ojos verde-amarillo). Ver `docs/design/refs/lukas.jpg`.
 
-Estilo: **herbal** — tonos verdes salvia, crema, tierra; ilustraciones sutiles de plantas y gatitos; mucho espacio en blanco; modo claro y oscuro.
+Usuarios: Andrés, Mari y algunos conocidos que crean sus propios hogares. No es un producto público a gran escala.
 
 ### 1.1 Objetivos
 - Crear una tarea en menos de 10 segundos.
-- Ver de un vistazo qué está vencido, qué viene pronto y a quién le toca.
-- Marcar una tarea como hecha con un toque.
-- Consumir el estado desde un widget de iPhone vía Scriptable.
-- Recibir recordatorios cuando algo vence.
+- Ver de un vistazo qué está vencido, qué toca pronto y a quién le toca.
+- Marcar como hecha con un toque.
+- Ver el estado en widgets de iPhone (Scriptable).
+- Recibir recordatorios por **Telegram**.
+- Ver estadísticas de cuántas tareas hizo cada persona del hogar.
 
-### 1.2 Fuera de alcance (v1)
-- Calendario con vista de eventos/horas.
-- Subtareas / checklists dentro de una tarea. **[SUPUESTO]**
-- App nativa iOS/Android (se usa PWA + Scriptable).
-- Gamificación / puntos. **[SUPUESTO]**
+### 1.2 Fuera de alcance
+- Calendario con vista de eventos por hora.
+- Subtareas / checklists.
+- Montos, costos, adjuntos o recibos.
+- Gamificación (puntos, rachas, premios).
+- Notificaciones push web y por email (solo Telegram; el email se usa únicamente para autenticación).
+- Widget de pantalla de bloqueo y completar tareas desde el widget.
+- App nativa.
 
 ---
 
@@ -32,12 +36,12 @@ Estilo: **herbal** — tonos verdes salvia, crema, tierra; ilustraciones sutiles
 
 | Término | Definición |
 |---|---|
-| **Hogar (Household)** | Espacio compartido con sus miembros, listas y tareas. Un usuario puede pertenecer a varios. |
-| **Lista** | Agrupación personalizada de tareas dentro de un hogar (p. ej. "Limpieza", "Michi 🐱", "Pagos"). |
-| **Tarea** | Algo que se repite (o no) con un emoji, nombre, descripción, programación y responsable. |
-| **Programación (Schedule)** | Regla que define cuándo vence la tarea. |
-| **Completado (Completion)** | Registro de que alguien hizo la tarea en un momento dado. |
-| **Ocurrencia** | Cada vencimiento concreto calculado a partir de la programación. |
+| **Hogar** | Espacio compartido con sus miembros, listas y tareas. Un usuario puede pertenecer a varios. |
+| **Lista** | Agrupación de tareas dentro de un hogar ("Limpieza", "Lukas 🐱", "Pagos"). |
+| **Tarea** | Algo que se repite (o no), con emoji, nombre, descripción, programación con hora y responsable. |
+| **Programación** | Regla que define cuándo vence la tarea. |
+| **Completado** | Registro de que alguien hizo la tarea en un momento dado. |
+| **Ciclo** | Periodo entre el último completado (o inicio) y el próximo vencimiento. |
 
 ---
 
@@ -45,352 +49,456 @@ Estilo: **herbal** — tonos verdes salvia, crema, tierra; ilustraciones sutiles
 
 | Acción | Super admin | Admin del hogar | Miembro |
 |---|:-:|:-:|:-:|
-| Ver todos los hogares de la plataforma | ✅ | ❌ | ❌ |
+| Ver todos los usuarios, hogares y estadísticas globales | ✅ | ❌ | ❌ |
 | Desactivar usuarios / hogares | ✅ | ❌ | ❌ |
 | Crear un hogar (queda como admin) | ✅ | ✅ | ✅ |
-| Editar nombre/emoji/zona horaria del hogar | ✅ | ✅ | ❌ |
+| Editar nombre, emoji y zona horaria del hogar | ✅ | ✅ | ❌ |
 | Invitar / expulsar miembros, cambiar roles | ✅ | ✅ | ❌ |
-| Crear / editar / borrar listas | ✅ | ✅ | **[SUPUESTO]** ✅ |
-| Crear / editar / archivar tareas | ✅ | ✅ | **[SUPUESTO]** ✅ |
-| Marcar tareas como hechas / posponer | ✅ | ✅ | ✅ |
-| Gestionar sus propias notificaciones y tokens de widget | ✅ | ✅ | ✅ |
+| Crear / editar / ordenar / borrar listas | ✅ | ✅ | ✅ |
+| Crear / editar / archivar tareas | ✅ | ✅ | ✅ |
+| Borrar tareas definitivamente | ✅ | ✅ | ❌ **[SUPUESTO]** |
+| Completar, posponer o saltar cualquier tarea (aunque no sea suya) | ✅ | ✅ | ✅ |
+| Ver estadísticas de su hogar | ✅ | ✅ | ✅ |
+| Gestionar su perfil, Telegram y tokens de widget | ✅ | ✅ | ✅ |
 
-- Un hogar debe tener **al menos un admin** siempre.
-- El super admin se define por flag en `profiles.is_super_admin` (no se asigna desde la UI). **[SUPUESTO]**
+Reglas:
+- Un usuario **solo ve los hogares de los que es miembro**. Solo el super admin ve datos de otros hogares.
+- Todo hogar debe tener al menos un admin; el último admin no puede salir sin transferir el rol.
+- El super admin se marca con `profiles.is_super_admin` directamente en la base de datos (no desde la UI).
 
 ---
 
 ## 4. Funcionalidades
 
-### 4.1 Autenticación
-- Supabase Auth con **magic link por email** y **Google OAuth**. **[SUPUESTO]**
-- Perfil: nombre visible, avatar (emoji o foto), idioma preferido, tema preferido.
+### 4.1 Autenticación (Supabase Auth)
+- **Link mágico** por email.
+- **Email + contraseña** (registro, login, recuperar contraseña).
+- Perfil: nombre visible, avatar (emoji o foto), idioma, tema.
+- Registro abierto; quien se registra sin invitación entra al onboarding para crear su hogar. **[SUPUESTO]** (alternativa: registro solo por invitación, ver pregunta 1).
 
 ### 4.2 Hogares
-- Crear hogar: nombre, emoji (🏡 por defecto), zona horaria (por defecto la del navegador).
-- Invitar miembros mediante **enlace de invitación** (expira en 7 días, uso único) o por email.
-- Cambiar entre hogares desde un selector en el header.
-- Salir de un hogar; el último admin no puede salir sin transferir el rol.
+- Crear hogar: nombre, emoji (🏡), zona horaria (por defecto `America/Costa_Rica`).
+- Invitar con **enlace de invitación** (uso único, expira en 7 días) que se comparte por Telegram/WhatsApp. Al abrirlo: registrarse o iniciar sesión → unirse.
+- Selector de hogar en el header cuando el usuario pertenece a más de uno.
 
 ### 4.3 Listas
-- Nombre + emoji + color de acento opcional.
-- Orden manual (drag & drop).
-- Vista "Todas" que agrupa todas las tareas del hogar.
+- Nombre, emoji y color (de la paleta de la app).
+- Orden manual (arrastrar).
+- Vista "Todas" con todas las tareas del hogar.
 
 ### 4.4 Tareas
 
-Campos:
-
 | Campo | Tipo | Obligatorio | Notas |
 |---|---|:-:|---|
-| Emoji | string (1 grafema) | ✅ | Cualquier emoji; picker con búsqueda + sugerencias según el título. |
+| Emoji | 1 grafema | ✅ | Cualquier emoji. Picker con búsqueda y sugerencias por palabra clave del nombre. |
 | Nombre | texto ≤ 60 | ✅ | |
-| Descripción | texto ≤ 500 | ❌ | Markdown simple. |
-| Lista | ref | ❌ | Si no tiene, va a "Sin lista". |
+| Descripción | texto ≤ 500 | ❌ | Texto plano con saltos de línea. |
+| Lista | ref | ❌ | Sin lista → "General". |
 | Programación | ver 4.5 | ✅ | |
-| Responsable | ver 4.6 | ❌ | |
-| Recordatorio | ver 4.8 | ❌ | Hora y anticipación. |
-| Notas privadas / costo | — | ❌ | **[PREGUNTA]** ¿Hace falta registrar costo (p. ej. alquiler, desparasitante)? |
+| **Hora** | `HH:mm` | ✅ | Default 09:00. Es la hora a la que vence y se notifica. |
+| Responsable | ver 4.6 | ✅ | Default "Cualquiera". |
 
-Acciones sobre una tarea:
-- **Hecha ✅** — registra un completado (quién, cuándo, nota opcional) y recalcula el próximo vencimiento.
-- **Posponer** — mueve el próximo vencimiento (+1 día, +3 días, fecha a elegir) sin registrar completado.
+Acciones:
+- **Hecha ✅** — registra completado (quién, cuándo), recalcula el próximo vencimiento y, si hay rotación, pasa el turno.
+- **Posponer** — +1 h, +1 día, +3 días o fecha/hora a elegir. No registra completado.
 - **Saltar esta vez** — avanza a la siguiente ocurrencia sin completado.
-- **Deshacer** último completado (toast de 5 s y en el historial).
-- **Archivar** / **Borrar**.
-- **Historial** — lista de completados con quién la hizo.
+- **Deshacer** — toast de 5 s tras completar/saltar, y desde el historial.
+- **Editar**, **Archivar**, **Borrar** (solo admin).
+- **Historial** — completados con quién y cuándo.
 
 ### 4.5 Tipos de programación
 
 | Tipo | Ejemplo | Parámetros |
 |---|---|---|
-| **Intervalo** | "Cada 2 semanas", "Cada mes comprar desparasitante" | `every` (n), `unit` (día/semana/mes/año), `anchor`: desde **última vez hecha** o desde **fecha programada** |
-| **Días de la semana** | "Martes y jueves sacar la basura", "Jueves barrer" | `weekdays[]`, cada *n* semanas (default 1) |
-| **Día del mes** | "El 3 de cada mes pagar el apartamento" | `day_of_month` (1–31, o "último día"), cada *n* meses |
-| **Una vez** | "Llevar la gata al veterinario el 20/10" | `due_at` |
+| **Intervalo** | "Cada 3 días regar plantas", "Cada mes comprar desparasitante para Lukas" | `every` (n), `unit` (día/semana/mes), `anchor`: desde **última vez hecha** o desde **fecha programada** |
+| **Días de la semana** | "Martes y jueves sacar la basura 19:00", "Jueves barrer" | `weekdays[]`, cada *n* semanas (default 1) |
+| **Día del mes** | "El 3 de cada mes pagar el apartamento" | `day_of_month` (1–31 o "último"), cada *n* meses |
+| **Una vez** | "Vacuna de Lukas el 20/10 10:00" | fecha |
 
 Reglas:
-- Cada programación tiene **fecha de inicio**, **hora opcional** (si no hay hora, vence al final del día en la zona horaria del hogar) y **fecha fin opcional**.
-- "Día del mes" con día 31 en meses cortos → se usa el último día del mes.
-- Intervalo anclado a **última vez hecha**: el próximo vencimiento = `último completado + intervalo` (comportamiento de Mindr "Repeating from: last completion").
-- Intervalo anclado a **fecha programada**: no se desplaza si se hace tarde.
-- Días de la semana / día del mes: completar una ocurrencia vencida la cierra; si se acumularon varias ocurrencias vencidas **[SUPUESTO]** se muestran como una sola ("vencida hace 5 días") y al completarla se salta a la siguiente futura.
+- Todo se calcula en la **zona horaria del hogar**.
+- Día 29–31 en meses que no lo tienen → último día del mes.
+- **Ocurrencias no acumulan**: si una tarea se venció y llega otra ocurrencia, se muestra **una sola pendiente** ("vencida hace 2 días"). Al completarla, el próximo vencimiento es la siguiente ocurrencia **futura**.
+- Intervalo anclado a *última vez hecha*: próximo = `completado + intervalo` (a la hora definida).
+- Intervalo anclado a *fecha programada*, días de semana y día del mes: no se desplazan si se hacen tarde.
+- Tareas "Una vez" completadas se archivan solas.
 
 ### 4.6 Responsables
 
 | Modo | Comportamiento |
 |---|---|
-| **Cualquiera** | Nadie asignado; cualquiera la completa. |
+| **Cualquiera** | Sin responsable; el aviso llega a todos los miembros. |
 | **Fijo** | Siempre la misma persona. |
-| **Rotación** | Lista ordenada de miembros; tras cada completado le toca al siguiente. |
+| **Rotación** (opcional) | Lista ordenada de miembros; tras cada completado le toca al siguiente. |
 
-- **[SUPUESTO]** Cualquier miembro puede completar una tarea aunque no sea el responsable; en rotación, avanza igual al siguiente de la lista tras el responsable actual.
+- Cualquiera puede completar cualquier tarea. El completado registra **quién la hizo**, y el historial lo muestra ("La hizo Mari · le tocaba a Andrés").
+- En rotación, completar por otra persona igual pasa el turno al siguiente del responsable actual. **[SUPUESTO]**
+- Las estadísticas cuentan a quien **la hizo**, no a quien le tocaba.
 
 ### 4.7 Estado visual (anillo)
 
 `progreso = (ahora − inicio_del_ciclo) / (vencimiento − inicio_del_ciclo)`, limitado a [0, 1].
 
-| Estado | Condición | Color |
+| Estado | Condición | Tarjeta | Texto |
+|---|---|---|---|
+| Al día | progreso < 0.75 | lima | "toca en 4d" |
+| Pronto | ≥ 0.75 o vence hoy | mostaza | "hoy 19:00" |
+| Vencida | ahora > vencimiento | coral | "vencida hace 2d" |
+| Hecha | completada en el ciclo actual, mostrando la animación | crema | "✓ Mari, hace 1 min" |
+
+El estado nunca depende solo del color: siempre hay texto y el anillo lleno/parcial.
+
+### 4.8 Estadísticas
+- Por hogar, visibles para todos sus miembros.
+- Periodos: esta semana, este mes, últimos 3 meses, todo.
+- Métricas:
+  - **Tareas completadas por persona** (barra horizontal por miembro, con su avatar).
+  - Completadas por lista, por persona.
+  - Total completadas vs. vencidas sin hacer en el periodo. **[SUPUESTO]**
+- Super admin: totales globales (usuarios, hogares, tareas activas, completados por día).
+
+### 4.9 Notificaciones (Telegram)
+
+**Vinculación:** Ajustes → "Conectar Telegram" → abre `https://t.me/<LukasBot>?start=<código de un solo uso>` → el bot recibe `/start <código>` en su webhook y guarda el `chat_id` del usuario. `/stop` en el bot o "Desconectar" en la app la desvincula.
+
+**Tipos de mensaje:**
+
+| Tipo | Cuándo | A quién |
 |---|---|---|
-| Al día | progreso < 0.75 | verde salvia |
-| Pronto | 0.75 ≤ progreso < 1 o vence hoy | ámbar suave |
-| Vencida | ahora > vencimiento | terracota, anillo completo + badge "hace X días" |
-| Hecha hoy | completada en el día | anillo vacío + ✓ breve |
+| **Por tarea** | A la hora de vencimiento de la tarea | Responsable actual; si es "Cualquiera", a todos los miembros |
+| **Resumen del día** | Al inicio del día (hora configurable por usuario, default 07:00) | Cada usuario: sus tareas del día + vencidas + "de cualquiera" |
 
-Texto bajo el título: "toca en 4d", "toca hoy", "vencida hace 2d", "le toca a Mari".
+- Se avisa **una sola vez** por ocurrencia (no hay recordatorios repetidos de vencidas). Posponer genera un nuevo aviso a la nueva hora.
+- Cada usuario puede apagar el aviso por tarea o el resumen, y elegir horas de silencio. **[SUPUESTO]**
+- El mensaje de Telegram está en el idioma del usuario e incluye un enlace a la tarea.
+- **[PREGUNTA]** ¿Botón "✅ Hecha" en el mensaje de Telegram? (ver pregunta 6).
 
-### 4.8 Notificaciones
-Canales propuestos (cada usuario elige):
-1. **Web Push (PWA)** — funciona en iPhone si la app se agrega a la pantalla de inicio (iOS ≥ 16.4).
-2. **Email** — resumen diario (vía Resend). **[SUPUESTO]**
-3. **[PREGUNTA]** ¿Telegram / WhatsApp?
+Ejemplos:
 
-Tipos:
-- Recordatorio al responsable cuando la tarea vence (a la hora definida o a una hora por defecto, p. ej. 9:00).
-- Recordatorio anticipado opcional (1 día antes, etc.).
-- Resumen diario: "Hoy toca: 🧹 Barrer, 🗑️ Basura".
-- Aviso de tarea vencida hace N días (máx. 1 por día por tarea).
-- **[SUPUESTO]** Aviso cuando alguien completa una tarea → desactivado por defecto.
-- Horas de silencio por usuario.
+```
+🗑️ Sacar la basura — toca ahora (19:00)
+Le toca a: Andrés
+Abrir en Lukas →
+```
 
-Implementación: `pg_cron` en Supabase cada 5–15 min invoca una Edge Function que calcula vencimientos y envía notificaciones; tabla `notification_log` evita duplicados.
+```
+☀️ Buenos días, Mari. Hoy en Casa 🏡:
+• 🧹 Barrer — 10:00
+• 🗑️ Sacar la basura — 19:00 (Andrés)
+⚠️ Vencida: 🐱 Desparasitante de Lukas (hace 2d)
+```
 
-### 4.9 Integración Scriptable (widgets iPhone)
-- Cada usuario genera **tokens de API personales** (nombre, scope solo lectura o lectura+completar, revocables). Se guardan como hash.
-- Endpoints REST versionados (sección 7).
-- Repositorio incluye `scriptable/widget.js` listo para copiar, con tamaños small / medium / large:
-  - **Small:** próxima tarea con anillo + emoji.
-  - **Medium:** 4 tareas (las más urgentes) en grid de anillos.
-  - **Large:** hasta 8–12 tareas o lista filtrada.
-- Parámetros del widget (vía `args.widgetParameter`): `household`, `list`, `assignee=me`, `theme`.
-- Tocar el widget abre la web app en la tarea / lista.
-- Cache local en Scriptable para mostrar último estado sin conexión.
+**Implementación:** Supabase `pg_cron` cada minuto llama a una Edge Function (o ruta de Next) que busca tareas con `next_due_at` en la ventana y sin registro en `notification_log`, y envía con la Bot API (`sendMessage`). Otro job revisa cada 15 min qué usuarios llegaron a su hora de resumen.
 
-### 4.10 Internacionalización
-- Español (default) e Inglés con `next-intl`.
-- Detección por `Accept-Language`, preferencia guardada en el perfil.
-- Fechas/pluralización con `Intl` ("toca en 1 día" / "toca en 3 días").
-- Contenido creado por el usuario (nombres de tareas) **no** se traduce.
+### 4.10 Widgets (Scriptable)
+- Cada usuario crea **tokens personales de solo lectura** (nombre, revocables, se guardan como hash).
+- El repo incluye `scriptable/lukas-widget.js` con instrucciones paso a paso.
+- Tamaños:
+  - **Mediano — 4 espacios:** grid 4×1 o 2×2 con anillo + emoji + "toca en…".
+  - **Grande — 8 espacios:** grid 4×2 con las 8 más urgentes.
+- Parámetros del widget (`args.widgetParameter`, formato `clave=valor;…`): `household`, `list`, `mine=1`, `theme=dark|light|auto`.
+- Mismo lenguaje visual que la app (colores, anillos, tipografía).
+- Tocar el widget abre la app en el hogar/lista. No se puede completar desde el widget.
+- Cache local en Scriptable para mostrar el último estado si no hay red.
 
-### 4.11 Tema
-- Claro / Oscuro / Sistema con `next-themes`; preferencia guardada en el perfil.
+### 4.11 Internacionalización
+- Español (default) e inglés con `next-intl`. Preferencia en el perfil; fallback a `Accept-Language`.
+- Fechas relativas y plurales con `Intl` ("toca en 1 día" / "due in 3 days").
+- Mensajes de Telegram y widget también traducidos. El contenido del usuario no se traduce.
+
+### 4.12 Tema
+- Claro / Oscuro / Sistema con `next-themes`, guardado en el perfil.
 
 ---
 
-## 5. UX / UI
+## 5. Dirección visual
 
-Principios: **una acción principal por pantalla**, sin menús profundos, gestos simples, tipografía redondeada, microanimaciones suaves.
+Referencias en `docs/design/refs/`:
 
-### 5.1 Pantallas
-1. **Inicio (hogar actual)** — saludo + estado ("Nada pendiente 🙌🌿" o "3 tareas para hoy"), chips de listas, grid de tarjetas-anillo ordenadas por urgencia. Botón `+` flotante.
-2. **Crear/editar tarea** (bottom sheet) — emoji grande arriba, nombre, segmented control *Intervalo / Días / Día del mes / Una vez*, responsable, recordatorio, botón verde "Guardar".
-3. **Detalle de tarea** — anillo grande, "Marcar como hecha", próximo vencimiento, historial.
-4. **Hogar** — miembros, invitaciones, listas.
-5. **Ajustes** — perfil, idioma, tema, notificaciones, tokens de widget (con instrucciones de Scriptable).
-6. **Super admin** — tabla de usuarios y hogares, métricas básicas.
-7. **Onboarding** — crear o unirse a un hogar + 3 plantillas sugeridas.
+| Archivo | Qué tomar |
+|---|---|
+| `ui-chunky-cards.jpg` | Tarjetas grandes de color sólido, esquinas muy redondeadas, botón pill "Create new task", tira de días, barra de navegación flotante tipo pill, avatares apilados. |
+| `ink-illustration.png` | Estilo de ilustración: tinta negra tipo grabado/sello sobre crema, trazo grueso, humor tierno. |
+| `mindr-grid.png`, `mindr-create.png` | Grid de anillos, formulario de creación en bottom sheet. |
+| `lukas.jpg` | La mascota: gata calicó (blanco, negro, canela; ojos verde-amarillo). |
 
-### 5.2 Interacciones clave
-- Tocar el anillo → menú rápido (Hecha / Posponer / Saltar). **[SUPUESTO]** Mantener presionado = Hecha directo.
-- Filtro rápido "Mías" / "Todas".
-- Estado vacío con ilustración (gatito durmiendo junto a una planta).
+### 5.1 Principios
+- **Chunky**: componentes grandes, táctiles (mínimo 48 px de alto, botones principales 56 px), bordes muy redondeados, tipografía pesada.
+- **Mobile first**: diseño a 375 px; en escritorio se centra en una columna de máx. ~480 px (y grid de 2–3 columnas de tarjetas en ≥ 768 px).
+- **Una acción principal por pantalla.**
+- **Herbal + Lukas**: hojas, macetas y Lukas dibujados en tinta, nunca recargado.
 
-### 5.3 Sistema visual (propuesta)
+### 5.2 Paleta (tokens Tailwind)
 
-| Token | Claro | Oscuro |
-|---|---|---|
-| Fondo | `#F6F3EC` crema | `#161A16` verde casi negro |
-| Superficie | `#FFFFFF` | `#1F2520` |
-| Primario (salvia) | `#7FA37A` | `#8FBF88` |
-| Pronto (ámbar) | `#E3B565` | `#E8C27A` |
-| Vencido (terracota) | `#C9735A` | `#E08C70` |
-| Texto | `#2E3A2F` | `#E8EDE6` |
+| Token | Claro | Oscuro | Uso |
+|---|---|---|---|
+| `bg` | `#FBF6DC` crema | `#161616` | Fondo |
+| `surface` | `#FFFFFF` | `#232323` | Contenedores, sheets |
+| `surface-2` | `#F1EBCB` | `#2E2E2E` | Chips, inputs |
+| `ink` | `#151515` | `#F5F1DC` | Texto, trazos de ilustración |
+| `ink-muted` | `#5E5A48` | `#A8A496` | Texto secundario |
+| `leaf` (lima) | `#C5D98A` | `#C5D98A` | Estado "al día", acento primario |
+| `mustard` | `#F2CB66` | `#F2CB66` | Estado "pronto", CTA |
+| `coral` | `#EE8F6E` | `#EE8F6E` | Estado "vencida" |
+| `stone` | `#DAD8D1` | `#DAD8D1` | Tarjetas neutras / archivadas |
+| `calico` | `#D9A25F` | `#D9A25F` | Acento Lukas (detalles, ilustraciones) |
 
-Tipografía sugerida: *Nunito* o *Quicksand*. Íconos: Lucide. Ilustraciones: SVG de línea fina (hojas, macetas, gatitos).
+- Las tarjetas de color usan texto `#151515` en ambos temas (como la referencia), garantizando contraste AA.
+- En oscuro, el fondo es casi negro y las tarjetas mantienen sus colores pastel.
+
+### 5.3 Tipografía
+- Títulos: **Bricolage Grotesque** (700–800) — chunky, con carácter. **[SUPUESTO]**
+- Texto/UI: **DM Sans** (400–600).
+- Escala: 32 / 24 / 20 / 16 / 14.
+
+### 5.4 Forma y profundidad
+- Radios: tarjetas `28px`, botones/pills `9999px`, sheets `32px` arriba.
+- Sin sombras difusas; profundidad con bloques de color y, en claro, un borde/sombra dura de `2px` en tinta en elementos interactivos principales (estilo sello). **[SUPUESTO]**
+- Íconos: Phosphor (peso *bold/fill*) para combinar con lo chunky.
+
+### 5.5 Ilustraciones (tinta, estilo grabado)
+Set inicial de SVG monocromos (se tiñen con `ink`):
+
+| Uso | Escena |
+|---|---|
+| Estado vacío "Nada pendiente 🙌" | Lukas dormida dentro de una maceta |
+| Onboarding / login | Lukas montada sobre una hoja gigante como en `ink-illustration.png` |
+| Hogar sin tareas | Lukas mirando una regadera |
+| Error / 404 | Lukas tirando una maceta |
+| Telegram conectado | Lukas con un sobre |
+| Carga | Brote que crece (animado) |
+
+**[PREGUNTA]** ¿Las dibujamos nosotros (SVG simples generados) o tienes un ilustrador / quieres generarlas con IA? (pregunta 8).
+
+### 5.6 Movimiento y transiciones
+Librería: **Motion** (`motion/react`) + **View Transitions API** para navegación entre rutas.
+
+| Momento | Animación |
+|---|---|
+| Cambio de pantalla | Slide horizontal + fade (push/pop) en móvil; fade en escritorio. ~280 ms. |
+| Tarjeta → detalle | *Shared element*: la tarjeta crece hasta convertirse en la pantalla de detalle (anillo y emoji conservan posición). |
+| Abrir crear/editar | Bottom sheet con spring (`stiffness 400, damping 35`), arrastrable para cerrar. |
+| Entrada de listas | Stagger de tarjetas (40 ms entre cada una), suben 12 px y aparecen. |
+| Completar tarea | El anillo se cierra, la tarjeta hace "squash & stretch", confeti de hojitas 🍃 y la tarjeta se reordena con animación de layout. Vibración háptica (`navigator.vibrate`) donde exista. |
+| Cambio de estado | Color de tarjeta interpola suavemente (200 ms). |
+| Botones | Press: escala 0.96; release con spring. |
+| Carga | Skeletons con forma de tarjeta (shimmer suave) usando `loading.tsx` + Suspense; brote animado en cargas largas. |
+| Acciones optimistas | La UI cambia al instante (`useOptimistic`), revierte con toast si falla. |
+| Tema claro/oscuro | Transición circular desde el botón (View Transitions). |
+
+- Respetar `prefers-reduced-motion`: se reemplazan movimientos por fades cortos y se quita el confeti.
+- Objetivo: 60 fps en iPhone; animar solo `transform` y `opacity`.
 
 ---
 
-## 6. Modelo de datos (Supabase / Postgres)
+## 6. Pantallas
+
+Navegación inferior flotante tipo pill (como la referencia): **Inicio · Listas · Estadísticas · Ajustes**. Botón pill mostaza "+ Nueva tarea" arriba.
+
+1. **Inicio**
+   - Header: "Hola, Andrés" + avatar + selector de hogar.
+   - Resumen: "Hoy tocan 3" o "Nada pendiente 🙌" con ilustración.
+   - **Tira de días** horizontal (hoy ± 7) como la referencia: filtrar lo que vence ese día. Por defecto "Todo".
+   - Chips: Todas · Mías · por lista.
+   - Grid de tarjetas chunky (2 columnas en móvil): color por estado, emoji en anillo, nombre, "toca en…", avatar del responsable, botón "…".
+   - Orden: vencidas → pronto → al día.
+2. **Detalle de tarea** — anillo grande, descripción, próximo vencimiento, responsable/rotación, botón gigante "Marcar como hecha", acciones secundarias, historial.
+3. **Crear / editar tarea** (bottom sheet) — emoji grande tocable, nombre, segmented *Intervalo · Días · Día del mes · Una vez*, hora, responsable, lista, "Guardar" pill a todo el ancho.
+4. **Listas** — tarjetas de listas con conteo y estado; crear/editar/ordenar.
+5. **Estadísticas** — selector de periodo, barras por persona, desglose por lista.
+6. **Ajustes** — perfil, idioma, tema, Telegram (conectar/estado/preferencias/hora del resumen), widgets (tokens + guía Scriptable), hogar (miembros, roles, invitar, salir).
+7. **Onboarding** — crear hogar o unirse con enlace; elegir plantillas sugeridas; conectar Telegram (opcional).
+8. **Auth** — login (link mágico / contraseña), registro, recuperar contraseña.
+9. **Super admin** (`/admin`) — usuarios, hogares, métricas globales, desactivar.
+
+---
+
+## 7. Modelo de datos (Supabase / Postgres)
 
 ```text
 profiles            (id PK = auth.users.id, display_name, avatar_emoji, avatar_url,
-                     locale, theme, timezone, is_super_admin, created_at)
+                     locale ('es'|'en'), theme ('light'|'dark'|'system'),
+                     is_super_admin bool, disabled_at, created_at)
 
-households          (id, name, emoji, timezone, created_by, created_at)
+households          (id, name, emoji, timezone default 'America/Costa_Rica',
+                     created_by, disabled_at, created_at)
 
-household_members   (household_id, user_id, role ENUM('admin','member'),
-                     joined_at, PK(household_id, user_id))
+household_members   (household_id, user_id, role ('admin'|'member'), joined_at,
+                     PK(household_id, user_id))
 
-invitations         (id, household_id, token_hash, email NULL, role,
-                     invited_by, expires_at, accepted_by NULL, accepted_at NULL)
+invitations         (id, household_id, token_hash, role, invited_by,
+                     expires_at, accepted_by, accepted_at)
 
 lists               (id, household_id, name, emoji, color, position, created_at)
 
 tasks               (id, household_id, list_id NULL, emoji, title, description,
-                     schedule_type ENUM('interval','weekly','monthly','once'),
-                     schedule JSONB,          -- parámetros según tipo
-                     anchor ENUM('completion','schedule'),
-                     starts_at, due_time NULL, ends_at NULL,
-                     assignment_mode ENUM('anyone','fixed','rotation'),
+                     schedule_type ('interval'|'weekly'|'monthly'|'once'),
+                     schedule jsonb,        -- {every,unit} | {weekdays,every_weeks} | {day,every_months} | {date}
+                     anchor ('completion'|'schedule'),
+                     due_time time NOT NULL,
+                     starts_on date, ends_on date NULL,
+                     assignment_mode ('anyone'|'fixed'|'rotation'),
                      current_assignee_id NULL,
-                     next_due_at,             -- desnormalizado para ordenar/consultar
-                     cycle_started_at,
-                     remind_before_minutes NULL,
-                     archived_at NULL, created_by, created_at, updated_at)
+                     cycle_started_at timestamptz,
+                     next_due_at timestamptz,   -- desnormalizado
+                     archived_at, created_by, created_at, updated_at)
 
 task_rotation       (task_id, user_id, position, PK(task_id, user_id))
 
-task_completions    (id, task_id, completed_by, completed_at, note,
-                     kind ENUM('done','skipped','snoozed'), due_at_snapshot)
+task_events         (id, task_id, household_id, actor_id,
+                     kind ('done'|'skipped'|'snoozed'|'undone'),
+                     assignee_at_time, due_at_snapshot, snoozed_until, created_at)
 
-api_tokens          (id, user_id, name, token_hash, scopes TEXT[],
-                     last_used_at, created_at, revoked_at)
+api_tokens          (id, user_id, name, token_hash, last_used_at, created_at, revoked_at)
 
-push_subscriptions  (id, user_id, endpoint, p256dh, auth, user_agent, created_at)
+telegram_links      (user_id PK, chat_id bigint UNIQUE, username, linked_at)
+telegram_link_codes (code_hash PK, user_id, expires_at, used_at)
 
-notification_prefs  (user_id, push_enabled, email_enabled, daily_digest_time,
-                     quiet_start, quiet_end)
+notification_prefs  (user_id PK, per_task bool default true, daily_digest bool default true,
+                     digest_time time default '07:00', quiet_start, quiet_end)
 
-notification_log    (id, user_id, task_id, kind, due_at, sent_at,
-                     UNIQUE(user_id, task_id, kind, due_at))
+notification_log    (id, user_id, task_id NULL, kind ('due'|'digest'),
+                     occurrence_key text, sent_at,
+                     UNIQUE(user_id, kind, occurrence_key))
 ```
 
-### 6.1 Seguridad (RLS)
-- Todas las tablas de hogar: lectura si `auth.uid()` es miembro del hogar.
-- Escritura sobre hogar/miembros/invitaciones: solo admins.
-- `api_tokens`, `push_subscriptions`, `notification_prefs`: solo el propio usuario.
-- Super admin: políticas adicionales vía función `is_super_admin()`.
-- Lógica de recálculo de `next_due_at` en función SQL `complete_task(task_id, note)` (SECURITY DEFINER) para que sea atómica.
+- `stats` se calcula con una vista/RPC `household_stats(household_id, from, to)` sobre `task_events` (kind = 'done').
+- Funciones SQL atómicas (SECURITY DEFINER, validan membresía): `complete_task`, `skip_task`, `snooze_task`, `undo_last_event`, `accept_invitation`.
+- La lógica de recurrencia vive en **TypeScript** (`lib/schedule.ts`, testeada) y se replica en SQL solo si hace falta para el cron; **[SUPUESTO]** el cron corre en una ruta de Next.js para compartir el mismo código.
+
+### 7.1 Seguridad (RLS)
+- Datos de hogar: lectura y escritura si `auth.uid()` es miembro; operaciones de miembros/invitaciones/borrado definitivo solo admins.
+- `api_tokens`, `telegram_links`, `notification_prefs`: solo el dueño.
+- Super admin: acceso de lectura global vía `is_super_admin()`.
+- Usuarios u hogares desactivados no pueden leer ni escribir.
 
 ---
 
-## 7. API pública (Scriptable)
+## 8. API para Scriptable
 
-Autenticación: `Authorization: Bearer <token>`.
+Autenticación: `Authorization: Bearer <token>` (solo lectura).
 
 | Método | Ruta | Descripción |
 |---|---|---|
-| GET | `/api/v1/me` | Usuario y hogares. |
-| GET | `/api/v1/households/:id/tasks?list=&assignee=me&limit=` | Tareas ordenadas por urgencia con `progress`, `status`, `next_due_at`, `assignee`. |
-| POST | `/api/v1/tasks/:id/complete` | Marcar hecha (requiere scope `tasks:complete`). |
-
-Ejemplo de respuesta:
+| GET | `/api/v1/me` | Usuario, hogares y listas. |
+| GET | `/api/v1/widget?household=&list=&mine=1&limit=8` | Tareas ordenadas por urgencia, listas para dibujar. |
 
 ```json
 {
   "household": { "id": "…", "name": "Casa", "emoji": "🏡" },
   "generated_at": "2026-10-10T18:00:00Z",
+  "locale": "es",
   "tasks": [
     {
       "id": "…", "emoji": "🌱", "title": "Regar plantas",
       "status": "soon", "progress": 0.86,
-      "next_due_at": "2026-10-11T23:59:59-06:00",
-      "due_label": "toca en 1 día",
+      "next_due_at": "2026-10-11T09:00:00-06:00",
+      "due_label": "mañana 9:00",
       "assignee": { "name": "Mari", "emoji": "🌸" },
-      "url": "https://…/t/…"
+      "url": "https://lukas-….vercel.app/t/…"
     }
   ]
 }
 ```
 
-Rate limit: 60 req/min por token.
+Rate limit: 60 req/min por token. Webhook de Telegram: `POST /api/telegram/webhook` validado con `X-Telegram-Bot-Api-Secret-Token`.
 
 ---
 
-## 8. Arquitectura técnica
+## 9. Arquitectura técnica
 
 | Capa | Elección |
 |---|---|
-| Framework | Next.js 15 (App Router, Server Components, Server Actions), TypeScript |
-| UI | Tailwind CSS + shadcn/ui, Framer Motion para microanimaciones |
-| Datos | Supabase (Postgres, Auth, RLS, Edge Functions, pg_cron) + `@supabase/ssr` |
+| Framework | Next.js (App Router, Server Components, Server Actions), TypeScript estricto |
+| Estilos | **Tailwind CSS v4** con tokens de la sección 5 en `@theme`; `clsx` + `tailwind-merge` |
+| Componentes | Propios (chunky); primitivas accesibles de Radix donde haga falta (dialog, popover, switch); `vaul` para bottom sheets |
+| Animación | `motion` + View Transitions API |
+| Datos | Supabase (Postgres, Auth, RLS, pg_cron) + `@supabase/ssr` |
 | Validación | Zod |
 | i18n | next-intl |
 | Tema | next-themes |
-| Fechas | date-fns + date-fns-tz (toda la lógica de recurrencia en zona del hogar) |
-| Emoji picker | `frimousse` o `emoji-mart` |
-| Push | Web Push (VAPID) + Service Worker; PWA manifest |
-| Email | Resend **[SUPUESTO]** |
-| Hosting | Vercel **[SUPUESTO]** |
-| Tests | Vitest (lógica de recurrencia), Playwright (flujos clave) |
+| Fechas | date-fns + `@date-fns/tz` |
+| Emoji | `frimousse` (picker liviano) |
+| Telegram | Bot API vía `fetch` (sin SDK) |
+| Hosting | Vercel (plan gratuito, subdominio `*.vercel.app`) + Supabase (plan gratuito) |
+| Tests | Vitest (recurrencia, permisos), Playwright (flujos clave en viewport móvil) |
+| PWA | Manifest + íconos para "Agregar a inicio" (sin push) |
+
+### 9.1 Email de autenticación sin dominio
+El SMTP por defecto de Supabase solo envía a miembros del equipo del proyecto y con límites muy bajos, así que **no sirve para invitar a conocidos**. Opciones:
+1. **Gmail SMTP con contraseña de aplicación** como SMTP personalizado en Supabase (gratis, ~500 correos/día). **[SUPUESTO — recomendado]**
+2. Comprar un dominio (~USD 10/año) y usar Resend.
+
+El login con contraseña funciona igual, pero registro, link mágico y recuperación necesitan SMTP.
 
 ---
 
-## 9. Requisitos no funcionales
-- Mobile-first; usable a 360 px de ancho. Lighthouse ≥ 90 en PWA y accesibilidad.
-- Accesibilidad: contraste AA en ambos temas; el estado del anillo no depende solo del color (texto + ícono).
-- Tiempos: carga inicial < 2 s en 4G.
-- Privacidad: tokens hasheados; sin analítica de terceros **[SUPUESTO]**.
-- Costos: dentro de los planes gratuitos de Supabase y Vercel para uso familiar.
+## 10. Requisitos no funcionales
+- Usable desde 360 px. Lighthouse ≥ 90 en rendimiento, accesibilidad y buenas prácticas en móvil.
+- Contraste AA en ambos temas; foco visible; navegación por teclado; `prefers-reduced-motion`.
+- Carga inicial < 2 s en 4G; interacciones optimistas < 100 ms percibidos.
+- Tokens y códigos guardados como hash; secretos solo en variables de entorno.
+- Costo: USD 0 dentro de planes gratuitos.
 
 ---
 
-## 10. Plantillas sugeridas (onboarding)
-- 🧹 Barrer — todos los jueves
-- 🗑️ Sacar la basura — martes y jueves
-- 🏠 Pagar apartamento — día 3 de cada mes
-- 🐱 Desparasitante de la gata — cada mes desde la última vez
+## 11. Plantillas sugeridas (onboarding)
+- 🧹 Barrer — jueves 10:00
+- 🗑️ Sacar la basura — martes y jueves 19:00
+- 🏠 Pagar apartamento — día 3 de cada mes 09:00
+- 🐱 Desparasitante de Lukas — cada mes desde la última vez
 - 🌱 Regar plantas — cada 3 días desde la última vez
 - 🛏️ Cambiar sábanas — cada 2 semanas
+- 🪣 Limpiar arenero — cada día 20:00
 
 ---
 
-## 11. Criterios de aceptación (ejemplos)
-- **Dado** una tarea "Basura" martes y jueves, **cuando** la completo el martes, **entonces** el próximo vencimiento es el jueves y el anillo se reinicia.
-- **Dado** "Desparasitante" cada 1 mes desde la última vez, **cuando** la completo el 15/10 aunque vencía el 10/10, **entonces** el próximo vencimiento es el 15/11.
-- **Dado** "Pagar apto" el día 3 anclado a fecha, **cuando** la completo el 5, **entonces** el próximo vencimiento sigue siendo el 3 del siguiente mes.
-- **Dado** una rotación [Andrés, Mari], **cuando** Andrés completa, **entonces** el responsable pasa a Mari.
-- **Dado** un token de solo lectura, **cuando** llamo `POST /complete`, **entonces** recibo 403.
-- **Dado** un miembro (no admin), **cuando** intenta invitar a alguien, **entonces** la acción no está disponible y la API responde 403.
+## 12. Criterios de aceptación
+- **Basura martes y jueves 19:00:** al completarla el martes 20:00, el próximo vencimiento es jueves 19:00 y el anillo se reinicia.
+- **No acumula:** si no se hizo el martes, el jueves 19:30 se ve **una** pendiente ("vencida"); al completarla, el próximo vencimiento es el martes siguiente.
+- **Desparasitante cada mes desde la última vez:** vencía el 10/10, se completa el 15/10 → próximo 15/11 a la hora definida.
+- **Apartamento día 3, anclado:** completado el 5 → próximo el día 3 del mes siguiente.
+- **Día 31 en febrero** → vence el último día de febrero.
+- **Rotación [Andrés, Mari]:** Andrés completa → responsable Mari. Mari completa una de Andrés → queda registrado que la hizo Mari y el turno pasa a Mari. **[SUPUESTO]**
+- **Telegram:** a las 19:00 el responsable recibe un mensaje; no recibe otro de esa ocurrencia aunque siga vencida. Si la pospone a 20:00, recibe uno a las 20:00.
+- **Resumen:** a las 07:00 (hora del usuario) recibe el resumen solo si tiene tareas ese día o vencidas. **[SUPUESTO]**
+- **Aislamiento:** un usuario de otro hogar no puede leer tareas ni estadísticas de "Casa" (RLS devuelve vacío / 404).
+- **Widget:** con token válido, `GET /api/v1/widget?limit=4` devuelve las 4 más urgentes; con token revocado → 401.
+- **Miembro** puede crear tareas y listas, pero no ve la opción de invitar ni de borrar definitivamente.
+- **Reduced motion:** con la preferencia activa no hay slide ni confeti.
 
 ---
 
-## 12. Fases
+## 13. Fases
 
 | Fase | Contenido |
 |---|---|
-| **MVP** | Auth, hogar único + invitación, listas, tareas con 4 tipos de programación, completar/posponer, anillos, tema, i18n, API + script de Scriptable. |
-| **v1.1** | Rotación, notificaciones push + resumen por email, historial, roles completos, multi-hogar. |
-| **v1.2** | Panel super admin, estadísticas ("quién hizo más"), sugerencia de emoji con IA, PWA offline. |
+| **MVP** | Auth (link mágico + contraseña), hogares e invitaciones, roles, listas, tareas con 4 programaciones y hora, completar/posponer/saltar/deshacer, anillos y estados, tema claro/oscuro, ES/EN, sistema visual chunky con animaciones base. |
+| **v1.0** | Telegram (vinculación, aviso por tarea, resumen diario), API + widget Scriptable (4 y 8), rotación, historial, estadísticas por persona, ilustraciones de Lukas, transiciones avanzadas (shared element, confeti). |
+| **v1.1** | Panel super admin, PWA pulida, sugerencias de emoji mejoradas. |
 
 ---
 
-## 13. Riesgos
-- Web Push en iOS requiere instalar la PWA; si no, solo email/Scriptable.
-- Los widgets de Scriptable se refrescan a discreción de iOS (no en tiempo real).
-- Zonas horarias y DST en el cálculo de recurrencias → cubrir con tests.
+## 14. Riesgos
+- **Email sin dominio** (ver 9.1).
+- **Cron en plan gratuito**: pg_cron funciona en Supabase free; si el proyecto se pausa por inactividad (7 días sin uso en plan free) se detienen las notificaciones. Mitigación: el propio cron y el widget generan actividad. **[SUPUESTO]**
+- **Widgets de Scriptable** se refrescan cuando iOS decide (≈ cada 15–60 min); no son tiempo real.
+- **Ilustraciones**: el estilo de tinta requiere trabajo de dibujo; sin ellas la app pierde mucha identidad.
+- **View Transitions** en Safari: soportado desde iOS 18; fallback a animaciones de Motion.
 
 ---
 
-## 14. Preguntas abiertas
+## 15. Preguntas abiertas (ronda 2)
 
-Las respuestas se incorporarán en la v0.2 de este documento.
-
-**Uso y alcance**
-1. ¿Será solo para su hogar (y algunos amigos/familia) o planean abrirla al público? Esto define si el super admin, límites y onboarding importan desde el MVP.
-2. ¿Alguna tarea necesita registrar **monto/costo** (alquiler, desparasitante) o adjuntos (foto del recibo)?
-3. ¿Necesitan **subtareas/checklist** (p. ej. "Limpieza profunda": baño, cocina…)?
-4. ¿Quieren **estadísticas** (quién hizo más, rachas) o algo de gamificación?
-
-**Programación y responsables**
-5. ¿Las tareas tienen **hora** (sacar basura antes de las 7 pm) o basta con el día?
-6. Si una tarea de "martes y jueves" se quedó sin hacer el martes, el jueves ¿debe verse como 1 pendiente o 2 acumuladas?
-7. ¿Necesitan **rotación** de responsables (esta semana Andrés, la próxima Mari) o basta con responsable fijo / cualquiera?
-8. ¿Un miembro puede completar una tarea asignada a otro? ¿Quieren ver "la hizo Mari aunque le tocaba a Andrés"?
-9. ¿Los miembros (no admin) pueden crear y editar tareas, o solo completarlas?
-
-**Notificaciones**
-10. ¿Qué canal usarían de verdad: push en el iPhone (requiere instalar la PWA), email, Telegram o WhatsApp?
-11. ¿Prefieren una notificación por tarea o un **resumen diario** a una hora fija? ¿A qué hora?
-12. ¿Insistir si una tarea sigue vencida (cada día) o avisar solo una vez?
-
-**Widget / Scriptable**
-13. ¿Qué tamaños de widget usarán (pequeño, mediano, grande, pantalla de bloqueo)?
-14. ¿Quieren **marcar como hecha desde el widget** (abre una URL/atajo) o solo visualizar?
-
-**Cuentas, estilo y despliegue**
-15. ¿Login con magic link por email, Google, Apple, o usuario/contraseña?
-16. ¿Las ilustraciones de plantas y gatitos: hay que crearlas (SVG simples) o tienen referencias/una gata en particular que quieran retratar (nombre de la gata)?
-17. ¿Zona horaria del hogar (asumo America/Costa_Rica)?
-18. ¿Hosting en Vercel + Supabase plan gratuito está bien? ¿Tienen dominio?
-19. ¿Nombre de la app?
+1. **Registro:** ¿cualquiera puede crear cuenta, o solo quien recibe una invitación (y el super admin habilita a quien quiera crear un hogar)?
+2. **Hora por defecto:** ¿09:00 te parece bien como hora por defecto al crear una tarea?
+3. **Rotación + completar por otro:** si a Andrés le tocaba y lo hizo Mari, ¿el siguiente turno es de Mari (avanza normal) o vuelve a quedar en Andrés ("le debe una")?
+4. **Avisos "Cualquiera":** ¿la notificación de una tarea sin responsable le llega a todos los miembros?
+5. **Resumen diario:** ¿mandarlo aunque no haya nada ("Hoy no hay tareas 🌿") o solo cuando hay algo?
+6. **Telegram:** ¿quieres un botón "✅ Hecha" en el mensaje del bot? (es la forma más rápida de completar sin abrir la app).
+7. **Estadísticas:** además de "tareas por persona", ¿quieren ver vencidas sin hacer por persona? ¿Comparativa semana a semana?
+8. **Ilustraciones:** ¿quién las hace — genero SVG simples, las generan con IA siguiendo el estilo de tinta, o hay ilustrador?
+9. **Tira de días:** ¿te gusta en Inicio para filtrar por día (como la referencia), o prefieres solo el grid ordenado por urgencia?
+10. **Tarjetas en Inicio:** ¿grid de 2 columnas con anillo (estilo Mindr) o tarjetas anchas de una columna con color de estado (estilo de la referencia chunky)? Puedo proponer ambas en un prototipo.
+11. **Mascota en la UI:** ¿Lukas aparece solo en estados vacíos/carga, o también como avatar del bot de Telegram e ícono de la app?
+12. **Nombre del bot de Telegram:** ¿`LukasCasaBot` o algo distinto? (el `@username` debe estar libre).
