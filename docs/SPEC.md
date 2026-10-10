@@ -1,7 +1,7 @@
 # Lukas — Spec
 
-> **Estado:** Borrador v0.5 · **Fecha:** 2026-10-10
-> v0.5 incorpora las respuestas de las rondas 1 a 4. Lo marcado **[SUPUESTO]** es una propuesta por confirmar; las decisiones están en la sección 15 y las preguntas abiertas en la 16.
+> **Estado:** Borrador v0.6 · **Fecha:** 2026-10-10
+> v0.6 incorpora las respuestas de las rondas 1 a 5. Lo marcado **[SUPUESTO]** es una propuesta por confirmar; las decisiones están en la sección 15 y las preguntas abiertas en la 16.
 
 ---
 
@@ -66,7 +66,7 @@ Usuarios: Andrés, Mari y algunos conocidos que crean sus propios hogares. **Sol
 | Borrar tareas y listas (borrado lógico) | ✅ | ✅ | ✅ |
 | Ver y restaurar elementos borrados (Papelera) | ✅ | ✅ (su hogar) | ❌ |
 | Pausar / reanudar tareas (desde el panel Gestionar) | ✅ | ✅ | ✅ |
-| Activar / terminar modo vacaciones del hogar | ✅ | ✅ | ❌ **[SUPUESTO]** |
+| Activar / terminar modo vacaciones del hogar | ✅ | ✅ | ✅ |
 | Borrado definitivo | ❌ nadie | ❌ | ❌ |
 | Completar, posponer o saltar cualquier tarea (aunque no sea suya) | ✅ | ✅ | ✅ |
 | Ver estadísticas de su hogar | ✅ | ✅ | ✅ |
@@ -110,14 +110,14 @@ Pantalla de administración de tareas del hogar (pestaña **Gestionar** de la na
 - Sección plegable **Pausadas**.
 - Sección plegable **Terminadas** (tareas "Una vez" completadas).
 - **Papelera** (solo admins): elementos borrados con "Restaurar".
-- Acceso a **Modo vacaciones** (solo admins).
+- Acceso a **Modo vacaciones** (cualquier miembro).
 
 ### 4.3.2 Pausar una tarea
 - Una tarea pausada **desaparece de Inicio**, no envía avisos, no aparece en el resumen ni en el widget y **no suma "sin hacer"** en estadísticas.
 - Al **reanudar**: si es intervalo anclado a *última vez hecha*, el ciclo empieza de nuevo desde el momento de reanudar; si es de fecha fija (días de semana, día del mes, intervalo anclado), el próximo vencimiento es la siguiente ocurrencia futura.
 
 ### 4.3.3 Modo vacaciones (hogar)
-- Un admin lo activa con **fecha de inicio y fin** (o "hasta que lo apague").
+- Cualquier miembro lo activa con **fecha de inicio y fin** (o "hasta que lo apague").
 - Durante las vacaciones: no se envían avisos por tarea; el resumen diario se reemplaza por un único mensaje al iniciar ("🏖️ Lukas cuida la casa hasta el 20/10") y otro al terminar; Inicio y el widget muestran un estado especial con Lukas; no se cuenta "sin hacer".
 - Al terminar: todas las tareas se reanudan con las mismas reglas que una pausa individual.
 - Las tareas pausadas individualmente siguen pausadas después de las vacaciones.
@@ -136,7 +136,9 @@ Pantalla de administración de tareas del hogar (pestaña **Gestionar** de la na
 | Color de tarjeta | token de paleta | ✅ | Default: color de la lista o `stone`. Ver 5.2. |
 
 Acciones:
-- **Hecha ✅** — un toque la completa al instante con crédito para el responsable. Tras completar aparece por 5 s un selector opcional **"¿Quién la hizo?"** (avatares de los miembros) junto al "Deshacer"; también se puede abrir con mantener presionado. Recalcula el próximo vencimiento y, si hay rotación, pasa el turno.
+- **✅ Hecha** — la completa al instante con crédito para el responsable (o Hogar si es "Cualquiera").
+- **🙋 La hizo alguien más** — abre un selector con los avatares de los miembros; al elegir, se completa con crédito para esa persona. Mismo flujo que en Telegram.
+- Ambas acciones recalculan el próximo vencimiento, pasan el turno si hay rotación y muestran un toast con "Deshacer" (5 s).
 - **Posponer** — +1 h, +1 día, +3 días o fecha/hora a elegir. No registra completado.
 - **Saltar esta vez** — avanza a la siguiente ocurrencia sin completado.
 - **Deshacer** — toast de 5 s tras completar/saltar, y desde el historial.
@@ -372,7 +374,7 @@ Navegación inferior flotante tipo pill (como la referencia): **Inicio · Gestio
    - Chips de filtro: **Todas · Mías · Hoy** + una por lista.
    - **Grid de 2 columnas estilo Mindr**: tarjetas chunky con el color elegido, anillo de progreso con el emoji al centro, nombre, chip de estado, avatar del responsable y botón "…".
    - Orden: vencidas → pronto → al día.
-2. **Detalle de tarea** — anillo grande, descripción, próximo vencimiento, responsable/rotación, botón gigante "Marcar como hecha", acciones secundarias, historial.
+2. **Detalle de tarea** — anillo grande, descripción, próximo vencimiento, responsable/rotación, dos botones grandes **"✅ Hecha"** (principal) y **"🙋 La hizo alguien más"** (secundario), acciones secundarias (posponer, saltar, editar, borrar), historial. Desde la tarjeta en Inicio, el botón "…" ofrece las mismas acciones.
 3. **Crear / editar tarea** (bottom sheet) — emoji grande tocable, nombre, segmented *Intervalo · Días · Día del mes · Una vez*, hora, responsable, lista, "Guardar" pill a todo el ancho.
 4. **Gestionar** — listas (crear/editar/ordenar), tareas en filas compactas, pausar/reanudar, Pausadas, Terminadas, Papelera y Modo vacaciones (ver 4.3.1).
 5. **Estadísticas** — resumen general de pendientes, selector de periodo, completadas y sin hacer por responsable, desglose por lista.
@@ -624,11 +626,19 @@ El login con contraseña funciona igual, pero registro, link mágico y recuperac
 ## 16. Herramientas de diseño para la construcción
 
 - **impeccable** (skill de proyecto en `.claude/skills/impeccable`, sin hooks): dirección de diseño, crítica, auditoría, animación y pulido. Empezar con `/impeccable init`.
-- **Mobile Design System** (plugin, guía Apple HIG): sistema de tokens y catálogo de componentes.
-- **frontend-design** (plugin de Anthropic): implementación de la UI en Next.js + Tailwind.
+- **mobile-design-system** (skill de proyecto en `.claude/skills/mobile-design-system`, guía Apple HIG): sistema de tokens y catálogo de componentes como style guide HTML.
+- **frontend-design** (skill de proyecto en `.claude/skills/frontend-design`, de Anthropic): implementación de la UI en Next.js + Tailwind.
 
-## 17. Preguntas abiertas (ronda 5)
+Flujo propuesto: `mobile-design-system` (iOS) → tokens y catálogo → `impeccable` para crítica/animación/pulido → `frontend-design` al implementar cada pantalla.
 
-1. **Modo vacaciones:** ¿lo puede activar solo el admin del hogar o cualquier miembro?
-2. **Pausar:** ¿cualquier miembro puede pausar desde Gestionar, o solo admins?
-3. **"La hizo alguien más" en la app:** para ser consistentes con Telegram, ¿cambio el selector de 5 s después de completar por dos botones en el detalle ("✅ Hecha" y "🙋 La hizo alguien más")?
+### 15.3 Decisiones de la ronda 5
+
+| # | Tema | Decisión |
+|---|---|---|
+| 1 | Modo vacaciones | Lo puede activar cualquier miembro. |
+| 2 | Pausar | Cualquier miembro, desde Gestionar. |
+| 3 | Completar en la app | Dos botones, igual que Telegram: "✅ Hecha" y "🙋 La hizo alguien más". |
+
+## 17. Siguiente paso
+
+El spec queda listo para pasar a diseño: generar el sistema de diseño (tokens + catálogo de componentes) y un prototipo de Inicio, detalle y crear tarea para validarlo antes de programar.
