@@ -1,7 +1,7 @@
 # Lukas — Spec
 
-> **Estado:** Borrador v0.4 · **Fecha:** 2026-10-10
-> v0.4 incorpora las respuestas de las rondas 1, 2 y 3. Lo marcado **[SUPUESTO]** es una propuesta por confirmar; las decisiones están en la sección 15 y las preguntas abiertas en la 16.
+> **Estado:** Borrador v0.5 · **Fecha:** 2026-10-10
+> v0.5 incorpora las respuestas de las rondas 1 a 4. Lo marcado **[SUPUESTO]** es una propuesta por confirmar; las decisiones están en la sección 15 y las preguntas abiertas en la 16.
 
 ---
 
@@ -15,7 +15,7 @@ Usuarios: Andrés, Mari y algunos conocidos que crean sus propios hogares. **Sol
 
 **Principio de convivencia:** la app **nunca registra automáticamente quién tocó "Hecha"**. Al completar se puede indicar, **de forma opcional**, quién la hizo; si no se indica, el crédito es para **la persona a la que le tocaba**. Así nadie lleva la cuenta a escondidas y no se convierte en motivo de discusión.
 
-**Principio de no-borrado:** nada se borra definitivamente. "Borrar" oculta el elemento para todos (borrado lógico), incluso para el admin; solo el super admin puede verlo y restaurarlo.
+**Principio de no-borrado:** nada se borra definitivamente. "Borrar" oculta el elemento para todos (borrado lógico), incluso para el admin. El **admin del hogar** (en la Papelera de su hogar) y el **super admin** pueden verlo y restaurarlo.
 
 ### 1.1 Objetivos
 - Crear una tarea en menos de 10 segundos.
@@ -64,7 +64,9 @@ Usuarios: Andrés, Mari y algunos conocidos que crean sus propios hogares. **Sol
 | Crear / editar / ordenar / borrar listas | ✅ | ✅ | ✅ |
 | Crear / editar tareas | ✅ | ✅ | ✅ |
 | Borrar tareas y listas (borrado lógico) | ✅ | ✅ | ✅ |
-| Ver y restaurar elementos borrados | ✅ | ❌ | ❌ |
+| Ver y restaurar elementos borrados (Papelera) | ✅ | ✅ (su hogar) | ❌ |
+| Pausar / reanudar tareas (desde el panel Gestionar) | ✅ | ✅ | ✅ |
+| Activar / terminar modo vacaciones del hogar | ✅ | ✅ | ❌ **[SUPUESTO]** |
 | Borrado definitivo | ❌ nadie | ❌ | ❌ |
 | Completar, posponer o saltar cualquier tarea (aunque no sea suya) | ✅ | ✅ | ✅ |
 | Ver estadísticas de su hogar | ✅ | ✅ | ✅ |
@@ -100,6 +102,25 @@ Reglas:
 - Nombre, emoji y color (de la paleta de la app). Las tareas nuevas de la lista heredan ese color.
 - Orden manual (arrastrar).
 - Vista "Todas" con todas las tareas del hogar.
+
+### 4.3.1 Panel Gestionar
+Pantalla de administración de tareas del hogar (pestaña **Gestionar** de la navegación, antes "Listas"). Es el **único lugar** donde se pausa o reanuda una tarea: no se puede desde el detalle de la tarea ni desde Telegram.
+- Listas con sus tareas en filas compactas (emoji, nombre, programación resumida, responsable, estado).
+- **Pausar / Reanudar** por tarea (switch o acción de deslizar).
+- Sección plegable **Pausadas**.
+- Sección plegable **Terminadas** (tareas "Una vez" completadas).
+- **Papelera** (solo admins): elementos borrados con "Restaurar".
+- Acceso a **Modo vacaciones** (solo admins).
+
+### 4.3.2 Pausar una tarea
+- Una tarea pausada **desaparece de Inicio**, no envía avisos, no aparece en el resumen ni en el widget y **no suma "sin hacer"** en estadísticas.
+- Al **reanudar**: si es intervalo anclado a *última vez hecha*, el ciclo empieza de nuevo desde el momento de reanudar; si es de fecha fija (días de semana, día del mes, intervalo anclado), el próximo vencimiento es la siguiente ocurrencia futura.
+
+### 4.3.3 Modo vacaciones (hogar)
+- Un admin lo activa con **fecha de inicio y fin** (o "hasta que lo apague").
+- Durante las vacaciones: no se envían avisos por tarea; el resumen diario se reemplaza por un único mensaje al iniciar ("🏖️ Lukas cuida la casa hasta el 20/10") y otro al terminar; Inicio y el widget muestran un estado especial con Lukas; no se cuenta "sin hacer".
+- Al terminar: todas las tareas se reanudan con las mismas reglas que una pausa individual.
+- Las tareas pausadas individualmente siguen pausadas después de las vacaciones.
 
 ### 4.4 Tareas
 
@@ -194,11 +215,13 @@ El **color de la tarjeta lo elige el usuario** (por tarea o heredado de la lista
 - Se avisa **una sola vez** por ocurrencia (no hay recordatorios repetidos de vencidas). Posponer genera un nuevo aviso a la nueva hora.
 - Cada usuario puede apagar el aviso por tarea o el resumen, y elegir horas de silencio. **[SUPUESTO]**
 - El mensaje de Telegram está en el idioma del usuario e incluye un enlace a la tarea.
-- El mensaje por tarea incluye **botones inline "✅ Hecha" y "⏰ +1 h"**. Al tocar "Hecha":
+- El mensaje por tarea incluye tres **botones inline**: **"✅ Hecha"**, **"🙋 La hizo alguien más"** y **"⏰ +1 h"**.
+- Al tocar **"✅ Hecha"**:
   1. El webhook valida que el `chat_id` corresponde a un usuario miembro del hogar.
-  2. Ejecuta `complete_task` con crédito para el responsable (en Telegram no se pregunta quién la hizo).
-  3. Edita el mensaje a "✅ Hecha · próximo: jueves 19:00" y quita el botón.
+  2. Ejecuta `complete_task` con crédito para el responsable (o Hogar si es "Cualquiera").
+  3. Edita el mensaje a "✅ Hecha · próximo: jueves 19:00" y quita los botones.
   4. Si ya estaba completada (p. ej. desde la app), responde "Ya estaba hecha 🐾".
+- Al tocar **"🙋 La hizo alguien más"**: el mensaje se edita y muestra un botón por cada miembro del hogar (con su emoji) + "↩️ Cancelar". Al elegir a alguien, ejecuta `complete_task` con crédito para esa persona y edita el mensaje a "✅ Hecha por Mari".
 - Al tocar **"⏰ +1 h"**: ejecuta `snooze_task` (+1 h desde ahora), edita el mensaje a "⏰ Pospuesta a las 20:00" y a esa hora se envía un nuevo aviso.
 - El bot se muestra como **Lukas-remind-it** con la foto de perfil de Lukas.
 
@@ -207,8 +230,8 @@ Ejemplos:
 ```
 🗑️ Sacar la basura — toca ahora (19:00)
 Le toca a: Andrés
-[ ✅ Hecha ]  [ ⏰ +1 h ]
-[ Abrir en Lukas ]
+[ ✅ Hecha ]  [ 🙋 La hizo alguien más ]
+[ ⏰ +1 h ]  [ Abrir en Lukas ]
 ```
 
 ```
@@ -341,7 +364,7 @@ Librería: **Motion** (`motion/react`) + **View Transitions API** para navegaci�
 
 ## 6. Pantallas
 
-Navegación inferior flotante tipo pill (como la referencia): **Inicio · Listas · Estadísticas · Ajustes**. Botón pill mostaza "+ Nueva tarea" arriba.
+Navegación inferior flotante tipo pill (como la referencia): **Inicio · Gestionar · Estadísticas · Ajustes**. Botón pill mostaza "+ Nueva tarea" arriba.
 
 1. **Inicio**
    - Header: "Hola, Andrés" + avatar + selector de hogar.
@@ -351,7 +374,7 @@ Navegación inferior flotante tipo pill (como la referencia): **Inicio · Listas
    - Orden: vencidas → pronto → al día.
 2. **Detalle de tarea** — anillo grande, descripción, próximo vencimiento, responsable/rotación, botón gigante "Marcar como hecha", acciones secundarias, historial.
 3. **Crear / editar tarea** (bottom sheet) — emoji grande tocable, nombre, segmented *Intervalo · Días · Día del mes · Una vez*, hora, responsable, lista, "Guardar" pill a todo el ancho.
-4. **Listas** — tarjetas de listas con su color, conteo y estado; crear/editar/ordenar.
+4. **Gestionar** — listas (crear/editar/ordenar), tareas en filas compactas, pausar/reanudar, Pausadas, Terminadas, Papelera y Modo vacaciones (ver 4.3.1).
 5. **Estadísticas** — resumen general de pendientes, selector de periodo, completadas y sin hacer por responsable, desglose por lista.
 6. **Ajustes** — perfil, idioma, tema, Telegram (conectar/estado/preferencias/hora del resumen), widgets (tokens + guía Scriptable), hogar (miembros, roles, invitar, salir).
 7. **Onboarding** (solo con invitación) — registrarse desde el enlace; si es invitación de hogar, entrar a él; si es de plataforma, crear hogar y elegir plantillas sugeridas; conectar Telegram (opcional).
@@ -368,7 +391,8 @@ profiles            (id PK = auth.users.id, display_name, avatar_emoji, avatar_u
                      is_super_admin bool, disabled_at, created_at)
 
 households          (id, name, emoji, timezone default 'America/Costa_Rica',
-                     created_by, disabled_at, created_at)
+                     vacation_from timestamptz NULL, vacation_until timestamptz NULL,
+                     created_by, disabled_at, deleted_at NULL, created_at)
 
 household_members   (household_id, user_id, role ('admin'|'member'), joined_at,
                      PK(household_id, user_id))
@@ -393,6 +417,7 @@ tasks               (id, household_id, list_id NULL, emoji, title, description,
                      cycle_started_at timestamptz,
                      next_due_at timestamptz,   -- desnormalizado
                      completed_at NULL,      -- tareas "Una vez" terminadas
+                     paused_at NULL, paused_by NULL,    -- pausa individual
                      deleted_at NULL, deleted_by NULL,  -- borrado lógico
                      created_by, created_at, updated_at)
 
@@ -524,9 +549,12 @@ El login con contraseña funciona igual, pero registro, link mágico y recuperac
 - **Día 31 en febrero** → vence el último día de febrero.
 - **Rotación [Andrés, Mari]:** a Andrés le toca; alguien la completa sin elegir quién → crédito para Andrés y el turno pasa a Mari.
 - **Crédito opcional:** a Andrés le toca, se completa y en "¿Quién la hizo?" se elige Mari → la estadística de completadas suma 1 a Mari; el turno igual pasa al siguiente de la rotación.
-- **Borrado lógico:** un miembro borra "Barrer" → desaparece para todos, sigue en la base con `deleted_at`, no genera avisos, y el super admin puede restaurarla desde `/admin`. Ningún rol tiene una acción de borrado definitivo.
+- **Borrado lógico:** un miembro borra "Barrer" → desaparece para todos, sigue en la base con `deleted_at`, no genera avisos, y el admin del hogar (Papelera) o el super admin (`/admin`) pueden restaurarla. Ningún rol tiene una acción de borrado definitivo.
+- **Pausar:** desde Gestionar se pausa "Regar plantas" → desaparece de Inicio, no llegan avisos y no suma "sin hacer". En el detalle de la tarea y en Telegram no existe la opción de pausar.
+- **Vacaciones:** un admin activa vacaciones del 10 al 20 → no llegan avisos por tarea, llega un solo mensaje de inicio y otro de fin; el 20 las tareas se reanudan y la de "cada 3 días desde la última vez" vence el 23.
 - **Sin hacer:** a Mari le tocaba "Basura" el martes y no se completó antes de la ocurrencia del jueves → en estadísticas suma 1 "sin hacer" para Mari.
 - **Registro cerrado:** abrir `/registro` sin token de invitación válido muestra "Lukas solo abre la puerta con invitación 🐾" y no permite crear cuenta.
+- **Telegram "La hizo alguien más":** se toca el botón, aparecen los miembros, se elige Mari → la tarea se completa con crédito para Mari y el mensaje dice "✅ Hecha por Mari".
 - **Telegram "Hecha":** tocar el botón completa la tarea (crédito al responsable), el mensaje se edita a "✅ Hecha" y la app refleja el cambio; tocarlo de nuevo responde "Ya estaba hecha".
 - **Telegram "+1 h":** a las 19:00 se toca "⏰ +1 h" → la tarea queda pospuesta a las 20:00 y a esa hora llega un nuevo aviso.
 - **Telegram:** a las 19:00 el responsable recibe un mensaje; no recibe otro de esa ocurrencia aunque siga vencida. Si la pospone a 20:00, recibe uno a las 20:00.
@@ -584,9 +612,23 @@ El login con contraseña funciona igual, pero registro, link mágico y recuperac
 | 4 | Telegram | Botones "✅ Hecha" y "⏰ +1 h". |
 | 5 | Prototipo | Más adelante, con las skills de diseño (impeccable) y brainstorming instaladas. |
 
-## 16. Preguntas abiertas (ronda 4)
+### 15.2 Decisiones de la ronda 4
 
-1. **Papelera:** ¿quieres que el admin del hogar pueda ver y restaurar lo borrado (una "Papelera"), o solo el super admin?
-2. **Pausar:** ahora solo existe "Borrar". ¿Necesitan además "Pausar" una tarea (p. ej. regar plantas durante un viaje) sin borrarla?
-3. **Modo vacaciones:** ¿pausar todo el hogar unos días y que no lleguen avisos?
-4. **Crédito en Telegram:** al tocar "✅ Hecha" en Telegram, el crédito va al responsable. ¿Está bien, o prefieres que pregunte "¿Quién la hizo?" con botones de cada miembro?
+| # | Tema | Decisión |
+|---|---|---|
+| 1 | Papelera | La ven y restauran el admin del hogar y el super admin. |
+| 2 | Pausar | Sí, pero solo desde el panel Gestionar (no en el detalle de la tarea ni en Telegram). |
+| 3 | Modo vacaciones | Sí, para todo el hogar. |
+| 4 | Telegram | Botones "✅ Hecha", "🙋 La hizo alguien más" (luego pregunta quién) y "⏰ +1 h". |
+
+## 16. Herramientas de diseño para la construcción
+
+- **impeccable** (skill de proyecto en `.claude/skills/impeccable`, sin hooks): dirección de diseño, crítica, auditoría, animación y pulido. Empezar con `/impeccable init`.
+- **Mobile Design System** (plugin, guía Apple HIG): sistema de tokens y catálogo de componentes.
+- **frontend-design** (plugin de Anthropic): implementación de la UI en Next.js + Tailwind.
+
+## 17. Preguntas abiertas (ronda 5)
+
+1. **Modo vacaciones:** ¿lo puede activar solo el admin del hogar o cualquier miembro?
+2. **Pausar:** ¿cualquier miembro puede pausar desde Gestionar, o solo admins?
+3. **"La hizo alguien más" en la app:** para ser consistentes con Telegram, ¿cambio el selector de 5 s después de completar por dos botones en el detalle ("✅ Hecha" y "🙋 La hizo alguien más")?
