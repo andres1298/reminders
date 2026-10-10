@@ -1,7 +1,7 @@
 # Lukas — Spec
 
-> **Estado:** Borrador v0.2 · **Fecha:** 2026-10-10
-> v0.2 incorpora las respuestas de la ronda 1 de preguntas. Lo marcado **[SUPUESTO]** es una propuesta por confirmar; las preguntas abiertas están en la sección 15.
+> **Estado:** Borrador v0.3 · **Fecha:** 2026-10-10
+> v0.3 incorpora las respuestas de las rondas 1 y 2 de preguntas. Lo marcado **[SUPUESTO]** es una propuesta por confirmar; las preguntas abiertas están en la sección 15.
 
 ---
 
@@ -11,7 +11,9 @@
 
 El nombre y la mascota vienen de **Lukas**, la gata calicó de la casa (blanca con manchas negras y canela, ojos verde-amarillo). Ver `docs/design/refs/lukas.jpg`.
 
-Usuarios: Andrés, Mari y algunos conocidos que crean sus propios hogares. No es un producto público a gran escala.
+Usuarios: Andrés, Mari y algunos conocidos que crean sus propios hogares. **Solo se entra por invitación**; no es un producto público.
+
+**Principio de convivencia:** la app **no registra ni muestra quién completó una tarea**. Lo que importa es que la tarea se hizo, no quién la hizo, para que no se convierta en motivo de discusión. Los turnos y las estadísticas se basan en **a quién le tocaba**.
 
 ### 1.1 Objetivos
 - Crear una tarea en menos de 10 segundos.
@@ -19,7 +21,7 @@ Usuarios: Andrés, Mari y algunos conocidos que crean sus propios hogares. No es
 - Marcar como hecha con un toque.
 - Ver el estado en widgets de iPhone (Scriptable).
 - Recibir recordatorios por **Telegram**.
-- Ver estadísticas de cuántas tareas hizo cada persona del hogar.
+- Ver estadísticas de tareas por responsable y un resumen general de pendientes del hogar.
 
 ### 1.2 Fuera de alcance
 - Calendario con vista de eventos por hora.
@@ -40,7 +42,8 @@ Usuarios: Andrés, Mari y algunos conocidos que crean sus propios hogares. No es
 | **Lista** | Agrupación de tareas dentro de un hogar ("Limpieza", "Lukas 🐱", "Pagos"). |
 | **Tarea** | Algo que se repite (o no), con emoji, nombre, descripción, programación con hora y responsable. |
 | **Programación** | Regla que define cuándo vence la tarea. |
-| **Completado** | Registro de que alguien hizo la tarea en un momento dado. |
+| **Completado** | Registro de que la tarea se hizo en un momento dado (sin guardar quién). |
+| **Responsable** | Persona a la que le toca la ocurrencia actual (fija o por rotación). |
 | **Ciclo** | Periodo entre el último completado (o inicio) y el próximo vencimiento. |
 
 ---
@@ -60,6 +63,7 @@ Usuarios: Andrés, Mari y algunos conocidos que crean sus propios hogares. No es
 | Completar, posponer o saltar cualquier tarea (aunque no sea suya) | ✅ | ✅ | ✅ |
 | Ver estadísticas de su hogar | ✅ | ✅ | ✅ |
 | Gestionar su perfil, Telegram y tokens de widget | ✅ | ✅ | ✅ |
+| Invitar a alguien a la plataforma para que cree su propio hogar | ✅ | ❌ | ❌ |
 
 Reglas:
 - Un usuario **solo ve los hogares de los que es miembro**. Solo el super admin ve datos de otros hogares.
@@ -74,15 +78,20 @@ Reglas:
 - **Link mágico** por email.
 - **Email + contraseña** (registro, login, recuperar contraseña).
 - Perfil: nombre visible, avatar (emoji o foto), idioma, tema.
-- Registro abierto; quien se registra sin invitación entra al onboarding para crear su hogar. **[SUPUESTO]** (alternativa: registro solo por invitación, ver pregunta 1).
+- **Registro solo por invitación.** No hay botón de "Crear cuenta" público; la pantalla de registro solo se abre desde un enlace de invitación válido.
+- Dos tipos de invitación:
+  - **Invitación a un hogar** (la crea un admin del hogar): la persona se registra y entra directo a ese hogar.
+  - **Invitación a la plataforma** (la crea el super admin): la persona se registra y en el onboarding crea su propio hogar.
+- Una vez registrado, cualquier usuario puede crear hogares adicionales y unirse a otros por invitación.
 
 ### 4.2 Hogares
 - Crear hogar: nombre, emoji (🏡), zona horaria (por defecto `America/Costa_Rica`).
-- Invitar con **enlace de invitación** (uso único, expira en 7 días) que se comparte por Telegram/WhatsApp. Al abrirlo: registrarse o iniciar sesión → unirse.
+- Invitar con **enlace de invitación** (uso único, expira en 7 días) que se comparte por Telegram/WhatsApp. Al abrirlo: registrarse (si no tiene cuenta) o iniciar sesión → unirse.
+- El admin ve las invitaciones pendientes y puede revocarlas.
 - Selector de hogar en el header cuando el usuario pertenece a más de uno.
 
 ### 4.3 Listas
-- Nombre, emoji y color (de la paleta de la app).
+- Nombre, emoji y color (de la paleta de la app). Las tareas nuevas de la lista heredan ese color.
 - Orden manual (arrastrar).
 - Vista "Todas" con todas las tareas del hogar.
 
@@ -97,14 +106,15 @@ Reglas:
 | Programación | ver 4.5 | ✅ | |
 | **Hora** | `HH:mm` | ✅ | Default 09:00. Es la hora a la que vence y se notifica. |
 | Responsable | ver 4.6 | ✅ | Default "Cualquiera". |
+| Color de tarjeta | token de paleta | ✅ | Default: color de la lista o `stone`. Ver 5.2. |
 
 Acciones:
-- **Hecha ✅** — registra completado (quién, cuándo), recalcula el próximo vencimiento y, si hay rotación, pasa el turno.
+- **Hecha ✅** — registra el completado (cuándo y a quién le tocaba, **no quién lo hizo**), recalcula el próximo vencimiento y, si hay rotación, pasa el turno.
 - **Posponer** — +1 h, +1 día, +3 días o fecha/hora a elegir. No registra completado.
 - **Saltar esta vez** — avanza a la siguiente ocurrencia sin completado.
 - **Deshacer** — toast de 5 s tras completar/saltar, y desde el historial.
 - **Editar**, **Archivar**, **Borrar** (solo admin).
-- **Historial** — completados con quién y cuándo.
+- **Historial** — fechas en que se completó, se saltó o se pospuso (sin nombres de quién lo hizo).
 
 ### 4.5 Tipos de programación
 
@@ -131,30 +141,35 @@ Reglas:
 | **Fijo** | Siempre la misma persona. |
 | **Rotación** (opcional) | Lista ordenada de miembros; tras cada completado le toca al siguiente. |
 
-- Cualquiera puede completar cualquier tarea. El completado registra **quién la hizo**, y el historial lo muestra ("La hizo Mari · le tocaba a Andrés").
-- En rotación, completar por otra persona igual pasa el turno al siguiente del responsable actual. **[SUPUESTO]**
-- Las estadísticas cuentan a quien **la hizo**, no a quien le tocaba.
+- Cualquiera puede completar cualquier tarea. **No se guarda quién la completó** (ni en la base de datos, ni en la UI, ni en Telegram, ni en la API).
+- En rotación, cada completado pasa el turno al siguiente de la lista, sin importar quién la hizo.
+- Las estadísticas cuentan por **responsable** (a quién le tocaba).
 
 ### 4.7 Estado visual (anillo)
 
 `progreso = (ahora − inicio_del_ciclo) / (vencimiento − inicio_del_ciclo)`, limitado a [0, 1].
 
-| Estado | Condición | Tarjeta | Texto |
-|---|---|---|---|
-| Al día | progreso < 0.75 | lima | "toca en 4d" |
-| Pronto | ≥ 0.75 o vence hoy | mostaza | "hoy 19:00" |
-| Vencida | ahora > vencimiento | coral | "vencida hace 2d" |
-| Hecha | completada en el ciclo actual, mostrando la animación | crema | "✓ Mari, hace 1 min" |
+El **color de la tarjeta lo elige el usuario** (por tarea o heredado de la lista). El **estado** se comunica con el anillo y una etiqueta (chip) dentro de la tarjeta, para que funcione sobre cualquier color:
 
-El estado nunca depende solo del color: siempre hay texto y el anillo lleno/parcial.
+| Estado | Condición | Anillo | Chip |
+|---|---|---|---|
+| Al día | progreso < 0.75 | trazo de tinta, parcial | neutro: "en 4d" |
+| Pronto | ≥ 0.75 o vence hoy | trazo de tinta, casi lleno | mostaza: "hoy 19:00" |
+| Vencida | ahora > vencimiento | lleno + punto coral pulsante | coral: "vencida hace 2d" |
+| Recién hecha | segundos después de completar | se vacía con animación | "✓ hecha" |
+
+- Track del anillo: tinta al 15 %; progreso: tinta al 100 % (contrasta con todos los colores pastel).
+- El estado nunca depende solo del color: siempre hay texto.
 
 ### 4.8 Estadísticas
 - Por hogar, visibles para todos sus miembros.
 - Periodos: esta semana, este mes, últimos 3 meses, todo.
+- Todas las métricas por persona se basan en el **responsable** (a quién le tocaba), nunca en quién la hizo.
 - Métricas:
-  - **Tareas completadas por persona** (barra horizontal por miembro, con su avatar).
-  - Completadas por lista, por persona.
-  - Total completadas vs. vencidas sin hacer en el periodo. **[SUPUESTO]**
+  - **Resumen general de pendientes del hogar:** vencidas ahora, para hoy, para esta semana (tarjetas grandes con número).
+  - **Por persona:** tareas que le tocaban y se completaron, y tareas que le tocaban y **quedaron sin hacer** (ocurrencias que vencieron y se saltaron o quedaron sin completar antes de la siguiente).
+  - Tareas de "Cualquiera" se agrupan como **Hogar** 🏡.
+  - Desglose por lista.
 - Super admin: totales globales (usuarios, hogares, tareas activas, completados por día).
 
 ### 4.9 Notificaciones (Telegram)
@@ -168,17 +183,23 @@ El estado nunca depende solo del color: siempre hay texto y el anillo lleno/parc
 | **Por tarea** | A la hora de vencimiento de la tarea | Responsable actual; si es "Cualquiera", a todos los miembros |
 | **Resumen del día** | Al inicio del día (hora configurable por usuario, default 07:00) | Cada usuario: sus tareas del día + vencidas + "de cualquiera" |
 
+- El **resumen se envía siempre**, aunque no haya tareas ("Hoy no hay nada pendiente 🌿 Lukas aprueba.").
 - Se avisa **una sola vez** por ocurrencia (no hay recordatorios repetidos de vencidas). Posponer genera un nuevo aviso a la nueva hora.
 - Cada usuario puede apagar el aviso por tarea o el resumen, y elegir horas de silencio. **[SUPUESTO]**
 - El mensaje de Telegram está en el idioma del usuario e incluye un enlace a la tarea.
-- **[PREGUNTA]** ¿Botón "✅ Hecha" en el mensaje de Telegram? (ver pregunta 6).
+- El mensaje por tarea incluye un **botón inline "✅ Hecha"**. Al tocarlo:
+  1. El webhook valida que el `chat_id` corresponde a un usuario miembro del hogar.
+  2. Ejecuta `complete_task` (igual que en la app; no guarda quién).
+  3. Edita el mensaje a "✅ Hecha · próximo: jueves 19:00" y quita el botón.
+  4. Si ya estaba completada (p. ej. desde la app), responde "Ya estaba hecha 🐾".
+- El bot se muestra como **Lukas-remind-it** con la foto de perfil de Lukas.
 
 Ejemplos:
 
 ```
 🗑️ Sacar la basura — toca ahora (19:00)
 Le toca a: Andrés
-Abrir en Lukas →
+[ ✅ Hecha ]  [ Abrir en Lukas ]
 ```
 
 ```
@@ -217,7 +238,7 @@ Referencias en `docs/design/refs/`:
 
 | Archivo | Qué tomar |
 |---|---|
-| `ui-chunky-cards.jpg` | Tarjetas grandes de color sólido, esquinas muy redondeadas, botón pill "Create new task", tira de días, barra de navegación flotante tipo pill, avatares apilados. |
+| `ui-chunky-cards.jpg` | Tarjetas grandes de color sólido, esquinas muy redondeadas, botón pill "Create new task", barra de navegación flotante tipo pill, avatares apilados. |
 | `ink-illustration.png` | Estilo de ilustración: tinta negra tipo grabado/sello sobre crema, trazo grueso, humor tierno. |
 | `mindr-grid.png`, `mindr-create.png` | Grid de anillos, formulario de creación en bottom sheet. |
 | `lukas.jpg` | La mascota: gata calicó (blanco, negro, canela; ojos verde-amarillo). |
@@ -237,12 +258,13 @@ Referencias en `docs/design/refs/`:
 | `surface-2` | `#F1EBCB` | `#2E2E2E` | Chips, inputs |
 | `ink` | `#151515` | `#F5F1DC` | Texto, trazos de ilustración |
 | `ink-muted` | `#5E5A48` | `#A8A496` | Texto secundario |
-| `leaf` (lima) | `#C5D98A` | `#C5D98A` | Estado "al día", acento primario |
-| `mustard` | `#F2CB66` | `#F2CB66` | Estado "pronto", CTA |
-| `coral` | `#EE8F6E` | `#EE8F6E` | Estado "vencida" |
+| `leaf` (lima) | `#C5D98A` | `#C5D98A` | Color de tarjeta, acento primario |
+| `mustard` | `#F2CB66` | `#F2CB66` | Color de tarjeta, chip "pronto", CTA |
+| `coral` | `#EE8F6E` | `#EE8F6E` | Color de tarjeta, chip "vencida" |
 | `stone` | `#DAD8D1` | `#DAD8D1` | Tarjetas neutras / archivadas |
 | `calico` | `#D9A25F` | `#D9A25F` | Acento Lukas (detalles, ilustraciones) |
 
+- **Colores elegibles para tarjetas/listas:** `leaf`, `mustard`, `coral`, `stone`, `calico`, más `sky` `#A9CFE0` y `lilac` `#CDB8E6` **[SUPUESTO]**, y "sin color" (`surface`).
 - Las tarjetas de color usan texto `#151515` en ambos temas (como la referencia), garantizando contraste AA.
 - En oscuro, el fondo es casi negro y las tarjetas mantienen sus colores pastel.
 
@@ -268,7 +290,14 @@ Set inicial de SVG monocromos (se tiñen con `ink`):
 | Telegram conectado | Lukas con un sobre |
 | Carga | Brote que crece (animado) |
 
-**[PREGUNTA]** ¿Las dibujamos nosotros (SVG simples generados) o tienes un ilustrador / quieres generarlas con IA? (pregunta 8).
+Las ilustraciones se crean como parte del proyecto (SVG a mano, trazo de tinta, sin dependencias externas), basadas en la foto de referencia de Lukas: cara con antifaz negro, manchas canela, pecho y patas blancas, ojos verde-amarillo (el único color además de la tinta, opcional).
+
+**Lukas aparece en todos lados:**
+- Ícono de la app / PWA y favicon (cara de Lukas en tinta sobre crema).
+- Avatar del bot de Telegram.
+- Estados vacíos, carga, errores, onboarding, login.
+- Estado vacío del widget de Scriptable.
+- Detalles pequeños: una patita 🐾 en el toast de "hecha", Lukas asomándose en el header en ocasiones.
 
 ### 5.6 Movimiento y transiciones
 Librería: **Motion** (`motion/react`) + **View Transitions API** para navegación entre rutas.
@@ -298,18 +327,17 @@ Navegación inferior flotante tipo pill (como la referencia): **Inicio · Listas
 1. **Inicio**
    - Header: "Hola, Andrés" + avatar + selector de hogar.
    - Resumen: "Hoy tocan 3" o "Nada pendiente 🙌" con ilustración.
-   - **Tira de días** horizontal (hoy ± 7) como la referencia: filtrar lo que vence ese día. Por defecto "Todo".
-   - Chips: Todas · Mías · por lista.
-   - Grid de tarjetas chunky (2 columnas en móvil): color por estado, emoji en anillo, nombre, "toca en…", avatar del responsable, botón "…".
+   - Chips de filtro: **Todas · Mías · Hoy** + una por lista.
+   - **Grid de 2 columnas estilo Mindr**: tarjetas chunky con el color elegido, anillo de progreso con el emoji al centro, nombre, chip de estado, avatar del responsable y botón "…".
    - Orden: vencidas → pronto → al día.
 2. **Detalle de tarea** — anillo grande, descripción, próximo vencimiento, responsable/rotación, botón gigante "Marcar como hecha", acciones secundarias, historial.
 3. **Crear / editar tarea** (bottom sheet) — emoji grande tocable, nombre, segmented *Intervalo · Días · Día del mes · Una vez*, hora, responsable, lista, "Guardar" pill a todo el ancho.
-4. **Listas** — tarjetas de listas con conteo y estado; crear/editar/ordenar.
-5. **Estadísticas** — selector de periodo, barras por persona, desglose por lista.
+4. **Listas** — tarjetas de listas con su color, conteo y estado; crear/editar/ordenar.
+5. **Estadísticas** — resumen general de pendientes, selector de periodo, completadas y sin hacer por responsable, desglose por lista.
 6. **Ajustes** — perfil, idioma, tema, Telegram (conectar/estado/preferencias/hora del resumen), widgets (tokens + guía Scriptable), hogar (miembros, roles, invitar, salir).
-7. **Onboarding** — crear hogar o unirse con enlace; elegir plantillas sugeridas; conectar Telegram (opcional).
+7. **Onboarding** (solo con invitación) — registrarse desde el enlace; si es invitación de hogar, entrar a él; si es de plataforma, crear hogar y elegir plantillas sugeridas; conectar Telegram (opcional).
 8. **Auth** — login (link mágico / contraseña), registro, recuperar contraseña.
-9. **Super admin** (`/admin`) — usuarios, hogares, métricas globales, desactivar.
+9. **Super admin** (`/admin`) — usuarios, hogares, métricas globales, invitaciones a la plataforma, desactivar.
 
 ---
 
@@ -326,10 +354,12 @@ households          (id, name, emoji, timezone default 'America/Costa_Rica',
 household_members   (household_id, user_id, role ('admin'|'member'), joined_at,
                      PK(household_id, user_id))
 
-invitations         (id, household_id, token_hash, role, invited_by,
-                     expires_at, accepted_by, accepted_at)
+invitations         (id, kind ('household'|'platform'),
+                     household_id NULL,       -- NULL si kind = 'platform'
+                     token_hash, role NULL, invited_by,
+                     expires_at, accepted_by, accepted_at, revoked_at)
 
-lists               (id, household_id, name, emoji, color, position, created_at)
+lists               (id, household_id, name, emoji, color NULL, position, created_at)
 
 tasks               (id, household_id, list_id NULL, emoji, title, description,
                      schedule_type ('interval'|'weekly'|'monthly'|'once'),
@@ -337,6 +367,7 @@ tasks               (id, household_id, list_id NULL, emoji, title, description,
                      anchor ('completion'|'schedule'),
                      due_time time NOT NULL,
                      starts_on date, ends_on date NULL,
+                     color NULL,             -- NULL = hereda de la lista
                      assignment_mode ('anyone'|'fixed'|'rotation'),
                      current_assignee_id NULL,
                      cycle_started_at timestamptz,
@@ -345,14 +376,20 @@ tasks               (id, household_id, list_id NULL, emoji, title, description,
 
 task_rotation       (task_id, user_id, position, PK(task_id, user_id))
 
-task_events         (id, task_id, household_id, actor_id,
-                     kind ('done'|'skipped'|'snoozed'|'undone'),
-                     assignee_at_time, due_at_snapshot, snoozed_until, created_at)
+task_events         (id, task_id, household_id,
+                     kind ('done'|'skipped'|'snoozed'|'missed'|'undone'),
+                     assignee_at_time NULL,   -- a quién le tocaba; NULL = "Cualquiera"
+                     due_at_snapshot, snoozed_until, created_at)
+                     -- Intencionalmente SIN actor_id: no se guarda quién completó.
+                     -- 'missed' lo inserta el cron cuando una ocurrencia vencida
+                     -- queda superada por la siguiente sin completarse.
 
 api_tokens          (id, user_id, name, token_hash, last_used_at, created_at, revoked_at)
 
 telegram_links      (user_id PK, chat_id bigint UNIQUE, username, linked_at)
 telegram_link_codes (code_hash PK, user_id, expires_at, used_at)
+
+telegram_messages   (chat_id, message_id, task_id, occurrence_key, sent_at)  -- para editar el mensaje al tocar "Hecha"
 
 notification_prefs  (user_id PK, per_task bool default true, daily_digest bool default true,
                      digest_time time default '07:00', quiet_start, quiet_end)
@@ -362,8 +399,9 @@ notification_log    (id, user_id, task_id NULL, kind ('due'|'digest'),
                      UNIQUE(user_id, kind, occurrence_key))
 ```
 
-- `stats` se calcula con una vista/RPC `household_stats(household_id, from, to)` sobre `task_events` (kind = 'done').
+- `stats` se calcula con una RPC `household_stats(household_id, from, to)` sobre `task_events`, agrupando por `assignee_at_time` (`done` = completadas, `missed`/`skipped` = sin hacer) + conteo en vivo de pendientes desde `tasks.next_due_at`.
 - Funciones SQL atómicas (SECURITY DEFINER, validan membresía): `complete_task`, `skip_task`, `snooze_task`, `undo_last_event`, `accept_invitation`.
+- El registro (`auth.users` insert) se bloquea salvo con un token de invitación válido: el alta pasa por una ruta del servidor que valida la invitación y crea el usuario con la service key. **[SUPUESTO]**
 - La lógica de recurrencia vive en **TypeScript** (`lib/schedule.ts`, testeada) y se replica en SQL solo si hace falta para el cron; **[SUPUESTO]** el cron corre en una ruta de Next.js para compartir el mismo código.
 
 ### 7.1 Seguridad (RLS)
@@ -459,9 +497,12 @@ El login con contraseña funciona igual, pero registro, link mágico y recuperac
 - **Desparasitante cada mes desde la última vez:** vencía el 10/10, se completa el 15/10 → próximo 15/11 a la hora definida.
 - **Apartamento día 3, anclado:** completado el 5 → próximo el día 3 del mes siguiente.
 - **Día 31 en febrero** → vence el último día de febrero.
-- **Rotación [Andrés, Mari]:** Andrés completa → responsable Mari. Mari completa una de Andrés → queda registrado que la hizo Mari y el turno pasa a Mari. **[SUPUESTO]**
+- **Rotación [Andrés, Mari]:** a Andrés le toca; alguien la completa → el responsable pasa a Mari. En ningún lugar aparece quién la completó.
+- **Sin hacer:** a Mari le tocaba "Basura" el martes y no se completó antes de la ocurrencia del jueves → en estadísticas suma 1 "sin hacer" para Mari.
+- **Registro cerrado:** abrir `/registro` sin token de invitación válido muestra "Lukas solo abre la puerta con invitación 🐾" y no permite crear cuenta.
+- **Telegram "Hecha":** tocar el botón completa la tarea, el mensaje se edita a "✅ Hecha" y la app refleja el cambio; tocarlo de nuevo responde "Ya estaba hecha".
 - **Telegram:** a las 19:00 el responsable recibe un mensaje; no recibe otro de esa ocurrencia aunque siga vencida. Si la pospone a 20:00, recibe uno a las 20:00.
-- **Resumen:** a las 07:00 (hora del usuario) recibe el resumen solo si tiene tareas ese día o vencidas. **[SUPUESTO]**
+- **Resumen:** a las 07:00 (hora del usuario) recibe el resumen siempre; si no hay tareas, recibe el mensaje de "nada pendiente".
 - **Aislamiento:** un usuario de otro hogar no puede leer tareas ni estadísticas de "Casa" (RLS devuelve vacío / 404).
 - **Widget:** con token válido, `GET /api/v1/widget?limit=4` devuelve las 4 más urgentes; con token revocado → 401.
 - **Miembro** puede crear tareas y listas, pero no ve la opción de invitar ni de borrar definitivamente.
@@ -473,8 +514,8 @@ El login con contraseña funciona igual, pero registro, link mágico y recuperac
 
 | Fase | Contenido |
 |---|---|
-| **MVP** | Auth (link mágico + contraseña), hogares e invitaciones, roles, listas, tareas con 4 programaciones y hora, completar/posponer/saltar/deshacer, anillos y estados, tema claro/oscuro, ES/EN, sistema visual chunky con animaciones base. |
-| **v1.0** | Telegram (vinculación, aviso por tarea, resumen diario), API + widget Scriptable (4 y 8), rotación, historial, estadísticas por persona, ilustraciones de Lukas, transiciones avanzadas (shared element, confeti). |
+| **MVP** | Auth (link mágico + contraseña, registro solo por invitación), hogares e invitaciones, roles, listas, tareas con 4 programaciones y hora, completar/posponer/saltar/deshacer, anillos y estados, tema claro/oscuro, ES/EN, sistema visual chunky con animaciones base. |
+| **v1.0** | Telegram (vinculación, aviso por tarea con botón "Hecha", resumen diario), API + widget Scriptable (4 y 8), rotación, historial, estadísticas por persona, ilustraciones de Lukas, transiciones avanzadas (shared element, confeti). |
 | **v1.1** | Panel super admin, PWA pulida, sugerencias de emoji mejoradas. |
 
 ---
@@ -488,17 +529,27 @@ El login con contraseña funciona igual, pero registro, link mágico y recuperac
 
 ---
 
-## 15. Preguntas abiertas (ronda 2)
+## 15. Decisiones de la ronda 2
 
-1. **Registro:** ¿cualquiera puede crear cuenta, o solo quien recibe una invitación (y el super admin habilita a quien quiera crear un hogar)?
-2. **Hora por defecto:** ¿09:00 te parece bien como hora por defecto al crear una tarea?
-3. **Rotación + completar por otro:** si a Andrés le tocaba y lo hizo Mari, ¿el siguiente turno es de Mari (avanza normal) o vuelve a quedar en Andrés ("le debe una")?
-4. **Avisos "Cualquiera":** ¿la notificación de una tarea sin responsable le llega a todos los miembros?
-5. **Resumen diario:** ¿mandarlo aunque no haya nada ("Hoy no hay tareas 🌿") o solo cuando hay algo?
-6. **Telegram:** ¿quieres un botón "✅ Hecha" en el mensaje del bot? (es la forma más rápida de completar sin abrir la app).
-7. **Estadísticas:** además de "tareas por persona", ¿quieren ver vencidas sin hacer por persona? ¿Comparativa semana a semana?
-8. **Ilustraciones:** ¿quién las hace — genero SVG simples, las generan con IA siguiendo el estilo de tinta, o hay ilustrador?
-9. **Tira de días:** ¿te gusta en Inicio para filtrar por día (como la referencia), o prefieres solo el grid ordenado por urgencia?
-10. **Tarjetas en Inicio:** ¿grid de 2 columnas con anillo (estilo Mindr) o tarjetas anchas de una columna con color de estado (estilo de la referencia chunky)? Puedo proponer ambas en un prototipo.
-11. **Mascota en la UI:** ¿Lukas aparece solo en estados vacíos/carga, o también como avatar del bot de Telegram e ícono de la app?
-12. **Nombre del bot de Telegram:** ¿`LukasCasaBot` o algo distinto? (el `@username` debe estar libre).
+| # | Tema | Decisión |
+|---|---|---|
+| 1 | Registro | Solo por invitación (de hogar o de plataforma). |
+| 2 | Hora por defecto | 09:00. |
+| 3 | Quién completó | **No se registra.** Los turnos de rotación avanzan igual tras cada completado. |
+| 4 | Avisos de "Cualquiera" | Le llegan a todos los miembros. |
+| 5 | Resumen diario | Se envía siempre, aunque no haya tareas. |
+| 6 | Telegram | Botón "✅ Hecha" en el mensaje por tarea. |
+| 7 | Estadísticas | Completadas y sin hacer por responsable + resumen general de pendientes. |
+| 8 | Ilustraciones | Se crean en el proyecto (SVG en tinta). |
+| 9 | Tira de días | Se elimina; se reemplaza por el chip "Hoy". |
+| 10 | Tarjetas | Grid de 2 columnas con anillos estilo Mindr, con color elegible por tarea/lista. |
+| 11 | Lukas | En todos lados: ícono, favicon, bot, estados vacíos, carga, onboarding, widget. |
+| 12 | Bot de Telegram | Nombre visible **Lukas-remind-it**. El `@username` no admite guiones y debe terminar en "bot": propuesta `@lukas_remind_it_bot`. |
+
+## 16. Preguntas abiertas (ronda 3)
+
+1. **Estadísticas por responsable:** como no se guarda quién completó, "tareas por persona" significa "tareas que le tocaban y se hicieron". ¿Te sirve así?
+2. **Colores extra:** además de lima, mostaza, coral, piedra y canela, ¿agrego celeste y lila, o prefieres una paleta solo de tonos tierra/herbales?
+3. **Borrar tareas:** ¿solo el admin puede borrarlas definitivamente (los miembros solo archivar), o todos pueden borrar?
+4. **Posponer desde Telegram:** además de "✅ Hecha", ¿un botón "⏰ +1 h"?
+5. **Prototipo:** ¿quieres que arme ahora un prototipo navegable (HTML) de Inicio, crear tarea y detalle, con las animaciones, para validar el estilo antes de programar?
