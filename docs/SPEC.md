@@ -1,7 +1,7 @@
 # Lukas — Spec
 
-> **Estado:** Borrador v0.3 · **Fecha:** 2026-10-10
-> v0.3 incorpora las respuestas de las rondas 1 y 2 de preguntas. Lo marcado **[SUPUESTO]** es una propuesta por confirmar; las preguntas abiertas están en la sección 15.
+> **Estado:** Borrador v0.4 · **Fecha:** 2026-10-10
+> v0.4 incorpora las respuestas de las rondas 1, 2 y 3. Lo marcado **[SUPUESTO]** es una propuesta por confirmar; las decisiones están en la sección 15 y las preguntas abiertas en la 16.
 
 ---
 
@@ -13,7 +13,9 @@ El nombre y la mascota vienen de **Lukas**, la gata calicó de la casa (blanca c
 
 Usuarios: Andrés, Mari y algunos conocidos que crean sus propios hogares. **Solo se entra por invitación**; no es un producto público.
 
-**Principio de convivencia:** la app **no registra ni muestra quién completó una tarea**. Lo que importa es que la tarea se hizo, no quién la hizo, para que no se convierta en motivo de discusión. Los turnos y las estadísticas se basan en **a quién le tocaba**.
+**Principio de convivencia:** la app **nunca registra automáticamente quién tocó "Hecha"**. Al completar se puede indicar, **de forma opcional**, quién la hizo; si no se indica, el crédito es para **la persona a la que le tocaba**. Así nadie lleva la cuenta a escondidas y no se convierte en motivo de discusión.
+
+**Principio de no-borrado:** nada se borra definitivamente. "Borrar" oculta el elemento para todos (borrado lógico), incluso para el admin; solo el super admin puede verlo y restaurarlo.
 
 ### 1.1 Objetivos
 - Crear una tarea en menos de 10 segundos.
@@ -42,7 +44,9 @@ Usuarios: Andrés, Mari y algunos conocidos que crean sus propios hogares. **Sol
 | **Lista** | Agrupación de tareas dentro de un hogar ("Limpieza", "Lukas 🐱", "Pagos"). |
 | **Tarea** | Algo que se repite (o no), con emoji, nombre, descripción, programación con hora y responsable. |
 | **Programación** | Regla que define cuándo vence la tarea. |
-| **Completado** | Registro de que la tarea se hizo en un momento dado (sin guardar quién). |
+| **Completado** | Registro de que la tarea se hizo en un momento dado, con un **crédito** opcional. |
+| **Crédito** | Persona a la que se le atribuye un completado: la elegida en "¿Quién la hizo?" o, por defecto, el responsable. |
+| **Borrado lógico** | El elemento se marca con `deleted_at` y desaparece de la app; nunca se elimina de la base de datos. |
 | **Responsable** | Persona a la que le toca la ocurrencia actual (fija o por rotación). |
 | **Ciclo** | Periodo entre el último completado (o inicio) y el próximo vencimiento. |
 
@@ -58,8 +62,10 @@ Usuarios: Andrés, Mari y algunos conocidos que crean sus propios hogares. **Sol
 | Editar nombre, emoji y zona horaria del hogar | ✅ | ✅ | ❌ |
 | Invitar / expulsar miembros, cambiar roles | ✅ | ✅ | ❌ |
 | Crear / editar / ordenar / borrar listas | ✅ | ✅ | ✅ |
-| Crear / editar / archivar tareas | ✅ | ✅ | ✅ |
-| Borrar tareas definitivamente | ✅ | ✅ | ❌ **[SUPUESTO]** |
+| Crear / editar tareas | ✅ | ✅ | ✅ |
+| Borrar tareas y listas (borrado lógico) | ✅ | ✅ | ✅ |
+| Ver y restaurar elementos borrados | ✅ | ❌ | ❌ |
+| Borrado definitivo | ❌ nadie | ❌ | ❌ |
 | Completar, posponer o saltar cualquier tarea (aunque no sea suya) | ✅ | ✅ | ✅ |
 | Ver estadísticas de su hogar | ✅ | ✅ | ✅ |
 | Gestionar su perfil, Telegram y tokens de widget | ✅ | ✅ | ✅ |
@@ -109,12 +115,13 @@ Reglas:
 | Color de tarjeta | token de paleta | ✅ | Default: color de la lista o `stone`. Ver 5.2. |
 
 Acciones:
-- **Hecha ✅** — registra el completado (cuándo y a quién le tocaba, **no quién lo hizo**), recalcula el próximo vencimiento y, si hay rotación, pasa el turno.
+- **Hecha ✅** — un toque la completa al instante con crédito para el responsable. Tras completar aparece por 5 s un selector opcional **"¿Quién la hizo?"** (avatares de los miembros) junto al "Deshacer"; también se puede abrir con mantener presionado. Recalcula el próximo vencimiento y, si hay rotación, pasa el turno.
 - **Posponer** — +1 h, +1 día, +3 días o fecha/hora a elegir. No registra completado.
 - **Saltar esta vez** — avanza a la siguiente ocurrencia sin completado.
 - **Deshacer** — toast de 5 s tras completar/saltar, y desde el historial.
-- **Editar**, **Archivar**, **Borrar** (solo admin).
-- **Historial** — fechas en que se completó, se saltó o se pospuso (sin nombres de quién lo hizo).
+- **Editar** y **Borrar** (cualquier miembro, borrado lógico con confirmación y toast de "Deshacer").
+- **Historial** — fechas en que se completó (con su crédito), se saltó o se pospuso.
+- Si es una tarea sin responsable ("Cualquiera") y no se elige quién la hizo, el crédito es para **Hogar 🏡**.
 
 ### 4.5 Tipos de programación
 
@@ -131,7 +138,7 @@ Reglas:
 - **Ocurrencias no acumulan**: si una tarea se venció y llega otra ocurrencia, se muestra **una sola pendiente** ("vencida hace 2 días"). Al completarla, el próximo vencimiento es la siguiente ocurrencia **futura**.
 - Intervalo anclado a *última vez hecha*: próximo = `completado + intervalo` (a la hora definida).
 - Intervalo anclado a *fecha programada*, días de semana y día del mes: no se desplazan si se hacen tarde.
-- Tareas "Una vez" completadas se archivan solas.
+- Tareas "Una vez" completadas pasan a una sección plegable **"Terminadas"** de su lista.
 
 ### 4.6 Responsables
 
@@ -141,9 +148,9 @@ Reglas:
 | **Fijo** | Siempre la misma persona. |
 | **Rotación** (opcional) | Lista ordenada de miembros; tras cada completado le toca al siguiente. |
 
-- Cualquiera puede completar cualquier tarea. **No se guarda quién la completó** (ni en la base de datos, ni en la UI, ni en Telegram, ni en la API).
+- Cualquiera puede completar cualquier tarea. **No se guarda la cuenta que tocó "Hecha"**; solo el crédito (opcional, por defecto el responsable).
 - En rotación, cada completado pasa el turno al siguiente de la lista, sin importar quién la hizo.
-- Las estadísticas cuentan por **responsable** (a quién le tocaba).
+- Las estadísticas de completadas cuentan por **crédito**; las de sin hacer, por **responsable**.
 
 ### 4.7 Estado visual (anillo)
 
@@ -164,10 +171,10 @@ El **color de la tarjeta lo elige el usuario** (por tarea o heredado de la lista
 ### 4.8 Estadísticas
 - Por hogar, visibles para todos sus miembros.
 - Periodos: esta semana, este mes, últimos 3 meses, todo.
-- Todas las métricas por persona se basan en el **responsable** (a quién le tocaba), nunca en quién la hizo.
+- Completadas por persona = por **crédito** (elegido o, por defecto, el responsable). Sin hacer por persona = por **responsable**.
 - Métricas:
   - **Resumen general de pendientes del hogar:** vencidas ahora, para hoy, para esta semana (tarjetas grandes con número).
-  - **Por persona:** tareas que le tocaban y se completaron, y tareas que le tocaban y **quedaron sin hacer** (ocurrencias que vencieron y se saltaron o quedaron sin completar antes de la siguiente).
+  - **Por persona:** tareas completadas con su crédito, y tareas que le tocaban y **quedaron sin hacer** (ocurrencias que vencieron y se saltaron o quedaron sin completar antes de la siguiente).
   - Tareas de "Cualquiera" se agrupan como **Hogar** 🏡.
   - Desglose por lista.
 - Super admin: totales globales (usuarios, hogares, tareas activas, completados por día).
@@ -187,11 +194,12 @@ El **color de la tarjeta lo elige el usuario** (por tarea o heredado de la lista
 - Se avisa **una sola vez** por ocurrencia (no hay recordatorios repetidos de vencidas). Posponer genera un nuevo aviso a la nueva hora.
 - Cada usuario puede apagar el aviso por tarea o el resumen, y elegir horas de silencio. **[SUPUESTO]**
 - El mensaje de Telegram está en el idioma del usuario e incluye un enlace a la tarea.
-- El mensaje por tarea incluye un **botón inline "✅ Hecha"**. Al tocarlo:
+- El mensaje por tarea incluye **botones inline "✅ Hecha" y "⏰ +1 h"**. Al tocar "Hecha":
   1. El webhook valida que el `chat_id` corresponde a un usuario miembro del hogar.
-  2. Ejecuta `complete_task` (igual que en la app; no guarda quién).
+  2. Ejecuta `complete_task` con crédito para el responsable (en Telegram no se pregunta quién la hizo).
   3. Edita el mensaje a "✅ Hecha · próximo: jueves 19:00" y quita el botón.
   4. Si ya estaba completada (p. ej. desde la app), responde "Ya estaba hecha 🐾".
+- Al tocar **"⏰ +1 h"**: ejecuta `snooze_task` (+1 h desde ahora), edita el mensaje a "⏰ Pospuesta a las 20:00" y a esa hora se envía un nuevo aviso.
 - El bot se muestra como **Lukas-remind-it** con la foto de perfil de Lukas.
 
 Ejemplos:
@@ -199,7 +207,8 @@ Ejemplos:
 ```
 🗑️ Sacar la basura — toca ahora (19:00)
 Le toca a: Andrés
-[ ✅ Hecha ]  [ Abrir en Lukas ]
+[ ✅ Hecha ]  [ ⏰ +1 h ]
+[ Abrir en Lukas ]
 ```
 
 ```
@@ -261,10 +270,20 @@ Referencias en `docs/design/refs/`:
 | `leaf` (lima) | `#C5D98A` | `#C5D98A` | Color de tarjeta, acento primario |
 | `mustard` | `#F2CB66` | `#F2CB66` | Color de tarjeta, chip "pronto", CTA |
 | `coral` | `#EE8F6E` | `#EE8F6E` | Color de tarjeta, chip "vencida" |
-| `stone` | `#DAD8D1` | `#DAD8D1` | Tarjetas neutras / archivadas |
+| `stone` | `#DAD8D1` | `#DAD8D1` | Tarjetas neutras |
 | `calico` | `#D9A25F` | `#D9A25F` | Acento Lukas (detalles, ilustraciones) |
 
-- **Colores elegibles para tarjetas/listas:** `leaf`, `mustard`, `coral`, `stone`, `calico`, más `sky` `#A9CFE0` y `lilac` `#CDB8E6` **[SUPUESTO]**, y "sin color" (`surface`).
+- **Paleta amplia de tarjetas** (cada persona elige el color al crear/editar una tarea o lista). 20 tonos pastel, todos con contraste AA contra texto `#151515`:
+
+| Familia | Colores (`token` hex) |
+|---|---|
+| Verdes / herbales | `leaf` `#C5D98A` · `sage` `#B7CDB0` · `mint` `#BFE3CF` · `moss` `#A9C27E` · `olive` `#D3D49A` |
+| Amarillos / tierra | `mustard` `#F2CB66` · `butter` `#F6E29A` · `calico` `#D9A25F` · `sand` `#E8D5B0` · `clay` `#E3B48F` |
+| Rojos / rosas | `coral` `#EE8F6E` · `peach` `#F5BE9E` · `rose` `#F0B4BE` · `berry` `#D9A0C4` |
+| Azules / violetas | `sky` `#A9CFE0` · `lake` `#9EC3C9` · `periwinkle` `#B6BEEB` · `lilac` `#CDB8E6` |
+| Neutros | `stone` `#DAD8D1` · `paper` `#F3EEDD` |
+
+  Más "sin color" (`surface`). Selector: grid de círculos chunky de 44 px en el bottom sheet, con check animado. **[SUPUESTO]** valores exactos se ajustan en la fase de diseño.
 - Las tarjetas de color usan texto `#151515` en ambos temas (como la referencia), garantizando contraste AA.
 - En oscuro, el fondo es casi negro y las tarjetas mantienen sus colores pastel.
 
@@ -359,7 +378,8 @@ invitations         (id, kind ('household'|'platform'),
                      token_hash, role NULL, invited_by,
                      expires_at, accepted_by, accepted_at, revoked_at)
 
-lists               (id, household_id, name, emoji, color NULL, position, created_at)
+lists               (id, household_id, name, emoji, color NULL, position,
+                     deleted_at NULL, deleted_by NULL, created_at)
 
 tasks               (id, household_id, list_id NULL, emoji, title, description,
                      schedule_type ('interval'|'weekly'|'monthly'|'once'),
@@ -372,7 +392,9 @@ tasks               (id, household_id, list_id NULL, emoji, title, description,
                      current_assignee_id NULL,
                      cycle_started_at timestamptz,
                      next_due_at timestamptz,   -- desnormalizado
-                     archived_at, created_by, created_at, updated_at)
+                     completed_at NULL,      -- tareas "Una vez" terminadas
+                     deleted_at NULL, deleted_by NULL,  -- borrado lógico
+                     created_by, created_at, updated_at)
 
 task_rotation       (task_id, user_id, position, PK(task_id, user_id))
 
@@ -380,7 +402,9 @@ task_events         (id, task_id, household_id,
                      kind ('done'|'skipped'|'snoozed'|'missed'|'undone'),
                      assignee_at_time NULL,   -- a quién le tocaba; NULL = "Cualquiera"
                      due_at_snapshot, snoozed_until, created_at)
-                     -- Intencionalmente SIN actor_id: no se guarda quién completó.
+                     credited_to NULL,        -- 'done': persona elegida en "¿Quién la hizo?"
+                                              -- o, por defecto, el responsable; NULL = Hogar
+                     -- Intencionalmente SIN actor_id: no se guarda la cuenta que tocó "Hecha".
                      -- 'missed' lo inserta el cron cuando una ocurrencia vencida
                      -- queda superada por la siguiente sin completarse.
 
@@ -399,7 +423,7 @@ notification_log    (id, user_id, task_id NULL, kind ('due'|'digest'),
                      UNIQUE(user_id, kind, occurrence_key))
 ```
 
-- `stats` se calcula con una RPC `household_stats(household_id, from, to)` sobre `task_events`, agrupando por `assignee_at_time` (`done` = completadas, `missed`/`skipped` = sin hacer) + conteo en vivo de pendientes desde `tasks.next_due_at`.
+- `stats` se calcula con una RPC `household_stats(household_id, from, to)` sobre `task_events`: completadas agrupadas por `credited_to` (`done`), sin hacer agrupadas por `assignee_at_time` (`missed`/`skipped`) + conteo en vivo de pendientes desde `tasks.next_due_at`.
 - Funciones SQL atómicas (SECURITY DEFINER, validan membresía): `complete_task`, `skip_task`, `snooze_task`, `undo_last_event`, `accept_invitation`.
 - El registro (`auth.users` insert) se bloquea salvo con un token de invitación válido: el alta pasa por una ruta del servidor que valida la invitación y crea el usuario con la service key. **[SUPUESTO]**
 - La lógica de recurrencia vive en **TypeScript** (`lib/schedule.ts`, testeada) y se replica en SQL solo si hace falta para el cron; **[SUPUESTO]** el cron corre en una ruta de Next.js para compartir el mismo código.
@@ -409,6 +433,7 @@ notification_log    (id, user_id, task_id NULL, kind ('due'|'digest'),
 - `api_tokens`, `telegram_links`, `notification_prefs`: solo el dueño.
 - Super admin: acceso de lectura global vía `is_super_admin()`.
 - Usuarios u hogares desactivados no pueden leer ni escribir.
+- Las políticas de lectura excluyen filas con `deleted_at` (excepto para el super admin). No hay política `DELETE` para ningún rol de la app: borrar = `UPDATE ... SET deleted_at = now()`.
 
 ---
 
@@ -497,10 +522,13 @@ El login con contraseña funciona igual, pero registro, link mágico y recuperac
 - **Desparasitante cada mes desde la última vez:** vencía el 10/10, se completa el 15/10 → próximo 15/11 a la hora definida.
 - **Apartamento día 3, anclado:** completado el 5 → próximo el día 3 del mes siguiente.
 - **Día 31 en febrero** → vence el último día de febrero.
-- **Rotación [Andrés, Mari]:** a Andrés le toca; alguien la completa → el responsable pasa a Mari. En ningún lugar aparece quién la completó.
+- **Rotación [Andrés, Mari]:** a Andrés le toca; alguien la completa sin elegir quién → crédito para Andrés y el turno pasa a Mari.
+- **Crédito opcional:** a Andrés le toca, se completa y en "¿Quién la hizo?" se elige Mari → la estadística de completadas suma 1 a Mari; el turno igual pasa al siguiente de la rotación.
+- **Borrado lógico:** un miembro borra "Barrer" → desaparece para todos, sigue en la base con `deleted_at`, no genera avisos, y el super admin puede restaurarla desde `/admin`. Ningún rol tiene una acción de borrado definitivo.
 - **Sin hacer:** a Mari le tocaba "Basura" el martes y no se completó antes de la ocurrencia del jueves → en estadísticas suma 1 "sin hacer" para Mari.
 - **Registro cerrado:** abrir `/registro` sin token de invitación válido muestra "Lukas solo abre la puerta con invitación 🐾" y no permite crear cuenta.
-- **Telegram "Hecha":** tocar el botón completa la tarea, el mensaje se edita a "✅ Hecha" y la app refleja el cambio; tocarlo de nuevo responde "Ya estaba hecha".
+- **Telegram "Hecha":** tocar el botón completa la tarea (crédito al responsable), el mensaje se edita a "✅ Hecha" y la app refleja el cambio; tocarlo de nuevo responde "Ya estaba hecha".
+- **Telegram "+1 h":** a las 19:00 se toca "⏰ +1 h" → la tarea queda pospuesta a las 20:00 y a esa hora llega un nuevo aviso.
 - **Telegram:** a las 19:00 el responsable recibe un mensaje; no recibe otro de esa ocurrencia aunque siga vencida. Si la pospone a 20:00, recibe uno a las 20:00.
 - **Resumen:** a las 07:00 (hora del usuario) recibe el resumen siempre; si no hay tareas, recibe el mensaje de "nada pendiente".
 - **Aislamiento:** un usuario de otro hogar no puede leer tareas ni estadísticas de "Casa" (RLS devuelve vacío / 404).
@@ -535,7 +563,7 @@ El login con contraseña funciona igual, pero registro, link mágico y recuperac
 |---|---|---|
 | 1 | Registro | Solo por invitación (de hogar o de plataforma). |
 | 2 | Hora por defecto | 09:00. |
-| 3 | Quién completó | **No se registra.** Los turnos de rotación avanzan igual tras cada completado. |
+| 3 | Quién completó | No se registra la cuenta que completa; los turnos avanzan igual tras cada completado. *(Ajustado en ronda 3: crédito opcional.)* |
 | 4 | Avisos de "Cualquiera" | Le llegan a todos los miembros. |
 | 5 | Resumen diario | Se envía siempre, aunque no haya tareas. |
 | 6 | Telegram | Botón "✅ Hecha" en el mensaje por tarea. |
@@ -546,10 +574,19 @@ El login con contraseña funciona igual, pero registro, link mágico y recuperac
 | 11 | Lukas | En todos lados: ícono, favicon, bot, estados vacíos, carga, onboarding, widget. |
 | 12 | Bot de Telegram | Nombre visible **Lukas-remind-it**. El `@username` no admite guiones y debe terminar en "bot": propuesta `@lukas_remind_it_bot`. |
 
-## 16. Preguntas abiertas (ronda 3)
+### 15.1 Decisiones de la ronda 3
 
-1. **Estadísticas por responsable:** como no se guarda quién completó, "tareas por persona" significa "tareas que le tocaban y se hicieron". ¿Te sirve así?
-2. **Colores extra:** además de lima, mostaza, coral, piedra y canela, ¿agrego celeste y lila, o prefieres una paleta solo de tonos tierra/herbales?
-3. **Borrar tareas:** ¿solo el admin puede borrarlas definitivamente (los miembros solo archivar), o todos pueden borrar?
-4. **Posponer desde Telegram:** además de "✅ Hecha", ¿un botón "⏰ +1 h"?
-5. **Prototipo:** ¿quieres que arme ahora un prototipo navegable (HTML) de Inicio, crear tarea y detalle, con las animaciones, para validar el estilo antes de programar?
+| # | Tema | Decisión |
+|---|---|---|
+| 1 | Quién la hizo | Opcional al completar; si no se indica, el crédito es para el responsable (o Hogar si es "Cualquiera"). |
+| 2 | Colores | Paleta amplia de 20 tonos; cada persona elige el color de la tarjeta. |
+| 3 | Borrar | Todos pueden "borrar", pero es borrado lógico; nada se elimina definitivamente, ni siquiera el admin. |
+| 4 | Telegram | Botones "✅ Hecha" y "⏰ +1 h". |
+| 5 | Prototipo | Más adelante, con las skills de diseño (impeccable) y brainstorming instaladas. |
+
+## 16. Preguntas abiertas (ronda 4)
+
+1. **Papelera:** ¿quieres que el admin del hogar pueda ver y restaurar lo borrado (una "Papelera"), o solo el super admin?
+2. **Pausar:** ahora solo existe "Borrar". ¿Necesitan además "Pausar" una tarea (p. ej. regar plantas durante un viaje) sin borrarla?
+3. **Modo vacaciones:** ¿pausar todo el hogar unos días y que no lleguen avisos?
+4. **Crédito en Telegram:** al tocar "✅ Hecha" en Telegram, el crédito va al responsable. ¿Está bien, o prefieres que pregunte "¿Quién la hizo?" con botones de cada miembro?
