@@ -1,0 +1,1073 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-10T20:30:48+00:00",
+  "title": "Design System: Lukas",
+  "extensions": {
+    "colorMeta": {
+      "ink": {
+        "role": "primary",
+        "displayName": "Tinta de Sello",
+        "canonical": "#151515",
+        "oklch": "oklch(19.6% 0.000 89.9)",
+        "tonalRamp": [
+          "#0B0B0B",
+          "#242424",
+          "#404040",
+          "#5D5D5D",
+          "#808080",
+          "#A4A4A4",
+          "#CACACA",
+          "#EEEEEE"
+        ]
+      },
+      "ink-muted": {
+        "role": "neutral",
+        "displayName": "Tinta Apagada",
+        "canonical": "#5E5A48",
+        "oklch": "oklch(46.6% 0.028 96.9)",
+        "tonalRamp": [
+          "#0F0B01",
+          "#282414",
+          "#44402F",
+          "#625E4C",
+          "#85816E",
+          "#A9A591",
+          "#CFCBB6",
+          "#F4EFDA"
+        ]
+      },
+      "ink-faint": {
+        "role": "neutral",
+        "displayName": "Tinta Tenue",
+        "canonical": "#8C876F",
+        "oklch": "oklch(62.1% 0.035 97.5)",
+        "tonalRamp": [
+          "#0F0B00",
+          "#29240F",
+          "#45402A",
+          "#635E47",
+          "#868169",
+          "#AAA58C",
+          "#D0CBB1",
+          "#F5EFD5"
+        ]
+      },
+      "cream": {
+        "role": "neutral",
+        "displayName": "Crema Papel",
+        "canonical": "#FBF6DC",
+        "oklch": "oklch(97.0% 0.034 98.1)",
+        "tonalRamp": [
+          "#0F0B00",
+          "#282410",
+          "#44402B",
+          "#635E48",
+          "#858169",
+          "#AAA58D",
+          "#D0CBB2",
+          "#F4EFD5"
+        ]
+      },
+      "white": {
+        "role": "neutral",
+        "displayName": "Blanco",
+        "canonical": "#FFFFFF",
+        "oklch": "oklch(100.0% 0.000 89.9)",
+        "tonalRamp": [
+          "#0B0B0B",
+          "#242424",
+          "#404040",
+          "#5D5D5D",
+          "#808080",
+          "#A4A4A4",
+          "#CACACA",
+          "#EEEEEE"
+        ]
+      },
+      "wheat": {
+        "role": "neutral",
+        "displayName": "Trigo",
+        "canonical": "#F1EBCB",
+        "oklch": "oklch(93.7% 0.042 98.4)",
+        "tonalRamp": [
+          "#100B00",
+          "#292409",
+          "#454025",
+          "#645E42",
+          "#878164",
+          "#ABA587",
+          "#D1CBAC",
+          "#F5EFCF"
+        ]
+      },
+      "separator-opaque": {
+        "role": "neutral",
+        "displayName": "Separador Opaco",
+        "canonical": "#E4DDBD",
+        "oklch": "oklch(89.5% 0.043 97.0)",
+        "tonalRamp": [
+          "#100B00",
+          "#2A2409",
+          "#464025",
+          "#645E42",
+          "#878163",
+          "#ACA587",
+          "#D2CBAC",
+          "#F6EFCF"
+        ]
+      },
+      "ink-cream": {
+        "role": "neutral",
+        "displayName": "Tinta Crema",
+        "canonical": "#F5F1DC",
+        "oklch": "oklch(95.6% 0.028 98.1)",
+        "tonalRamp": [
+          "#0E0B01",
+          "#282414",
+          "#43402F",
+          "#625E4C",
+          "#84816E",
+          "#A9A591",
+          "#CFCBB7",
+          "#F3EFDA"
+        ]
+      },
+      "card-ink-muted": {
+        "role": "neutral",
+        "displayName": "Tinta de Tarjeta Apagada",
+        "canonical": "#3D3A2E",
+        "oklch": "oklch(34.8% 0.020 95.6)",
+        "tonalRamp": [
+          "#0E0B03",
+          "#272419",
+          "#434034",
+          "#615E51",
+          "#848073",
+          "#A8A597",
+          "#CECBBC",
+          "#F2EFE0"
+        ]
+      },
+      "accent": {
+        "role": "primary",
+        "displayName": "Mostaza de Acción",
+        "canonical": "#F2CB66",
+        "oklch": "oklch(85.6% 0.127 88.4)",
+        "tonalRamp": [
+          "#170700",
+          "#351F00",
+          "#563B00",
+          "#795800",
+          "#9E7B00",
+          "#C0A151",
+          "#E2C887",
+          "#FFEDB7"
+        ]
+      },
+      "accent-soft": {
+        "role": "primary",
+        "displayName": "Mostaza Suave",
+        "canonical": "#F8E4AE",
+        "oklch": "oklch(92.2% 0.073 90.1)",
+        "tonalRamp": [
+          "#170700",
+          "#322100",
+          "#4F3D05",
+          "#6D5C29",
+          "#917F4C",
+          "#B6A36F",
+          "#DDC994",
+          "#FFEDB7"
+        ]
+      },
+      "danger": {
+        "role": "secondary",
+        "displayName": "Óxido de Peligro",
+        "canonical": "#9E3B1F",
+        "oklch": "oklch(48.7% 0.138 36.3)",
+        "tonalRamp": [
+          "#220000",
+          "#450D00",
+          "#6C2613",
+          "#954029",
+          "#BD634A",
+          "#DE8C76",
+          "#FEB7A3",
+          "#FFDECD"
+        ]
+      },
+      "danger-fill": {
+        "role": "secondary",
+        "displayName": "Coral Vencido",
+        "canonical": "#EE8F6E",
+        "oklch": "oklch(74.3% 0.125 39.8)",
+        "tonalRamp": [
+          "#210000",
+          "#450E00",
+          "#6B270C",
+          "#944123",
+          "#BD6445",
+          "#DD8D72",
+          "#FDB79F",
+          "#FFDFCA"
+        ]
+      },
+      "art-eye": {
+        "role": "tertiary",
+        "displayName": "Verde Ojo de Lukas",
+        "canonical": "#CBD45E",
+        "oklch": "oklch(84.0% 0.142 113.1)",
+        "tonalRamp": [
+          "#0C0D00",
+          "#252700",
+          "#414400",
+          "#5F6400",
+          "#81871E",
+          "#A5AC5B",
+          "#CAD18E",
+          "#EEF4BD"
+        ]
+      },
+      "leaf": {
+        "role": "tertiary",
+        "displayName": "Leaf",
+        "canonical": "#C5D98A",
+        "oklch": "oklch(85.2% 0.105 120.2)",
+        "tonalRamp": [
+          "#080E00",
+          "#1F2900",
+          "#394700",
+          "#566614",
+          "#78893C",
+          "#9CAE61",
+          "#C3D492",
+          "#E8F6C0"
+        ]
+      },
+      "sage": {
+        "role": "tertiary",
+        "displayName": "Sage",
+        "canonical": "#B7CDB0",
+        "oklch": "oklch(82.4% 0.046 138.1)",
+        "tonalRamp": [
+          "#020F00",
+          "#182913",
+          "#33462E",
+          "#51644B",
+          "#73876C",
+          "#97AC90",
+          "#BCD2B5",
+          "#E0F7D8"
+        ]
+      },
+      "mint": {
+        "role": "tertiary",
+        "displayName": "Mint",
+        "canonical": "#BFE3CF",
+        "oklch": "oklch(88.4% 0.047 161.0)",
+        "tonalRamp": [
+          "#001105",
+          "#0B2B1D",
+          "#284738",
+          "#466655",
+          "#688977",
+          "#8CAE9B",
+          "#B1D4C1",
+          "#D4F9E4"
+        ]
+      },
+      "moss": {
+        "role": "tertiary",
+        "displayName": "Moss",
+        "canonical": "#A9C27E",
+        "oklch": "oklch(77.9% 0.095 125.0)",
+        "tonalRamp": [
+          "#050F00",
+          "#1A2A00",
+          "#344800",
+          "#516725",
+          "#738A48",
+          "#97AF6C",
+          "#BDD596",
+          "#E3F8C3"
+        ]
+      },
+      "olive": {
+        "role": "tertiary",
+        "displayName": "Olive",
+        "canonical": "#D3D49A",
+        "oklch": "oklch(85.5% 0.076 108.7)",
+        "tonalRamp": [
+          "#0F0C00",
+          "#282600",
+          "#434206",
+          "#61612A",
+          "#84844D",
+          "#A8A970",
+          "#CECF95",
+          "#F2F3BB"
+        ]
+      },
+      "mustard": {
+        "role": "tertiary",
+        "displayName": "Mustard",
+        "canonical": "#F2CB66",
+        "oklch": "oklch(85.6% 0.127 88.4)",
+        "tonalRamp": [
+          "#170700",
+          "#351F00",
+          "#563B00",
+          "#795800",
+          "#9E7B00",
+          "#C0A151",
+          "#E2C887",
+          "#FFEDB7"
+        ]
+      },
+      "butter": {
+        "role": "tertiary",
+        "displayName": "Butter",
+        "canonical": "#F6E29A",
+        "oklch": "oklch(91.3% 0.093 94.4)",
+        "tonalRamp": [
+          "#150800",
+          "#322100",
+          "#503E00",
+          "#6F5C0D",
+          "#927F39",
+          "#B7A45E",
+          "#DDCA87",
+          "#FEEFB8"
+        ]
+      },
+      "calico": {
+        "role": "tertiary",
+        "displayName": "Calico",
+        "canonical": "#D9A25F",
+        "oklch": "oklch(75.0% 0.107 70.4)",
+        "tonalRamp": [
+          "#1D0300",
+          "#3D1900",
+          "#613300",
+          "#835100",
+          "#A8742F",
+          "#CF9957",
+          "#F0C18B",
+          "#FFE7BA"
+        ]
+      },
+      "sand": {
+        "role": "tertiary",
+        "displayName": "Sand",
+        "canonical": "#E8D5B0",
+        "oklch": "oklch(87.9% 0.053 84.0)",
+        "tonalRamp": [
+          "#150800",
+          "#302100",
+          "#4D3D1C",
+          "#6C5B3A",
+          "#8F7E5C",
+          "#B5A27F",
+          "#DBC8A4",
+          "#FFECC7"
+        ]
+      },
+      "clay": {
+        "role": "tertiary",
+        "displayName": "Clay",
+        "canonical": "#E3B48F",
+        "oklch": "oklch(80.3% 0.074 59.7)",
+        "tonalRamp": [
+          "#1F0100",
+          "#3D1900",
+          "#5C3511",
+          "#7C5331",
+          "#A17652",
+          "#C89A76",
+          "#EFC09A",
+          "#FFE4BE"
+        ]
+      },
+      "coral": {
+        "role": "tertiary",
+        "displayName": "Coral",
+        "canonical": "#EE8F6E",
+        "oklch": "oklch(74.3% 0.125 39.8)",
+        "tonalRamp": [
+          "#210000",
+          "#450E00",
+          "#6B270C",
+          "#944123",
+          "#BD6445",
+          "#DD8D72",
+          "#FDB79F",
+          "#FFDFCA"
+        ]
+      },
+      "peach": {
+        "role": "tertiary",
+        "displayName": "Peach",
+        "canonical": "#F5BE9E",
+        "oklch": "oklch(84.3% 0.077 51.5)",
+        "tonalRamp": [
+          "#200000",
+          "#3F1600",
+          "#5F3215",
+          "#805033",
+          "#A57355",
+          "#CC9778",
+          "#F4BD9D",
+          "#FFE2C3"
+        ]
+      },
+      "rose": {
+        "role": "tertiary",
+        "displayName": "Rose",
+        "canonical": "#F0B4BE",
+        "oklch": "oklch(82.8% 0.071 7.6)",
+        "tonalRamp": [
+          "#200006",
+          "#3F121E",
+          "#5F2F39",
+          "#804C56",
+          "#A56E78",
+          "#CC929C",
+          "#F4B8C2",
+          "#FFDCE6"
+        ]
+      },
+      "berry": {
+        "role": "tertiary",
+        "displayName": "Berry",
+        "canonical": "#D9A0C4",
+        "oklch": "oklch(77.0% 0.082 341.0)",
+        "tonalRamp": [
+          "#1D0014",
+          "#3D1030",
+          "#5C2D4D",
+          "#7D4A6B",
+          "#A26D8F",
+          "#C890B4",
+          "#F0B6DB",
+          "#FFDCFD"
+        ]
+      },
+      "sky": {
+        "role": "tertiary",
+        "displayName": "Sky",
+        "canonical": "#A9CFE0",
+        "oklch": "oklch(83.3% 0.047 226.8)",
+        "tonalRamp": [
+          "#000E1A",
+          "#042835",
+          "#224553",
+          "#406372",
+          "#628696",
+          "#86ABBC",
+          "#ABD1E2",
+          "#CFF6FF"
+        ]
+      },
+      "lake": {
+        "role": "tertiary",
+        "displayName": "Lake",
+        "canonical": "#9EC3C9",
+        "oklch": "oklch(79.2% 0.040 208.4)",
+        "tonalRamp": [
+          "#000F14",
+          "#05292E",
+          "#24464B",
+          "#42646A",
+          "#64878D",
+          "#88ACB2",
+          "#ADD2D8",
+          "#D0F7FD"
+        ]
+      },
+      "periwinkle": {
+        "role": "tertiary",
+        "displayName": "Periwinkle",
+        "canonical": "#B6BEEB",
+        "oklch": "oklch(81.1% 0.064 277.0)",
+        "tonalRamp": [
+          "#070625",
+          "#1D2042",
+          "#373C61",
+          "#545A82",
+          "#767DA7",
+          "#9AA1CD",
+          "#BFC7F5",
+          "#E3EBFF"
+        ]
+      },
+      "lilac": {
+        "role": "tertiary",
+        "displayName": "Lilac",
+        "canonical": "#CDB8E6",
+        "oklch": "oklch(81.5% 0.067 305.7)",
+        "tonalRamp": [
+          "#120221",
+          "#2C1A3E",
+          "#48365C",
+          "#67547C",
+          "#8A76A1",
+          "#AF9AC7",
+          "#D5C0EE",
+          "#F9E4FF"
+        ]
+      },
+      "stone": {
+        "role": "tertiary",
+        "displayName": "Stone",
+        "canonical": "#DAD8D1",
+        "oklch": "oklch(88.2% 0.010 93.6)",
+        "tonalRamp": [
+          "#0C0B07",
+          "#25241F",
+          "#41403A",
+          "#5F5E58",
+          "#82807A",
+          "#A6A59E",
+          "#CCCAC4",
+          "#F0EEE7"
+        ]
+      },
+      "paper": {
+        "role": "tertiary",
+        "displayName": "Paper",
+        "canonical": "#F3EEDD",
+        "oklch": "oklch(94.8% 0.023 93.3)",
+        "tonalRamp": [
+          "#0E0B02",
+          "#282417",
+          "#444032",
+          "#625E4F",
+          "#858071",
+          "#A9A595",
+          "#CFCBBA",
+          "#F4EFDE"
+        ]
+      },
+      "dark-bg": {
+        "role": "neutral",
+        "displayName": "Oscuro · Bg",
+        "canonical": "#161616",
+        "oklch": "oklch(20.0% 0.000 89.9)",
+        "tonalRamp": [
+          "#0B0B0B",
+          "#242424",
+          "#404040",
+          "#5D5D5D",
+          "#808080",
+          "#A4A4A4",
+          "#CACACA",
+          "#EEEEEE"
+        ]
+      },
+      "dark-surface": {
+        "role": "neutral",
+        "displayName": "Oscuro · Surface",
+        "canonical": "#232323",
+        "oklch": "oklch(25.6% 0.000 89.9)",
+        "tonalRamp": [
+          "#0B0B0B",
+          "#242424",
+          "#404040",
+          "#5D5D5D",
+          "#808080",
+          "#A4A4A4",
+          "#CACACA",
+          "#EEEEEE"
+        ]
+      },
+      "dark-surface-2": {
+        "role": "neutral",
+        "displayName": "Oscuro · Surface 2",
+        "canonical": "#2E2E2E",
+        "oklch": "oklch(30.1% 0.000 89.9)",
+        "tonalRamp": [
+          "#0B0B0B",
+          "#242424",
+          "#404040",
+          "#5D5D5D",
+          "#808080",
+          "#A4A4A4",
+          "#CACACA",
+          "#EEEEEE"
+        ]
+      },
+      "dark-ink-muted": {
+        "role": "neutral",
+        "displayName": "Oscuro · Tinta Apagada",
+        "canonical": "#A8A496",
+        "oklch": "oklch(71.8% 0.020 93.7)",
+        "tonalRamp": [
+          "#0E0B03",
+          "#272419",
+          "#434034",
+          "#615E51",
+          "#848073",
+          "#A9A597",
+          "#CFCBBC",
+          "#F3EFE0"
+        ]
+      },
+      "dark-ink-faint": {
+        "role": "neutral",
+        "displayName": "Oscuro · Tinta Tenue",
+        "canonical": "#6F6C62",
+        "oklch": "oklch(53.1% 0.016 93.1)",
+        "tonalRamp": [
+          "#0D0B05",
+          "#27241B",
+          "#424036",
+          "#605E54",
+          "#838076",
+          "#A8A59A",
+          "#CECABF",
+          "#F2EEE3"
+        ]
+      },
+      "dark-separator-opaque": {
+        "role": "neutral",
+        "displayName": "Oscuro · Separador Opaco",
+        "canonical": "#333230",
+        "oklch": "oklch(31.7% 0.004 84.6)",
+        "tonalRamp": [
+          "#0C0B09",
+          "#252422",
+          "#41403D",
+          "#5E5D5B",
+          "#81807E",
+          "#A6A4A2",
+          "#CBCAC8",
+          "#F0EEEC"
+        ]
+      },
+      "dark-accent-soft": {
+        "role": "neutral",
+        "displayName": "Oscuro · Mostaza Suave",
+        "canonical": "#4A3F22",
+        "oklch": "oklch(37.2% 0.047 89.3)",
+        "tonalRamp": [
+          "#130900",
+          "#2D2305",
+          "#4A3F22",
+          "#685D3F",
+          "#8B7F60",
+          "#B0A484",
+          "#D7CAA8",
+          "#FBEECC"
+        ]
+      },
+      "dark-danger": {
+        "role": "neutral",
+        "displayName": "Oscuro · Óxido de Peligro",
+        "canonical": "#F2A386",
+        "oklch": "oklch(78.6% 0.103 40.9)",
+        "tonalRamp": [
+          "#210000",
+          "#450E00",
+          "#6B280C",
+          "#8D472D",
+          "#B46A4F",
+          "#DC8E72",
+          "#FDB89E",
+          "#FFDFCA"
+        ]
+      },
+      "dark-stroke": {
+        "role": "neutral",
+        "displayName": "Oscuro · Stroke",
+        "canonical": "#0A0A0A",
+        "oklch": "oklch(14.5% 0.000 89.9)",
+        "tonalRamp": [
+          "#0B0B0B",
+          "#242424",
+          "#404040",
+          "#5D5D5D",
+          "#808080",
+          "#A4A4A4",
+          "#CACACA",
+          "#EEEEEE"
+        ]
+      },
+      "dark-tabbar": {
+        "role": "neutral",
+        "displayName": "Oscuro · Tabbar",
+        "canonical": "#2A2A28",
+        "oklch": "oklch(28.4% 0.004 106.6)",
+        "tonalRamp": [
+          "#0B0B0A",
+          "#242422",
+          "#40403E",
+          "#5E5E5B",
+          "#80807E",
+          "#A5A5A2",
+          "#CBCBC8",
+          "#EFEFEC"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "large-title": {
+        "displayName": "Large Title",
+        "purpose": "Título de pantalla en navbar grande."
+      },
+      "title1": {
+        "displayName": "Title1",
+        "purpose": "Títulos de sheet."
+      },
+      "title2": {
+        "displayName": "Title2",
+        "purpose": "Estado vacío, títulos secundarios."
+      },
+      "title3": {
+        "displayName": "Title3",
+        "purpose": "Section header grande."
+      },
+      "card-title": {
+        "displayName": "Card Title",
+        "purpose": "Nombre de la tarea en la tarjeta, máx. 2 líneas."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "Títulos de fila y disclosure."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Texto corrido."
+      },
+      "callout": {
+        "displayName": "Callout",
+        "purpose": "Resúmenes."
+      },
+      "subhead": {
+        "displayName": "Subhead",
+        "purpose": "Chips, subtítulos."
+      },
+      "footnote": {
+        "displayName": "Footnote",
+        "purpose": "Notas y pies de sección."
+      },
+      "caption1": {
+        "displayName": "Caption1",
+        "purpose": "Ayudas de campo."
+      },
+      "caption2": {
+        "displayName": "Caption2",
+        "purpose": "Conteos y etiquetas mínimas."
+      },
+      "button": {
+        "displayName": "Button",
+        "purpose": "Texto de botones."
+      }
+    },
+    "shadows": [
+      {
+        "name": "stamp",
+        "value": "0 3px 0 #151515",
+        "purpose": "Sello en reposo de objetos chunky tocables (tarjetas, botones filled/prominent/bordered, tiles)."
+      },
+      {
+        "name": "stamp-dark",
+        "value": "0 3px 0 rgb(0 0 0 / .65)",
+        "purpose": "Sello en tema oscuro; el borde de tinta se vuelve transparente."
+      },
+      {
+        "name": "stamp-pressed",
+        "value": "0 0 0 #151515",
+        "purpose": "Estado activo; acompaña translateY(3px)."
+      },
+      {
+        "name": "elev-1",
+        "value": "0 1px 0 rgb(21 21 21 / .06), 0 6px 18px rgb(60 52 20 / .10)",
+        "purpose": "Popovers."
+      },
+      {
+        "name": "elev-1-dark",
+        "value": "0 1px 0 rgb(0 0 0 / .4), 0 8px 24px rgb(0 0 0 / .45)",
+        "purpose": "Popovers en oscuro."
+      },
+      {
+        "name": "elev-2",
+        "value": "0 2px 0 rgb(21 21 21 / .05), 0 18px 48px rgb(60 52 20 / .20)",
+        "purpose": "Sheets, alerts, menús, toasts."
+      },
+      {
+        "name": "elev-2-dark",
+        "value": "0 2px 0 rgb(0 0 0 / .4), 0 20px 56px rgb(0 0 0 / .6)",
+        "purpose": "Sheets, alerts, menús, toasts en oscuro."
+      },
+      {
+        "name": "tabbar",
+        "value": "0 10px 30px rgb(21 21 21 / .28)",
+        "purpose": "Tab bar flotante."
+      },
+      {
+        "name": "focus-ring",
+        "value": "0 0 0 3px var(--bg), 0 0 0 5.5px var(--ink)",
+        "purpose": "Foco visible; en oscuro el anillo exterior es mostaza."
+      },
+      {
+        "name": "scrim",
+        "value": "rgb(21 21 21 / .38)",
+        "purpose": "Velo detrás de sheets y alerts (oscuro: rgb(0 0 0 / .55))."
+      },
+      {
+        "name": "material-blur",
+        "value": "saturate(160%) blur(18px)",
+        "purpose": "backdrop-filter de navbar (bg 78 %), toolbar (bg 90 %) y menús (surface 82 %)."
+      }
+    ],
+    "motion": [
+      {
+        "name": "dur-1",
+        "value": "120ms",
+        "purpose": "Presión del sello, escalas al tocar."
+      },
+      {
+        "name": "dur-2",
+        "value": "200ms",
+        "purpose": "Cambios de color y opacidad."
+      },
+      {
+        "name": "dur-3",
+        "value": "280ms",
+        "purpose": "Push de pantalla, scrim, disclosure."
+      },
+      {
+        "name": "dur-4",
+        "value": "420ms",
+        "purpose": "Progreso del anillo, entrada de tarjetas."
+      },
+      {
+        "name": "dur-5",
+        "value": "640ms",
+        "purpose": "Vaciado del anillo al completar."
+      },
+      {
+        "name": "ease-out",
+        "value": "cubic-bezier(.16,1,.3,1)",
+        "purpose": "Curva por defecto."
+      },
+      {
+        "name": "ease-in",
+        "value": "cubic-bezier(.7,0,.84,0)",
+        "purpose": "Salidas (toast)."
+      },
+      {
+        "name": "ease-in-out",
+        "value": "cubic-bezier(.65,0,.35,1)",
+        "purpose": "Bucles de ilustración, shimmer, revelado de tema."
+      },
+      {
+        "name": "ease-spring",
+        "value": "linear(0, .08, .224, .385, .534, .66, .761, .838, .894, .934, .96, .978, .989, .996, 1, 1.001, 1.002, 1.002, 1.001, 1, 1)",
+        "purpose": "Resorte stiffness 400 / damping 35: thumbs, switch, sheets, tab bar, rebote del sello."
+      },
+      {
+        "name": "dur-spring",
+        "value": "520ms",
+        "purpose": "Duración del resorte."
+      },
+      {
+        "name": "stagger",
+        "value": "40ms",
+        "purpose": "Escalonado de entrada de tarjetas."
+      },
+      {
+        "name": "reduced-motion",
+        "value": "ease-spring → ease-out, dur-spring → 200ms, stamp-lift → 0px",
+        "purpose": "prefers-reduced-motion: fundidos cortos, sin hundimiento, bucles detenidos."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "grid-3col",
+        "value": "600px (container)"
+      },
+      {
+        "name": "frame-collapse",
+        "value": "520px"
+      },
+      {
+        "name": "min-supported",
+        "value": "360px"
+      }
+    ],
+    "themes": {
+      "dark": {
+        "selector": ":root[data-theme=\"dark\"]",
+        "notes": "Fondo #161616; tinta crema #F5F1DC; tarjetas conservan pastel y texto #151515; borde de tinta transparente; sello como sombra negra; ilustraciones sobre placa crema #F3EEDD; foco en mostaza."
+      }
+    },
+    "icons": {
+      "style": "Sprite SVG propio estilo Phosphor bold",
+      "size": "24px (18/20/28)",
+      "strokeWidth": 2.25,
+      "linecap": "round",
+      "source": "docs/design/system/icons.js"
+    },
+    "illustrations": {
+      "source": "docs/design/system/lukas-art.js",
+      "motifs": [
+        "icon",
+        "face",
+        "sleepingPot",
+        "peek",
+        "sprout",
+        "leaf"
+      ],
+      "colors": "currentColor (tinta) + --art-paper (crema) + --art-eye (#CBD45E)"
+    }
+  },
+  "components": [
+    {
+      "name": "Botón principal (mostaza con sello)",
+      "kind": "button",
+      "refersTo": "button-filled",
+      "description": "Acción principal de la pantalla; se hunde 3px al tocar.",
+      "html": "<button class=\"ds-btn ds-btn--filled\"><svg width=\"20\" height=\"20\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2.25\" stroke-linecap=\"round\"><path d=\"M12 5v14M5 12h14\"/></svg>Nueva tarea</button>",
+      "css": ".ds-btn{display:inline-flex;align-items:center;gap:8px;min-height:48px;padding:0 20px;border-radius:9999px;font:700 16px/1 \"DM Sans\",system-ui,sans-serif;letter-spacing:-.005em;cursor:pointer;transition:transform 120ms cubic-bezier(.16,1,.3,1),box-shadow 120ms cubic-bezier(.16,1,.3,1)}.ds-btn--filled{background:#F2CB66;color:#151515;border:2px solid #151515;box-shadow:0 3px 0 #151515}.ds-btn:active{transform:translateY(3px) scale(.98);box-shadow:0 0 0 #151515}.ds-btn:focus-visible{outline:none;box-shadow:0 0 0 3px #FBF6DC,0 0 0 5.5px #151515}"
+    },
+    {
+      "name": "Botón prominente (tinta)",
+      "kind": "button",
+      "refersTo": "button-prominent",
+      "description": "Acción fuerte secundaria en tinta con texto crema.",
+      "html": "<button class=\"ds-btn-ink\">Hecha</button>",
+      "css": ".ds-btn-ink{min-height:48px;padding:0 20px;border-radius:9999px;background:#151515;color:#FBF6DC;border:2px solid #151515;box-shadow:0 3px 0 #151515;font:700 16px/1 \"DM Sans\",system-ui,sans-serif;cursor:pointer;transition:transform 120ms cubic-bezier(.16,1,.3,1),box-shadow 120ms}.ds-btn-ink:active{transform:translateY(3px) scale(.98);box-shadow:0 0 0 #151515}.ds-btn-ink:focus-visible{outline:none;box-shadow:0 0 0 3px #FBF6DC,0 0 0 5.5px #151515}"
+    },
+    {
+      "name": "Botón bordered",
+      "kind": "button",
+      "refersTo": "button-bordered",
+      "description": "Botón blanco con borde y sello para acciones neutras.",
+      "html": "<button class=\"ds-btn-bd\">La hizo alguien más</button>",
+      "css": ".ds-btn-bd{min-height:48px;padding:0 20px;border-radius:9999px;background:#FFFFFF;color:#151515;border:2px solid #151515;box-shadow:0 3px 0 #151515;font:700 16px/1 \"DM Sans\",system-ui,sans-serif;cursor:pointer;transition:transform 120ms cubic-bezier(.16,1,.3,1),box-shadow 120ms}.ds-btn-bd:active{transform:translateY(3px) scale(.98);box-shadow:0 0 0 #151515}.ds-btn-bd:focus-visible{outline:none;box-shadow:0 0 0 3px #FBF6DC,0 0 0 5.5px #151515}"
+    },
+    {
+      "name": "Chips de filtro",
+      "kind": "chip",
+      "refersTo": "chip",
+      "description": "Filtros de inicio; seleccionado en tinta.",
+      "html": "<div class=\"ds-chips\"><button class=\"ds-chip\" aria-pressed=\"true\">Todas <b>8</b></button><button class=\"ds-chip\">Mías <b>3</b></button><button class=\"ds-chip\">Hoy <b>2</b></button></div>",
+      "css": ".ds-chips{display:flex;gap:8px}.ds-chip{display:inline-flex;align-items:center;gap:6px;height:40px;padding:0 16px;border-radius:9999px;background:#F1EBCB;color:#151515;border:2px solid transparent;font:600 14px/1 \"DM Sans\",system-ui,sans-serif;cursor:pointer;transition:background-color 200ms cubic-bezier(.16,1,.3,1),transform 120ms}.ds-chip b{font-weight:700;font-size:12px;opacity:.7;font-variant-numeric:tabular-nums}.ds-chip[aria-pressed=\"true\"]{background:#151515;color:#FBF6DC}.ds-chip:active{transform:scale(.95)}.ds-chip:focus-visible{outline:none;box-shadow:0 0 0 3px #FBF6DC,0 0 0 5.5px #151515}"
+    },
+    {
+      "name": "Chips de estado",
+      "kind": "chip",
+      "refersTo": "status-overdue",
+      "description": "Estado de la tarea siempre con texto; funciona sobre cualquier pastel.",
+      "html": "<div style=\"display:flex;gap:6px;flex-wrap:wrap;padding:12px;background:#F0B4BE;border-radius:16px\"><span class=\"ds-st ds-st--ok\"><i></i>En 4 d</span><span class=\"ds-st ds-st--soon\"><i></i>Hoy 18:00</span><span class=\"ds-st ds-st--over\"><i></i>Vencida hace 2 d</span><span class=\"ds-st ds-st--done\"><i></i>Hecha</span></div>",
+      "css": ".ds-st{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border-radius:9999px;font:700 12.5px/1 \"DM Sans\",system-ui,sans-serif;font-variant-numeric:tabular-nums}.ds-st i{width:7px;height:7px;border-radius:50%;background:currentColor}.ds-st--ok{background:rgb(255 255 255 / .62);color:#151515}.ds-st--soon{background:#151515;color:#F2CB66}.ds-st--over{background:#151515;color:#EE8F6E}.ds-st--over i{animation:ds-pulse 1.6s cubic-bezier(.16,1,.3,1) infinite}.ds-st--done{background:#151515;color:#C5D98A}@keyframes ds-pulse{0%{box-shadow:0 0 0 0 rgb(238 143 110 / .7)}70%,100%{box-shadow:0 0 0 7px transparent}}"
+    },
+    {
+      "name": "Tarjeta de tarea",
+      "kind": "card",
+      "refersTo": "task-card",
+      "description": "Componente firma: maceta pastel con anillo de tinta, nombre, estado y responsable.",
+      "html": "<div class=\"ds-card\" style=\"--card:#C5D98A\"><div class=\"ds-ring\"><svg viewBox=\"0 0 100 100\"><circle cx=\"50\" cy=\"50\" r=\"44\" class=\"t\"/><circle cx=\"50\" cy=\"50\" r=\"44\" class=\"b\" pathLength=\"100\"/></svg><span>🌱</span></div><div class=\"ds-card-title\">Regar las plantas</div><div class=\"ds-card-foot\"><span class=\"ds-status ds-status--soon\"><i></i>Hoy 18:00</span><span class=\"ds-avatar\">🐱</span></div></div>",
+      "css": ".ds-card{width:176px;min-height:216px;display:flex;flex-direction:column;gap:8px;padding:12px 12px 16px 16px;border-radius:28px;background:var(--card);color:#151515;border:2px solid #151515;box-shadow:0 3px 0 #151515;cursor:pointer;transition:transform 120ms cubic-bezier(.16,1,.3,1),box-shadow 120ms}.ds-card:active{transform:translateY(3px);box-shadow:0 0 0 #151515}.ds-ring{position:relative;width:92px;height:92px;margin:14px auto 0}.ds-ring svg{width:100%;height:100%;transform:rotate(-90deg)}.ds-ring circle{fill:none;stroke:#151515;stroke-width:8}.ds-ring .t{opacity:.15}.ds-ring .b{stroke-linecap:round;stroke-dasharray:100 100;stroke-dashoffset:22}.ds-ring span{position:absolute;inset:0;display:grid;place-items:center;font-size:33px}.ds-card-title{font:750 17px/1.15 \"Bricolage Grotesque\",\"DM Sans\",sans-serif;letter-spacing:-.012em}.ds-card-foot{display:flex;justify-content:space-between;align-items:center;margin-top:auto;gap:6px}.ds-status{display:inline-flex;align-items:center;gap:6px;height:28px;padding:0 10px;border-radius:9999px;font:700 12.5px/1 \"DM Sans\",sans-serif}.ds-status i{width:7px;height:7px;border-radius:50%;background:currentColor}.ds-status--soon{background:#151515;color:#F2CB66}.ds-avatar{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:#F3EEDD;border:2px solid #151515;font-size:15px}"
+    },
+    {
+      "name": "Campo de texto",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Input en trigo; al enfocar, borde de tinta y fondo blanco.",
+      "html": "<label class=\"ds-field\"><span>Nombre</span><input class=\"ds-input\" placeholder=\"Ej. Regar las plantas\"></label>",
+      "css": ".ds-field{display:flex;flex-direction:column;gap:6px;width:280px}.ds-field span{font:600 13px/1.2 \"DM Sans\",sans-serif;color:#5E5A48;padding-left:4px}.ds-input{min-height:48px;padding:0 16px;border-radius:16px;background:#F1EBCB;border:2px solid transparent;color:#151515;font:500 16px/1.3 \"DM Sans\",sans-serif;transition:border-color 200ms,background-color 200ms}.ds-input::placeholder{color:#5E5A48}.ds-input:hover{border-color:rgb(21 21 21 / .18)}.ds-input:focus,.ds-input:focus-visible{outline:none;border-color:#151515;background:#FFFFFF}"
+    },
+    {
+      "name": "Tab bar flotante",
+      "kind": "nav",
+      "refersTo": "tabbar",
+      "description": "Píldora de tinta; la pestaña activa se estira en mostaza con su label.",
+      "html": "<nav class=\"ds-tabbar\"><a class=\"ds-tab\" aria-current=\"page\" href=\"#\"><svg viewBox=\"0 0 24 24\"><path d=\"M4 10.5 12 4l8 6.5V19a1.5 1.5 0 0 1-1.5 1.5H15v-5.5H9v5.5H5.5A1.5 1.5 0 0 1 4 19z\"/></svg><span>Inicio</span></a><a class=\"ds-tab\" href=\"#\"><svg viewBox=\"0 0 24 24\"><path d=\"M10 6h10M10 12h10M10 18h10\"/></svg></a><a class=\"ds-tab\" href=\"#\"><svg viewBox=\"0 0 24 24\"><path d=\"M4 20V10M10 20V4M16 20v-7M21 20H3\"/></svg></a><a class=\"ds-tab\" href=\"#\"><svg viewBox=\"0 0 24 24\"><circle cx=\"12\" cy=\"12\" r=\"3\"/><path d=\"M12 2.8v2.4M12 18.8v2.4M21.2 12h-2.4M5.2 12H2.8\"/></svg></a></nav>",
+      "css": ".ds-tabbar{display:flex;align-items:center;gap:4px;width:340px;height:64px;padding:8px;border-radius:9999px;background:#151515;box-shadow:0 10px 30px rgb(21 21 21 / .28)}.ds-tab{display:flex;align-items:center;justify-content:center;gap:8px;height:48px;width:48px;flex:none;border-radius:9999px;color:rgb(245 241 220 / .72);font:700 14px/1 \"DM Sans\",sans-serif;text-decoration:none;transition:background-color 280ms cubic-bezier(.16,1,.3,1),color 200ms}.ds-tab svg{width:24px;height:24px;fill:none;stroke:currentColor;stroke-width:2.25;stroke-linecap:round;stroke-linejoin:round}.ds-tab span{display:none}.ds-tab[aria-current=\"page\"]{flex:1;width:auto;padding:0 14px;background:#F2CB66;color:#151515}.ds-tab[aria-current=\"page\"] span{display:inline}.ds-tab:hover:not([aria-current]){color:#F5F1DC}.ds-tab:active{transform:scale(.94)}.ds-tab:focus-visible{outline:none;box-shadow:0 0 0 3px #151515,0 0 0 5.5px #F2CB66}"
+    },
+    {
+      "name": "Toast con Deshacer",
+      "kind": "custom",
+      "refersTo": "toast",
+      "description": "Confirmación en tinta con acción mostaza.",
+      "html": "<div class=\"ds-toast\"><span>Marcaste \"Regar las plantas\"</span><button>Deshacer</button></div>",
+      "css": ".ds-toast{display:flex;align-items:center;gap:12px;width:320px;min-height:56px;padding:8px 8px 8px 16px;border-radius:22px;background:#151515;color:#F5F1DC;box-shadow:0 2px 0 rgb(21 21 21 / .05),0 18px 48px rgb(60 52 20 / .20);font:600 14.5px/1.3 \"DM Sans\",sans-serif}.ds-toast span{flex:1}.ds-toast button{min-height:40px;padding:0 16px;border-radius:9999px;border:0;background:#F2CB66;color:#151515;font:800 14px/1 \"DM Sans\",sans-serif;cursor:pointer}.ds-toast button:hover{background:#F8E4AE}.ds-toast button:focus-visible{outline:none;box-shadow:0 0 0 3px #151515,0 0 0 5.5px #F2CB66}"
+    }
+  ],
+  "narrative": {
+    "northStar": "El jardín de macetas con sello de tinta",
+    "overview": "**Creative North Star: \"El jardín de macetas con sello de tinta\"**\n\nLukas trata cada tarea del hogar como una maceta: una tarjeta pastel, gorda y redondeada, con un anillo de tinta que se llena a medida que se acerca el momento de repetirla. Todo está dibujado con la misma tinta casi negra (#151515): texto, trazos de 2px, anillos, íconos y la gata Lukas en grabado. Sobre un papel crema, esa tinta da un look chunky y táctil, como objetos estampados con un sello, y el pastel herbal de cada tarjeta es el único color abundante. La sensación buscada es calma doméstica: lo vencido se nota (coral, punto que late) pero no grita.\n\nLa estructura es Apple HIG traducida a la web: roles semánticos de color (label / secondaryLabel / systemBackground), los once estilos de texto, barras, sheets, action sheets, alerts y menús. El carácter no es HIG: los controles principales son píldoras de tinta o mostaza con borde de 2px y una sombra dura de 3px que se \"hunde\" al tocar, y la barra de pestañas flota como una píldora negra. El tema claro crema es el base; el oscuro es de primera clase: fondo casi negro, las tarjetas conservan su pastel con texto #151515, y el borde de tinta desaparece (sería ruido crema) mientras el sello se vuelve una sombra negra.\n\nDensidad media, pensada para una mano en el celular: objetivos de 44px como mínimo, botones principales de 56px, grid de dos columnas de tarjetas con 12px de separación y 20px de margen. El movimiento es elástico pero corto: un resorte muestreado (stiffness 400, damping 35) para lo que se desplaza, ease-out rápido para lo que cambia de color.",
+    "keyCharacteristics": [
+      "Tinta única (#151515) para texto, trazos, anillos, íconos e ilustración; crema (#FBF6DC) como papel.",
+      "Sello de tinta: borde 2px + sombra dura `0 3px 0` en objetos tocables chunky; al presionar, baja 3px y la sombra llega a cero.",
+      "20 pasteles herbales solo para el fondo de las tarjetas de tarea; texto de tarjeta siempre #151515, en ambos temas.",
+      "Mostaza (#F2CB66) para la acción principal; coral (#EE8F6E) solo para vencido y destructivo.",
+      "Bricolage Grotesque chunky (700 a 800) para títulos y números grandes; DM Sans para toda la UI.",
+      "Formas redondas: controles en píldora, tarjetas de 28px, sheets de 32px.",
+      "Movimiento de resorte en 520ms; `prefers-reduced-motion` lo cambia por fundidos y quita el hundimiento del sello."
+    ],
+    "rules": [
+      {
+        "name": "La Regla de la Tinta Única",
+        "body": "Hay un solo tinte interactivo: la tinta. Selección, foco, enlace y progreso se dibujan en tinta (en oscuro, crema o mostaza para el foco); nunca se introduce un azul de sistema.",
+        "section": "colors"
+      },
+      {
+        "name": "La Regla del Coral Vencido",
+        "body": "El coral significa \"vencida\" o \"destructivo\" y nada más. Su escasez es lo que hace que lo vencido se note sin gritar.",
+        "section": "colors"
+      },
+      {
+        "name": "La Regla de la Tarjeta Siempre Tinta",
+        "body": "Sobre cualquier pastel el texto es #151515 (o card-ink-muted), en claro y en oscuro. El pastel no se oscurece en el tema oscuro.",
+        "section": "colors"
+      },
+      {
+        "name": "La Regla del Estado con Palabras",
+        "body": "El estado de una tarea nunca depende solo del color: el chip de estado siempre lleva texto (\"Vencida hace 2 d\", \"Hoy 18:00\").",
+        "section": "colors"
+      },
+      {
+        "name": "La Regla de los Dos Registros",
+        "body": "Bricolage solo para títulos, nombres de tarea y números protagonistas; DM Sans para todo control, label y párrafo. Ningún control de UI se escribe en Bricolage salvo los días de la semana y los números del stepper y de la hora.",
+        "section": "typography"
+      },
+      {
+        "name": "La Regla de las Cifras Tabulares",
+        "body": "Toda hora, conteo, fecha o número que pueda cambiar usa `font-variant-numeric: tabular-nums`.",
+        "section": "typography"
+      },
+      {
+        "name": "La Regla del Sello",
+        "body": "Si se toca y es un objeto (tarjeta, botón principal, tile), lleva borde de tinta de 2px y sombra dura de 3px, y se hunde al presionar. El sello es el material del mundo, no un adorno: no se le agrega desenfoque ni se cambia la distancia.",
+        "section": "elevation"
+      },
+      {
+        "name": "La Regla de Flotar Solo lo Modal",
+        "body": "Las sombras difusas son exclusivas de lo que se superpone (sheets, alerts, menús, popovers, toasts, tab bar). Una tarjeta nunca flota.",
+        "section": "elevation"
+      }
+    ],
+    "dos": [
+      "**Do** dibujar todo en una sola tinta (#151515): texto, trazos de 2px, anillos, íconos e ilustraciones.",
+      "**Do** darle el sello (borde 2px en tinta + `0 3px 0`) a todo objeto chunky tocable y hundirlo 3px al presionar.",
+      "**Do** usar mostaza (#F2CB66) para una sola acción principal por pantalla, siempre con texto tinta.",
+      "**Do** escribir el estado con palabras dentro de un chip de tinta, además del color.",
+      "**Do** mantener el texto de las tarjetas en #151515 y el pastel intacto en ambos temas.",
+      "**Do** quitar el borde de tinta en oscuro y dejar el sello como sombra negra `0 3px 0 rgb(0 0 0 / .65)`.",
+      "**Do** usar cifras tabulares en horas, fechas y conteos.",
+      "**Do** respetar 44px de objetivo táctil (56px en botones principales) y ampliar el área de los controles chicos con un pseudo-elemento."
+    ],
+    "donts": [
+      "**Don't** usar coral para nada que no sea vencido o destructivo.",
+      "**Don't** introducir un azul de sistema u otro tinte interactivo: selección, enlace y foco van en tinta.",
+      "**Don't** darle sombra difusa a una tarjeta ni desenfoque al sello; las sombras ambientales son solo para lo que se superpone.",
+      "**Don't** usar emoji como íconos de UI; los íconos salen del sprite de trazo 2.25.",
+      "**Don't** agregar a las ilustraciones otro color que no sea la tinta y el verde de los ojos de Lukas.",
+      "**Don't** usar ink-faint (#8C876F) para texto que haya que leer.",
+      "**Don't** escribir controles ni párrafos en Bricolage Grotesque."
+    ]
+  }
+}

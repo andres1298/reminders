@@ -1,0 +1,46 @@
+@import "tailwindcss";
+@import "../styles/lukas.css" layer(components);
+@import "../styles/app.css" layer(components);
+
+/* .ring es el anillo de progreso de Lukas, no la utilidad ring de Tailwind */
+@source not inline("ring");
+
+/* Tokens de Lukas expuestos a Tailwind: bg-surface, text-ink-muted, bg-leaf, rounded-card… */
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-faint: var(--ink-faint);
+  --color-accent: var(--accent);
+  --color-on-accent: var(--on-accent);
+  --color-danger: var(--danger);
+  --color-card-ink: var(--card-ink);
+  --color-leaf: var(--leaf);
+  --color-sage: var(--sage);
+  --color-mint: var(--mint);
+  --color-moss: var(--moss);
+  --color-olive: var(--olive);
+  --color-mustard: var(--mustard);
+  --color-butter: var(--butter);
+  --color-calico: var(--calico);
+  --color-sand: var(--sand);
+  --color-clay: var(--clay);
+  --color-coral: var(--coral);
+  --color-peach: var(--peach);
+  --color-rose: var(--rose);
+  --color-berry: var(--berry);
+  --color-sky: var(--sky);
+  --color-lake: var(--lake);
+  --color-periwinkle: var(--periwinkle);
+  --color-lilac: var(--lilac);
+  --color-stone: var(--stone);
+  --color-paper: var(--paper);
+  --font-heading: var(--font-display);
+  --font-sans: var(--font-text);
+  --radius-card: var(--r-card);
+  --radius-sheet: var(--r-sheet);
+  --radius-lg: var(--r-lg);
+  --radius-md: var(--r-md);
+}

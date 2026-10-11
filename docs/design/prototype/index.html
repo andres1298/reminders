@@ -1,0 +1,1110 @@
+<!doctype html>
+<html lang="es" data-theme="light">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#FBF6DC">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Lukas · prototipo</title>
+<link rel="icon" id="favicon">
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500..800&family=DM+Sans:opsz,wght@9..40,400..700&display=swap" rel="stylesheet">
+<!--INLINE:../system/styles.css-->
+<link rel="stylesheet" href="../system/styles.css">
+<!--/INLINE-->
+<style>
+/* ===================== Marco del prototipo ===================== */
+html,body{height:100%}
+body.proto{display:flex;align-items:center;justify-content:center;gap:56px;min-height:100dvh;padding:24px;
+  background:color-mix(in srgb,var(--bg) 88%,var(--ink));overflow:hidden}
+.device{position:relative;flex:none;width:406px;height:860px;padding:8px;border-radius:62px;background:#151515;
+  box-shadow:0 0 0 2px #3a3a38, 0 40px 80px rgb(21 21 21 / .35)}
+.app{--safe-top:50px;--safe-bottom:24px;position:relative;width:100%;height:100%;border-radius:54px;overflow:hidden;overflow:clip;background:var(--bg);
+  isolation:isolate;view-transition-name:none}
+.statusbar{position:absolute;z-index:60;top:0;left:0;right:0;height:50px;display:flex;align-items:center;justify-content:space-between;
+  padding:6px 30px 0 40px;font:700 16px/1 var(--font-text);color:var(--ink);pointer-events:none;font-variant-numeric:tabular-nums}
+.statusbar__island{position:absolute;left:50%;top:11px;width:120px;height:34px;margin-left:-60px;border-radius:20px;background:#000}
+.statusbar svg{height:13px;width:auto;fill:currentColor}
+.home-indicator{position:absolute;z-index:60;left:50%;bottom:8px;width:136px;height:5px;margin-left:-68px;border-radius:3px;background:var(--ink);opacity:.8;pointer-events:none}
+.panel{width:300px;flex:none;color:var(--ink)}
+.panel .brand{display:flex;gap:12px;align-items:center;margin-bottom:20px}
+.panel .brand .mark{width:56px;height:56px;border-radius:16px;overflow:hidden;border:2px solid var(--stroke);box-shadow:var(--stamp)}
+.panel h1{font:800 26px/1.05 var(--font-display);letter-spacing:-.02em}
+.panel p{font:400 14.5px/1.5 var(--font-text);color:var(--ink-muted)}
+.panel ol{margin:14px 0 22px 18px;font:500 14px/1.5 var(--font-text);display:grid;gap:6px}
+.panel .ctl{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:12px}
+.panel a{color:var(--ink);font-weight:700;text-underline-offset:3px}
+@media (max-width:860px){.panel{display:none}}
+@media (max-width:520px),(max-height:700px) and (max-width:900px){
+  body.proto{display:block;padding:0;background:var(--bg);overflow:auto}
+  .device{width:100%;height:100dvh;padding:0;border-radius:0;background:none;box-shadow:none}
+  .app{--safe-top:env(safe-area-inset-top,0px);--safe-bottom:env(safe-area-inset-bottom,0px);border-radius:0}
+  .statusbar,.home-indicator{display:none}
+}
+
+/* ===================== Pantallas ===================== */
+.screen{position:absolute;inset:0;overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;background:var(--bg);scrollbar-width:none}
+.screen::-webkit-scrollbar{display:none}
+.screen[hidden]{display:none}
+.pad-tab{height:calc(var(--tabbar-h) + var(--safe-bottom) + 40px)}
+
+/* Inicio */
+.home-head{padding:calc(var(--safe-top) + 6px) var(--margin) 0}
+.home-head__row{display:flex;align-items:center;gap:8px;min-height:var(--hit)}
+.home-head__row .spacer{flex:1}
+.hello{margin-top:18px;display:flex;align-items:flex-end;justify-content:space-between;gap:12px}
+.hello h1{font:800 32px/1.04 var(--font-display);letter-spacing:-.025em}
+.summary{margin-top:8px;font:500 15px/1.4 var(--font-text);color:var(--ink-muted)}
+.summary b{color:var(--ink);font-weight:700}
+.summary .dot{display:inline-block;width:9px;height:9px;border-radius:50%;margin:0 4px 1px 0;border:1.5px solid var(--card-ink);vertical-align:middle}
+.filters{display:flex;gap:8px;overflow-x:auto;padding:18px var(--margin) 6px;scrollbar-width:none;scroll-padding:var(--margin)}
+.filters::-webkit-scrollbar{display:none}
+.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:var(--gutter);padding:12px var(--margin) 0}
+@container (min-width:600px){.grid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.task-card{will-change:auto}
+.task-card__open{position:absolute;inset:0;border-radius:inherit;z-index:1}
+.task-card__open:focus-visible{box-shadow:var(--focus-ring)}
+.task-card .icon-btn,.task-card .avatar{position:relative;z-index:2}
+.task-card:has(.task-card__open:active){transform:translateY(var(--stamp-lift));box-shadow:var(--stamp-pressed)}
+.task-card .ring__emoji{transition:transform var(--dur-spring) var(--ease-spring)}
+.task-card.is-done-flash .ring__bar,.hero.is-done-flash .ring__bar{transition:stroke-dashoffset 640ms var(--ease-in-out), opacity 120ms linear 560ms}
+.end-note{display:flex;flex-direction:column;align-items:center;gap:6px;padding:28px var(--margin) 0;color:var(--ink-muted);font:500 13.5px/1.3 var(--font-text)}
+.end-note[hidden]{display:none}
+.end-note .art{width:170px}
+.end-note .art svg{margin-bottom:-2px}
+
+/* Detalle */
+.hero{--card:var(--stone);position:relative;background:var(--card);color:var(--card-ink);border-bottom:var(--stroke-w) solid var(--stroke);
+  border-radius:0 0 var(--r-sheet) var(--r-sheet);padding:calc(var(--safe-top) + 4px) var(--sp-12) var(--sp-24);box-shadow:var(--stamp)}
+:root[data-theme="dark"] .hero{border-color:transparent}
+.hero__bar{display:flex;justify-content:space-between;align-items:center}
+.hero__bar .icon-btn{background:rgb(255 255 255 / .55);color:var(--card-ink)}
+.hero__body{display:flex;flex-direction:column;align-items:center;text-align:center;gap:10px;padding:4px var(--sp-12) 0}
+.hero .ring{margin:2px 0 6px}
+.hero__title{font:800 28px/1.08 var(--font-display);letter-spacing:-.022em;text-wrap:balance}
+.hero__sched{font:500 15px/1.35 var(--font-text);color:var(--card-ink-muted)}
+.detail-body{padding:20px 0 0}
+.detail-body .list--inset{margin-bottom:0}
+.desc{margin:16px var(--margin) 0;padding:16px 18px;border-radius:var(--r-lg);background:var(--surface-2);font:400 15px/1.5 var(--font-text)}
+.quick{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:16px var(--margin) 0}
+.quick .toolbar__action{background:var(--surface);border-radius:var(--r-md);min-height:68px;justify-content:center;gap:6px}
+.history .row__lead{background:var(--surface-2)}
+.detail-actions{position:sticky;bottom:0;z-index:3;display:grid;gap:10px;padding:14px var(--margin) calc(var(--safe-bottom) + 14px);
+  background:linear-gradient(to top,var(--bg) calc(100% - 24px),color-mix(in srgb,var(--bg) 0%,transparent));padding-top:38px;margin-top:0}
+.rot{display:inline-flex;align-items:center;gap:8px}
+
+/* Tab bar global */
+.tabbar-wrap{position:absolute;z-index:30;left:12px;right:12px;bottom:calc(var(--safe-bottom) + 10px);transition:transform var(--dur-3) var(--ease-out), opacity var(--dur-2);view-transition-name:tabbar}
+.tabbar-wrap.is-hidden{transform:translateY(calc(100% + 40px));opacity:0;pointer-events:none}
+
+/* tab bar de 5: ítems inactivos de 44 */
+.tabbar{gap:2px;padding:8px 6px}
+.tabbar__item:not([aria-current="page"]){width:46px}
+.tabbar__item[aria-current="page"]{padding:0 14px}
+
+/* Pendientes de casa */
+.todo-wrap{display:grid;gap:14px;padding:6px var(--margin) 0}
+.todo-wrap .filters{padding:0;margin:0 calc(var(--margin) * -1);padding:0 var(--margin)}
+.todo-section{font:700 13px/1.2 var(--font-text);color:var(--ink-muted);padding:6px 4px 0;display:flex;justify-content:space-between;align-items:center}
+.todo-done summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;min-height:44px;padding:0 4px;font:700 13px/1.2 var(--font-text);color:var(--ink-muted)}
+.todo-done summary::-webkit-details-marker{display:none}
+.todo-done summary .ico{transition:transform var(--dur-3) var(--ease-out)}
+.todo-done[open] summary .ico{transform:rotate(90deg)}
+.todo-done .todo-group{box-shadow:none;border-style:dashed;border-color:var(--fill-4);background:transparent}
+.todo-empty{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;padding:8px 24px 0;color:var(--ink-muted);font:400 14.5px/1.45 var(--font-text)}
+.todo-empty .art{width:180px}
+.todo-empty b{font:800 22px/1.1 var(--font-display);color:var(--ink);letter-spacing:-.02em}
+
+/* Otras pestañas */
+.simple-head{padding:calc(var(--safe-top) + 14px) var(--margin) 8px}
+.simple-head h1{font:800 32px/1.04 var(--font-display);letter-spacing:-.025em}
+.stat-tiles{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;padding:12px var(--margin)}
+.stat-tile{border-radius:var(--r-lg);padding:14px 12px;color:var(--card-ink);border:var(--stroke-w) solid var(--stroke);box-shadow:var(--stamp)}
+:root[data-theme="dark"] .stat-tile{border-color:transparent}
+.stat-tile b{display:block;font:800 40px/1 var(--font-display);letter-spacing:-.03em;font-variant-numeric:tabular-nums}
+.stat-tile span{font:600 13px/1.2 var(--font-text)}
+.soon-note{display:flex;flex-direction:column;align-items:center;text-align:center;gap:8px;padding:28px 32px;color:var(--ink-muted);font:400 14.5px/1.45 var(--font-text)}
+.soon-note .art{width:96px}
+
+/* Sheets, overlays, toasts */
+.scrim{z-index:38}
+.sheet{z-index:40}
+.sheet.is-dragging{transition:none}
+.sheet--auto{max-height:auto}
+.sheet .sheet__body{padding-top:4px}
+.sheet-section{margin-top:22px}
+.sheet-section>.field__label{display:block;margin-bottom:10px}
+.sheet-row{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:48px}
+.sheet-row .lbl{font:600 15px/1.2 var(--font-text)}
+.well-wrap{display:flex;flex-direction:column;align-items:center;gap:6px;padding:4px 0 2px}
+.emoji-panel{display:grid;grid-template-rows:0fr;transition:grid-template-rows var(--dur-3) var(--ease-out)}
+.emoji-panel.is-open{grid-template-rows:1fr}
+.emoji-panel>div{overflow:hidden}
+.emoji-panel .inner{padding:12px 0 4px;display:grid;gap:10px}
+.emoji-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:4px}
+.emoji-grid button{height:42px;border-radius:12px;font-size:24px;line-height:1}
+.emoji-grid button:active,.emoji-grid button[aria-pressed="true"]{background:var(--fill-2)}
+.emoji-hint{font:500 12px/1.3 var(--font-text);color:var(--ink-muted)}
+#typeSeg button{font-size:13px;white-space:nowrap;padding:0 4px;letter-spacing:-.01em}
+.type-panel{display:grid;gap:12px;margin-top:14px}
+.type-panel[hidden]{display:none}
+.type-panel.is-entering{animation:panel-in var(--dur-3) var(--ease-out)}
+@keyframes panel-in{from{opacity:0;transform:translateX(var(--from,12px))}}
+.days31{display:grid;grid-template-columns:repeat(7,1fr);gap:6px}
+.days31 button{height:40px;border-radius:12px;background:var(--surface-2);font:700 15px/1 var(--font-text);color:var(--ink-muted);font-variant-numeric:tabular-nums}
+.days31 button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.days31 .last{grid-column:span 4;font-size:13px}
+.lists{display:flex;flex-wrap:wrap;gap:8px}
+.time-pill{position:relative;cursor:pointer}
+.time-pill input{position:absolute;inset:0;opacity:0;width:100%;cursor:pointer}
+.sheet-summary{font:500 13px/1.35 var(--font-text);color:var(--ink-muted);text-align:center;margin-bottom:10px;min-height:1.35em}
+.who-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:8px var(--margin) 0}
+.who-grid .person{padding:18px 8px;font-size:15px}
+.who-grid .person .avatar{--s:64px}
+.overlay-center{position:absolute;inset:0;z-index:52;display:grid;place-items:center;pointer-events:none}
+.overlay-center .alert{pointer-events:auto;transform:scale(1.08);opacity:0;transition:transform var(--dur-spring) var(--ease-spring),opacity var(--dur-2)}
+.overlay-center.is-open .alert{transform:none;opacity:1}
+.sheet--actions{background:transparent;box-shadow:none;border-radius:0}
+.toasts{position:absolute;z-index:55;left:12px;right:12px;bottom:calc(var(--safe-bottom) + var(--tabbar-h) + 22px);display:grid;gap:8px;pointer-events:none;transition:bottom var(--dur-3) var(--ease-out)}
+.app.on-detail .toasts{bottom:calc(var(--safe-bottom) + 150px)}
+.toast{pointer-events:auto;animation:toast-in var(--dur-spring) var(--ease-spring)}
+.toast.is-leaving{animation:toast-out var(--dur-2) var(--ease-in) forwards}
+@keyframes toast-in{from{transform:translateY(24px) scale(.96);opacity:0}}
+@keyframes toast-out{to{transform:translateY(12px);opacity:0}}
+.toast__paw{animation:paw 600ms var(--ease-spring) 120ms both}
+@keyframes paw{from{transform:scale(0) rotate(-30deg)}}
+.fx{position:absolute;inset:0;z-index:45;pointer-events:none;overflow:hidden}
+.fx .leaf{position:absolute;width:26px;height:26px;margin:-13px 0 0 -13px}
+.fx .leaf svg{width:100%;height:100%}
+.skel-card{display:flex;flex-direction:column;align-items:flex-start;gap:12px;min-height:216px;padding:44px 16px 16px;border-radius:var(--r-card);background:var(--fill-1)}
+.skel-card .skeleton--circle{width:84px;height:84px;align-self:center;margin-bottom:6px}
+.skel-card .skeleton--line{height:16px}
+
+/* ===================== Transiciones de pantalla ===================== */
+::view-transition-old(root),::view-transition-new(root){animation:none}
+::view-transition-group(*){animation-duration:var(--dur-3);animation-timing-function:var(--ease-out)}
+::view-transition-group(hero){animation-duration:460ms;animation-timing-function:cubic-bezier(.2,.9,.25,1)}
+::view-transition-old(hero),::view-transition-new(hero){height:100%;overflow:clip}
+::view-transition-old(hero){animation:vt-fade-out 180ms var(--ease-out) both}
+::view-transition-new(hero){animation:vt-fade-in 260ms var(--ease-out) 80ms both}
+html.vt-push::view-transition-old(screen){animation:vt-out-left var(--dur-3) var(--ease-out) both}
+html.vt-push::view-transition-new(screen){animation:vt-in-right var(--dur-3) var(--ease-out) both}
+html.vt-pop::view-transition-old(screen){animation:vt-out-right var(--dur-3) var(--ease-out) both}
+html.vt-pop::view-transition-new(screen){animation:vt-in-left var(--dur-3) var(--ease-out) both}
+html.vt-tab::view-transition-old(screen){animation:vt-fade-out 140ms var(--ease-out) both}
+html.vt-tab::view-transition-new(screen){animation:vt-fade-in 200ms var(--ease-out) both}
+html.vt-theme::view-transition-new(root){animation:vt-reveal 520ms var(--ease-in-out) both}
+html.vt-theme::view-transition-old(root){animation:none}
+@keyframes vt-out-left{to{transform:translateX(-28%);opacity:0}}
+@keyframes vt-in-right{from{transform:translateX(40%);opacity:0}}
+@keyframes vt-out-right{to{transform:translateX(40%);opacity:0}}
+@keyframes vt-in-left{from{transform:translateX(-28%);opacity:0}}
+@keyframes vt-fade-out{to{opacity:0}}
+@keyframes vt-fade-in{from{opacity:0}}
+@keyframes vt-reveal{from{clip-path:circle(0 at var(--rx,50%) var(--ry,50%))}to{clip-path:circle(150% at var(--rx,50%) var(--ry,50%))}}
+/* fallback sin View Transitions */
+.screen.enter-push{animation:vt-in-right var(--dur-3) var(--ease-out)}
+.screen.enter-pop{animation:vt-in-left var(--dur-3) var(--ease-out)}
+.screen.enter-fade{animation:vt-fade-in var(--dur-2) var(--ease-out)}
+.card-in{animation:card-in 420ms var(--ease-out) both;animation-delay:calc(var(--n,0) * var(--stagger))}
+@keyframes card-in{from{opacity:0;transform:translateY(12px)}}
+
+/* Movimiento reducido (preferencia del sistema o simulado desde Ajustes) */
+html.rm{--ease-spring:var(--ease-out);--dur-spring:var(--dur-2);--stamp-lift:0px}
+html.rm *,html.rm *::before,html.rm *::after{animation-duration:1ms!important;animation-delay:0ms!important;animation-iteration-count:1!important}
+html.rm .status--overdue .status__dot,html.rm .ring__alert,html.rm .skeleton::after{animation:none!important}
+html.rm .lukas-sprout .sp-stem{stroke-dashoffset:0}html.rm .lukas-sprout .sp-leaf{transform:none}
+html.rm .card-in{animation:vt-fade-in 160ms linear both!important}
+html.rm .screen.enter-push,html.rm .screen.enter-pop{animation:vt-fade-in 160ms linear!important}
+</style>
+</head>
+<body class="proto">
+<!--INLINE:../system/icons.js-->
+<script src="../system/icons.js"></script>
+<!--/INLINE-->
+<!--INLINE:../system/lukas-art.js-->
+<script src="../system/lukas-art.js"></script>
+<!--/INLINE-->
+
+<aside class="panel" aria-label="Sobre este prototipo">
+  <div class="brand"><div class="mark" id="panelMark"></div><div><h1>Lukas</h1><p>Prototipo de estilo · v0.1</p></div></div>
+  <p>Valida el estilo antes de programar. Datos de ejemplo de un hogar ficticio (Andrés y Mari), con "ahora" fijo en el sábado 10 de octubre, 17:40.</p>
+  <ol>
+    <li>Toca una tarjeta: crece hasta el detalle.</li>
+    <li>Marca <b>Hecha</b>: el anillo se vacía y salen hojitas.</li>
+    <li>Prueba <b>La hizo alguien más</b> y <b>Deshacer</b>.</li>
+    <li>Usa el "…" de una tarjeta, o filtra por <b>Hoy</b> y vacíalo.</li>
+    <li><b>Nueva tarea</b> abre la hoja de crear; <b>Agregar</b> está arriba a la derecha.</li>
+    <li><b>Pendientes</b>: lista aparte de cosas de la casa sin fecha.</li>
+  </ol>
+  <div class="ctl"><button class="btn btn--bordered btn--sm" id="pThemeBtn">Cambiar tema</button><button class="btn btn--gray btn--sm" id="pRmBtn">Movimiento reducido: no</button></div>
+  <div class="ctl"><button class="btn btn--gray btn--sm" id="pLoadBtn">Simular carga</button><button class="btn btn--gray btn--sm" id="pResetBtn">Restablecer</button></div>
+  <p style="margin-top:16px"><a href="../system/index.html">Sistema de diseño →</a></p>
+</aside>
+
+<div class="device">
+<div class="app" id="app">
+  <div class="statusbar" aria-hidden="true"><span>17:40</span><span class="statusbar__island"></span>
+    <span style="display:flex;gap:6px;align-items:center"><svg viewBox="0 0 18 12"><rect x="0" y="8" width="3" height="4" rx="1"/><rect x="5" y="5.5" width="3" height="6.5" rx="1"/><rect x="10" y="3" width="3" height="9" rx="1"/><rect x="15" y="0" width="3" height="12" rx="1"/></svg><svg viewBox="0 0 16 12"><path d="M8 2.5c2.3 0 4.4.9 6 2.4l1.3-1.4A10.6 10.6 0 0 0 8 .5 10.6 10.6 0 0 0 .7 3.5L2 4.9a8.6 8.6 0 0 1 6-2.4zm0 4c1.2 0 2.3.5 3.1 1.2l1.4-1.4A6.6 6.6 0 0 0 8 4.5c-1.8 0-3.4.7-4.6 1.8l1.4 1.4C5.7 7 6.8 6.5 8 6.5zM8 12l2.1-2.1a3 3 0 0 0-4.2 0z"/></svg><svg viewBox="0 0 27 12"><rect x=".5" y=".5" width="23" height="11" rx="3.5" fill="none" stroke="currentColor" opacity=".45"/><rect x="2" y="2" width="16" height="8" rx="2"/><rect x="25" y="4" width="1.6" height="4" rx=".8" opacity=".5"/></svg></span></div>
+
+  <!-- ============ INICIO ============ -->
+  <main class="screen" id="home" data-tab="home" aria-label="Inicio">
+    <header class="home-head">
+      <div class="home-head__row">
+        <button class="btn btn--filled btn--sm" id="newBtn"><svg class="ico ico--sm"><use href="#i-plus"/></svg>Nueva tarea</button>
+        <span class="spacer"></span>
+        <button class="menu-btn" id="houseBtn" aria-haspopup="menu">🏡 Casa<svg class="ico"><use href="#i-chevron-updown"/></svg></button>
+        <span class="avatar avatar--lg" role="img" aria-label="Andrés">🌵</span>
+      </div>
+      <div class="hello"><h1>Hola, Andrés</h1></div>
+      <p class="summary" id="summary" aria-live="polite"></p>
+    </header>
+    <nav class="filters" id="filters" aria-label="Filtros"></nav>
+    <div class="grid" id="grid" aria-live="polite"></div>
+    <div id="homeEmpty" hidden></div>
+    <div class="end-note" id="endNote"><div class="art" id="peekArt"></div>Eso es todo por ahora.</div>
+    <div class="pad-tab"></div>
+  </main>
+
+  <!-- ============ DETALLE ============ -->
+  <main class="screen" id="detail" hidden aria-label="Detalle de tarea">
+    <header class="hero" id="hero">
+      <div class="hero__bar">
+        <button class="icon-btn" id="backBtn" aria-label="Volver a Inicio"><svg class="ico"><use href="#i-back"/></svg></button>
+        <button class="icon-btn" id="detailMore" aria-label="Más acciones"><svg class="ico"><use href="#i-more-h"/></svg></button>
+      </div>
+      <div class="hero__body">
+        <div class="ring ring--lg" id="heroRing"><svg viewBox="0 0 100 100"><circle class="ring__track" cx="50" cy="50" r="45"/><circle class="ring__bar" cx="50" cy="50" r="45" pathLength="100"/></svg><span class="ring__emoji" id="heroEmoji"></span><i class="ring__alert"></i></div>
+        <h1 class="hero__title" id="heroTitle"></h1>
+        <p class="hero__sched" id="heroSched"></p>
+        <div id="heroStatus"></div>
+      </div>
+    </header>
+    <div class="detail-body">
+      <div class="quick" style="margin-top:0;margin-bottom:16px">
+        <button class="toolbar__action" data-act="snooze"><svg class="ico"><use href="#i-snooze"/></svg>Posponer</button>
+        <button class="toolbar__action" data-act="skip"><svg class="ico"><use href="#i-skip"/></svg>Saltar</button>
+        <button class="toolbar__action" data-act="edit"><svg class="ico"><use href="#i-edit"/></svg>Editar</button>
+        <button class="toolbar__action toolbar__action--danger" data-act="delete"><svg class="ico"><use href="#i-trash"/></svg>Borrar</button>
+      </div>
+      <div class="list list--inset" id="detailInfo"></div>
+      <div id="detailDesc"></div>
+      <div class="section-header">Historial</div>
+      <div class="list list--inset history" id="detailHistory"></div>
+      <div class="detail-actions">
+        <button class="btn btn--filled btn--lg btn--block" id="doneBtn"><svg class="ico"><use href="#i-check"/></svg>Hecha</button>
+        <button class="btn btn--bordered btn--block" id="otherBtn"><svg class="ico ico--md"><use href="#i-hand"/></svg>La hizo alguien más</button>
+      </div>
+    </div>
+  </main>
+
+  <!-- ============ GESTIONAR / ESTADÍSTICAS / AJUSTES ============ -->
+  <main class="screen" id="todo" data-tab="todo" hidden aria-label="Pendientes de casa">
+    <header class="simple-head"><h1>Pendientes de casa</h1><p class="summary" id="todoSummary"></p></header>
+    <div class="todo-wrap">
+      <form class="quick-add" id="quickAdd" autocomplete="off">
+        <div class="quick-add__row">
+          <input id="todoInput" maxlength="80" placeholder="Agregar un pendiente…" aria-label="Nuevo pendiente" enterkeyhint="done">
+          <button class="icon-btn icon-btn--ink" id="todoAddBtn" type="submit" aria-label="Agregar pendiente" disabled><svg class="ico"><use href="#i-plus"/></svg></button>
+        </div>
+        <div class="quick-add__opts" id="todoOpts" role="group" aria-label="Opciones">
+          <button type="button" class="chip" data-tw="h" aria-pressed="true">🏡 Cualquiera</button>
+          <button type="button" class="chip" data-tw="a" aria-pressed="false">🌵 Andrés</button>
+          <button type="button" class="chip" data-tw="m" aria-pressed="false">🌸 Mari</button>
+          <button type="button" class="chip" data-tsoon aria-pressed="false">Pronto</button>
+        </div>
+      </form>
+      <nav class="filters" id="todoFilters" aria-label="Filtros de pendientes"></nav>
+      <div id="todoList"></div>
+      <details class="todo-done" id="todoDone"><summary><svg class="ico ico--sm"><use href="#i-chevron-right"/></svg><span id="todoDoneLabel">Hechos</span></summary><div class="todo-group" id="todoDoneList"></div></details>
+    </div>
+    <div class="pad-tab"></div>
+  </main>
+  <main class="screen" id="manage" data-tab="manage" hidden aria-label="Gestionar">
+    <header class="simple-head"><h1>Gestionar</h1></header>
+    <div class="soon-note"><div class="art" data-art="sprout"></div><b style="color:var(--ink)">Esta pantalla crece en la próxima ronda</b>Listas, pausar y reanudar, Terminadas, Papelera y Modo vacaciones (SPEC §4.3.1).</div>
+    <div class="pad-tab"></div>
+  </main>
+  <main class="screen" id="stats" data-tab="stats" hidden aria-label="Estadísticas">
+    <header class="simple-head"><h1>Estadísticas</h1><p class="summary">Pendientes del hogar, ahora</p></header>
+    <div class="stat-tiles" id="statTiles"></div>
+    <div class="soon-note"><div class="art" data-art="sprout"></div><b style="color:var(--ink)">Por persona y por lista, en la próxima ronda</b>Completadas por crédito y sin hacer por responsable.</div>
+    <div class="pad-tab"></div>
+  </main>
+  <main class="screen" id="settings" data-tab="settings" hidden aria-label="Ajustes">
+    <header class="simple-head"><h1>Ajustes</h1></header>
+    <div class="section-header">Apariencia</div>
+    <div class="list list--inset"><div class="row" style="flex-direction:column;align-items:stretch;gap:10px;padding:14px 16px">
+      <span class="row__title">Tema</span>
+      <div class="segmented" style="--n:3" id="themeSeg" role="group" aria-label="Tema"><span class="segmented__thumb"></span><button data-v="light">Claro</button><button data-v="dark">Oscuro</button><button data-v="system">Sistema</button></div>
+    </div>
+    <div class="row"><span class="row__main"><span class="row__title">Movimiento reducido</span><span class="row__sub">Simula la preferencia del sistema</span></span><label class="switch"><input type="checkbox" id="rmSwitch" aria-label="Movimiento reducido"><span class="switch__track"></span></label></div></div>
+    <div class="section-header">Prototipo</div>
+    <div class="list list--inset">
+      <button class="row" id="sLoad"><span class="row__main"><span class="row__title">Simular carga</span><span class="row__sub">Skeletons y entrada escalonada</span></span><svg class="ico row__chev"><use href="#i-chevron-right"/></svg></button>
+      <button class="row" id="sEmpty"><span class="row__main"><span class="row__title">Ver estado vacío</span><span class="row__sub">Marca todo como hecho</span></span><svg class="ico row__chev"><use href="#i-chevron-right"/></svg></button>
+      <button class="row" id="sReset"><span class="row__main"><span class="row__title">Restablecer datos</span></span><svg class="ico row__chev"><use href="#i-chevron-right"/></svg></button>
+    </div>
+    <div class="section-header">Cuenta</div>
+    <div class="list list--inset">
+      <div class="row row--lead"><span class="row__lead">🌵</span><span class="row__main"><span class="row__title">Andrés</span><span class="row__sub">Admin de Casa</span></span></div>
+      <div class="row row--lead"><span class="row__lead"><svg class="ico ico--md"><use href="#i-send"/></svg></span><span class="row__main"><span class="row__title">Telegram</span><span class="row__sub">Conectado · resumen a las 07:00</span></span><svg class="ico row__chev"><use href="#i-chevron-right"/></svg></div>
+    </div>
+    <div class="pad-tab"></div>
+  </main>
+
+  <!-- tab bar global -->
+  <div class="tabbar-wrap" id="tabbarWrap">
+    <nav class="tabbar" aria-label="Principal" id="tabbar">
+      <button class="tabbar__item" data-tab="home" aria-current="page"><svg class="ico"><use href="#i-home"/></svg><span class="tabbar__label">Inicio</span></button>
+      <button class="tabbar__item" data-tab="todo" aria-label="Pendientes"><svg class="ico"><use href="#i-todo"/></svg><span class="tabbar__label">Pendientes</span><span class="badge badge--dot" id="todoDot" hidden style="position:absolute;top:8px;right:8px;border-color:var(--ink-black)"></span></button>
+      <button class="tabbar__item" data-tab="manage" aria-label="Gestionar"><svg class="ico"><use href="#i-manage"/></svg><span class="tabbar__label">Gestionar</span></button>
+      <button class="tabbar__item" data-tab="stats" aria-label="Estadísticas"><svg class="ico"><use href="#i-stats"/></svg><span class="tabbar__label">Estadísticas</span></button>
+      <button class="tabbar__item" data-tab="settings" aria-label="Ajustes"><svg class="ico"><use href="#i-settings"/></svg><span class="tabbar__label">Ajustes</span></button>
+    </nav>
+  </div>
+
+  <div class="fx" id="fx" aria-hidden="true"></div>
+  <div class="scrim" id="scrim"></div>
+
+  <!-- ============ HOJA: CREAR / EDITAR ============ -->
+  <section class="sheet" id="createSheet" role="dialog" aria-modal="true" aria-labelledby="createTitle" inert>
+    <div class="sheet__grabber" data-drag></div>
+    <div class="sheet__head" data-drag><button class="btn btn--plain btn--sm" data-close>Cancelar</button><h2 class="sheet__title" id="createTitle">Nueva tarea</h2><button class="btn btn--filled btn--sm" id="saveTop" disabled style="justify-self:end">Agregar</button></div>
+    <div class="sheet__body">
+      <div class="well-wrap">
+        <button class="emoji-well" id="emojiWell" aria-label="Elegir emoji" aria-expanded="false"><span id="wellEmoji">✨</span><span class="emoji-well__edit"><svg class="ico ico--sm"><use href="#i-edit"/></svg></span></button>
+      </div>
+      <div class="emoji-panel" id="emojiPanel"><div><div class="inner">
+        <label class="search"><svg class="ico ico--md"><use href="#i-search"/></svg><input id="emojiSearch" placeholder="Buscar: planta, gato, basura…" aria-label="Buscar emoji"></label>
+        <div class="emoji-hint" id="emojiHint">Sugerencias</div>
+        <div class="emoji-grid" id="emojiGrid"></div>
+      </div></div></div>
+      <input class="input input--title" id="nameInput" maxlength="60" placeholder="¿Qué hay que hacer?" aria-label="Nombre de la tarea" autocomplete="off">
+
+      <div class="sheet-section">
+        <div class="segmented" style="--n:4" id="typeSeg" role="group" aria-label="Cada cuánto"><span class="segmented__thumb"></span>
+          <button data-v="interval">Intervalo</button><button data-v="weekly">Días</button><button data-v="monthly">Día del mes</button><button data-v="once">Una vez</button></div>
+        <div class="type-panel" data-panel="interval">
+          <div class="sheet-row"><span class="lbl">Cada</span><div style="display:flex;gap:8px;align-items:center"><div class="stepper"><button data-step="-1" aria-label="Menos">−</button><output id="everyOut">3</output><button data-step="1" aria-label="Más">+</button></div></div></div>
+          <div class="segmented segmented--sm" style="--n:3" id="unitSeg" role="group" aria-label="Unidad"><span class="segmented__thumb"></span><button data-v="day">días</button><button data-v="week">semanas</button><button data-v="month">meses</button></div>
+          <div class="segmented segmented--sm" style="--n:2" id="anchorSeg" role="group" aria-label="Contar desde"><span class="segmented__thumb"></span><button data-v="completion">desde la última vez</button><button data-v="schedule">desde la fecha</button></div>
+        </div>
+        <div class="type-panel" data-panel="weekly" hidden>
+          <div class="weekdays" id="wdPick"></div>
+        </div>
+        <div class="type-panel" data-panel="monthly" hidden>
+          <div class="days31" id="dayPick"></div>
+        </div>
+        <div class="type-panel" data-panel="once" hidden>
+          <input type="date" class="input" id="onceDate" value="2026-10-20" aria-label="Fecha">
+        </div>
+      </div>
+
+      <div class="sheet-section sheet-row"><span class="lbl">Hora</span>
+        <label class="time-pill"><svg class="ico ico--md"><use href="#i-clock"/></svg><span id="timeOut">09:00</span><input type="time" id="timeInput" value="09:00" aria-label="Hora"></label></div>
+
+      <div class="sheet-section"><span class="field__label">Le toca a</span>
+        <div class="people" id="assignPick" role="radiogroup" aria-label="Responsable"></div>
+        <div class="sheet-row" style="margin-top:6px"><span class="lbl" style="font-weight:500;color:var(--ink-muted)">Rotar entre Andrés y Mari</span><label class="switch"><input type="checkbox" id="rotSwitch" aria-label="Rotación"><span class="switch__track"></span></label></div>
+      </div>
+
+      <div class="sheet-section"><span class="field__label">Lista</span><div class="lists" id="listPick"></div></div>
+      <div class="sheet-section"><span class="field__label">Color de la tarjeta</span><div class="swatches" id="colorPick" role="radiogroup" aria-label="Color"></div></div>
+    </div>
+    <div class="sheet__foot">
+      <p class="sheet-summary" id="createSummary"></p>
+      <button class="btn btn--filled btn--lg btn--block" id="saveBtn" disabled>Agregar tarea</button>
+    </div>
+  </section>
+
+  <!-- ============ HOJA: ¿QUIÉN LA HIZO? ============ -->
+  <section class="sheet" id="whoSheet" role="dialog" aria-modal="true" aria-labelledby="whoTitle" inert>
+    <div class="sheet__grabber" data-drag></div>
+    <div class="sheet__head" data-drag><button class="btn btn--plain btn--sm" data-close>Cancelar</button><h2 class="sheet__title" id="whoTitle">¿Quién la hizo?</h2><span style="width:84px"></span></div>
+    <p class="t-subhead t-muted" style="text-align:center;padding:0 32px" id="whoSub"></p>
+    <div class="who-grid" id="whoGrid"></div>
+    <div style="height:calc(var(--safe-bottom) + 28px)"></div>
+  </section>
+
+  <!-- ============ ACTION SHEET ============ -->
+  <section class="sheet sheet--actions" id="actSheet" role="dialog" aria-modal="true" aria-label="Acciones" inert>
+    <div class="action-sheet" id="actBody"></div>
+  </section>
+
+  <div class="overlay-center" id="alertWrap" aria-hidden="true"></div>
+  <div class="toasts" id="toasts" aria-live="polite"></div>
+  <div class="home-indicator" aria-hidden="true"></div>
+</div>
+</div>
+
+<script>
+(() => {
+'use strict';
+/* =================== utilidades =================== */
+const $ = (s, r = document) => r.querySelector(s);
+const $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const html = document.documentElement;
+const app = $('#app');
+const icon = (n, c = '') => `<svg class="ico ${c}" aria-hidden="true"><use href="#i-${n}"/></svg>`;
+const rmQuery = matchMedia('(prefers-reduced-motion: reduce)');
+const reduced = () => rmQuery.matches || html.classList.contains('rm');
+const css = (n) => getComputedStyle(html).getPropertyValue(n).trim();
+const springEase = () => { const e = css('--ease-spring'); return CSS.supports('transition-timing-function', e) ? e : 'cubic-bezier(.2,.9,.25,1.05)'; };
+const vibrate = (p) => { try { navigator.vibrate && navigator.vibrate(p); } catch (e) {} };
+const store = { get(k) { try { return localStorage.getItem(k); } catch (e) { return null; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
+
+/* =================== tiempo (ahora fijo) =================== */
+const NOW = new Date(2026, 9, 10, 17, 40);
+const D = (m, d, h = 9, mi = 0) => new Date(2026, m - 1, d, h, mi);
+const DAY = 864e5, H = 36e5;
+const WD = ['dom', 'lun', 'mar', 'mié', 'jue', 'vie', 'sáb'];
+const WDL = ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'];
+const MO = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
+const hm = (d) => `${d.getHours()}:${String(d.getMinutes()).padStart(2, '0')}`;
+const hm2 = (d) => `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
+const sameDay = (a, b) => a.toDateString() === b.toDateString();
+const fmtDate = (d) => `${WD[d.getDay()]} ${d.getDate()} ${MO[d.getMonth()]}, ${hm2(d)}`;
+const atTime = (d, t) => { const [h, m] = t.split(':').map(Number); const x = new Date(d); x.setHours(h, m, 0, 0); return x; };
+const addMonths = (d, n) => { const x = new Date(d); const day = x.getDate(); x.setDate(1); x.setMonth(x.getMonth() + n); x.setDate(Math.min(day, new Date(x.getFullYear(), x.getMonth() + 1, 0).getDate())); return x; };
+const add = (d, n, unit) => unit === 'day' ? new Date(+d + n * DAY) : unit === 'week' ? new Date(+d + n * 7 * DAY) : addMonths(d, n);
+
+function dueLabel(t) {
+  const due = t.due, diff = due - NOW;
+  if (diff < 0) { const ago = -diff; return ago < DAY ? `vencida hace ${Math.max(1, Math.round(ago / H))} h` : `vencida hace ${Math.round(ago / DAY)} d`; }
+  if (sameDay(due, NOW)) return `hoy ${hm(due)}`;
+  if (sameDay(due, new Date(+NOW + DAY))) return `mañana ${hm(due)}`;
+  return `en ${Math.ceil((atTime(due, '0:00') - atTime(NOW, '0:00')) / DAY)} d`;
+}
+const progress = (t) => Math.max(0, Math.min(1, (NOW - t.cycleStart) / (t.due - t.cycleStart)));
+function status(t) {
+  if (t.flash) return 'done';
+  if (NOW > t.due) return 'overdue';
+  if (progress(t) >= .75 || sameDay(t.due, NOW)) return 'soon';
+  return 'ok';
+}
+const RANK = { overdue: 0, soon: 1, ok: 2, done: 1 };
+
+/* =================== datos de ejemplo =================== */
+const PEOPLE = { a: { name: 'Andrés', e: '🌵' }, m: { name: 'Mari', e: '🌸' }, h: { name: 'Hogar', e: '🏡' } };
+const LISTS = { general: { n: 'General', e: '📌' }, limpieza: { n: 'Limpieza', e: '🧹' }, lukas: { n: 'Lukas', e: '🐱' }, plantas: { n: 'Plantas', e: '🪴' }, pagos: { n: 'Pagos', e: '💸' } };
+const COLORS = ['leaf', 'sage', 'mint', 'moss', 'olive', 'mustard', 'butter', 'calico', 'sand', 'clay', 'coral', 'peach', 'rose', 'berry', 'sky', 'lake', 'periwinkle', 'lilac', 'stone', 'paper', 'none'];
+const seed = () => [
+  { id: 'basura', e: '🗑️', title: 'Sacar la basura', color: 'stone', list: 'limpieza', s: { type: 'weekly', days: [2, 4] }, time: '19:00', who: { mode: 'rotation', cur: 'a', rot: ['a', 'm'] }, cycleStart: D(10, 6, 19), due: D(10, 8, 19),
+    desc: 'Bolsa negra los martes, reciclaje los jueves. El camión pasa a las 20:00.', hist: [['done', D(10, 6, 19, 32), 'a'], ['done', D(10, 1, 20, 5), 'm', true], ['snoozed', D(9, 29, 19), '+1 h']] },
+  { id: 'arenero', e: '🪣', title: 'Limpiar arenero', color: 'mint', list: 'lukas', s: { type: 'interval', every: 1, unit: 'day', anchor: 'completion' }, time: '20:00', who: { mode: 'anyone' }, cycleStart: D(10, 9, 20), due: D(10, 10, 20),
+    hist: [['done', D(10, 9, 20, 10), 'h'], ['done', D(10, 8, 21), 'm', true]] },
+  { id: 'regar', e: '🌱', title: 'Regar plantas', color: 'leaf', list: 'plantas', s: { type: 'interval', every: 3, unit: 'day', anchor: 'completion' }, time: '09:00', who: { mode: 'fixed', cur: 'm' }, cycleStart: D(10, 8, 9), due: D(10, 11, 9),
+    desc: 'Las del balcón y el helecho de la sala. El cactus no.', hist: [['done', D(10, 8, 9, 12), 'm'], ['done', D(10, 5, 8, 40), 'a', true]] },
+  { id: 'despara', e: '💊', title: 'Desparasitante de Lukas', color: 'calico', list: 'lukas', s: { type: 'interval', every: 1, unit: 'month', anchor: 'completion' }, time: '09:00', who: { mode: 'fixed', cur: 'm' }, cycleStart: D(9, 15, 9), due: D(10, 15, 9),
+    desc: 'Media pastilla escondida en atún. Lukas la detecta igual.', hist: [['done', D(9, 15, 9, 20), 'm']] },
+  { id: 'barrer', e: '🧹', title: 'Barrer', color: 'butter', list: 'limpieza', s: { type: 'weekly', days: [4] }, time: '10:00', who: { mode: 'fixed', cur: 'a' }, cycleStart: D(10, 8, 10), due: D(10, 15, 10), hist: [['done', D(10, 8, 11, 30), 'a']] },
+  { id: 'apto', e: '🏠', title: 'Pagar el apartamento', color: 'periwinkle', list: 'pagos', s: { type: 'monthly', day: 3 }, time: '09:00', who: { mode: 'fixed', cur: 'a' }, cycleStart: D(10, 3, 9), due: D(11, 3, 9), hist: [['done', D(10, 3, 8, 15), 'a']] },
+  { id: 'sabanas', e: '🛏️', title: 'Cambiar sábanas', color: 'lilac', list: 'limpieza', s: { type: 'interval', every: 2, unit: 'week', anchor: 'schedule' }, time: '09:00', who: { mode: 'fixed', cur: 'm' }, cycleStart: D(10, 4, 9), due: D(10, 18, 9), hist: [['done', D(10, 4, 10), 'm']] },
+  { id: 'vacuna', e: '💉', title: 'Vacuna de Lukas', color: 'rose', list: 'lukas', s: { type: 'once', date: '2026-10-20' }, time: '10:00', who: { mode: 'fixed', cur: 'a' }, cycleStart: D(10, 1, 10), due: D(10, 20, 10),
+    desc: 'Veterinaria San Rafael. Llevar el carné.', hist: [] },
+];
+let tasks = seed();
+const byId = (id) => tasks.find((t) => t.id === id);
+const assignee = (t) => t.who.mode === 'anyone' ? PEOPLE.h : PEOPLE[t.who.cur];
+
+function schedText(t) {
+  const s = t.s; let a;
+  const units = { day: ['día', 'días'], week: ['semana', 'semanas'], month: ['mes', 'meses'] };
+  if (s.type === 'interval') a = (s.every === 1 ? `Cada ${units[s.unit][0]}` : `Cada ${s.every} ${units[s.unit][1]}`) + (s.anchor === 'completion' ? ' desde la última vez' : '');
+  else if (s.type === 'weekly') { const n = s.days.map((d) => WDL[d]); a = n.length > 1 ? n.slice(0, -1).join(', ') + ' y ' + n.at(-1) : n[0]; a = a[0].toUpperCase() + a.slice(1); }
+  else if (s.type === 'monthly') a = s.day === 'last' ? 'El último día de cada mes' : `El día ${s.day} de cada mes`;
+  else { const d = new Date(s.date + 'T00:00'); a = `Una vez, el ${d.getDate()} de ${['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'][d.getMonth()]}`; }
+  return `${a} · ${t.time}`;
+}
+function nextDue(t, from = NOW) {
+  const s = t.s;
+  if (s.type === 'interval') {
+    if (s.anchor === 'completion') return atTime(add(from, s.every, s.unit), t.time);
+    let d = t.due; while (d <= from) d = atTime(add(d, s.every, s.unit), t.time); return d;
+  }
+  if (s.type === 'weekly') { for (let i = 0; i < 15; i++) { const d = atTime(new Date(+from + i * DAY), t.time); if (d > from && s.days.includes(d.getDay())) return d; } }
+  if (s.type === 'monthly') { for (let i = 0; i < 3; i++) { const base = addMonths(new Date(from.getFullYear(), from.getMonth(), 1), i); const last = new Date(base.getFullYear(), base.getMonth() + 1, 0).getDate(); const d = atTime(new Date(base.getFullYear(), base.getMonth(), s.day === 'last' ? last : Math.min(s.day, last)), t.time); if (d > from) return d; } }
+  return null;
+}
+
+/* =================== render de Inicio =================== */
+let filter = store.get('lukas-filter') || 'all';
+const ringHTML = (p, e, over, cls = '') => `<div class="ring ${cls} ${over ? 'is-overdue' : ''}" style="--p:${p.toFixed(3)}"><svg viewBox="0 0 100 100"><circle class="ring__track" cx="50" cy="50" r="44"/><circle class="ring__bar" cx="50" cy="50" r="44" pathLength="100"/></svg><span class="ring__emoji">${e}</span><i class="ring__alert"></i></div>`;
+const chipHTML = (st, label) => st === 'overdue' ? `<span class="status status--overdue"><i class="status__dot"></i>${label}</span>`
+  : st === 'soon' ? `<span class="status status--soon">${icon('clock')}${label}</span>`.replace('class="ico "', 'class="ico" style="--icon-size:13px;--icon-stroke:3"')
+  : st === 'done' ? `<span class="status status--done"><svg class="ico" style="--icon-size:13px;--icon-stroke:3.2"><use href="#i-check"/></svg>hecha</span>`
+  : `<span class="status status--ok">${label}</span>`;
+
+function visible() {
+  let list = tasks.filter((t) => !t.finished);
+  if (filter === 'mine') list = list.filter((t) => t.who.mode !== 'anyone' && t.who.cur === 'a');
+  else if (filter === 'today') list = list.filter((t) => t.flash || NOW > t.due || sameDay(t.due, NOW));
+  else if (filter !== 'all') list = list.filter((t) => t.list === filter);
+  return list.sort((a, b) => (RANK[status(a)] - RANK[status(b)]) || (a.due - b.due));
+}
+
+function cardHTML(t) {
+  const st = status(t), p = t.flash ? t.flashP ?? 0 : progress(t), who = assignee(t);
+  return `<div class="task-card__top"><span class="avatar avatar--sm" role="img" aria-label="Le toca a ${who.name}">${who.e}</span>
+      <button class="icon-btn icon-btn--on-card" data-more="${t.id}" aria-label="Acciones para ${t.title}">${icon('more-h', 'ico--md')}</button></div>
+    ${ringHTML(p, t.e, st === 'overdue')}
+    <div class="task-card__title">${t.title}</div>
+    <div class="task-card__foot">${chipHTML(st, dueLabel(t))}</div>
+    <button class="task-card__open" data-open="${t.id}" aria-label="${t.title}, ${st === 'overdue' ? dueLabel(t) : 'vence ' + dueLabel(t)}, le toca a ${who.name}"></button>`;
+}
+
+const cardEls = new Map();
+function renderHome({ animateIn = false } = {}) {
+  renderFilters(); renderSummary();
+  const grid = $('#grid'), list = visible();
+  const first = new Map();
+  if (!animateIn) cardEls.forEach((el, id) => { if (el.isConnected) first.set(id, el.getBoundingClientRect()); });
+  const keep = new Set(list.map((t) => t.id));
+  // salidas
+  cardEls.forEach((el, id) => {
+    if (keep.has(id)) return; cardEls.delete(id);
+    if (animateIn || reduced() || !first.has(id)) { el.remove(); return; }
+    const r = first.get(id), g = grid.getBoundingClientRect();
+    el.style.cssText += `;position:absolute;width:${r.width}px;top:${r.top - g.top + grid.offsetTop}px;left:${r.left - g.left + grid.offsetLeft}px;margin:0;z-index:0;pointer-events:none`;
+    el.animate([{ opacity: 1, transform: 'scale(1)' }, { opacity: 0, transform: 'scale(.86)' }], { duration: 220, easing: 'cubic-bezier(.7,0,.84,0)' }).onfinish = () => el.remove();
+  });
+  // entradas / actualizaciones en orden
+  list.forEach((t, i) => {
+    let el = cardEls.get(t.id), fresh = false;
+    if (!el) { el = document.createElement('div'); el.className = 'task-card'; el.dataset.id = t.id; cardEls.set(t.id, el); fresh = true; }
+    el.style.setProperty('--card', `var(--${t.color})`);
+    if (!el.classList.contains('is-animating')) el.innerHTML = cardHTML(t);
+    grid.appendChild(el);
+    if (animateIn) { el.classList.remove('card-in'); void el.offsetWidth; el.style.setProperty('--n', i); el.classList.add('card-in'); }
+    else if (fresh && !reduced()) el.animate([{ opacity: 0, transform: 'scale(.82)' }, { opacity: 1, transform: 'scale(1)' }], { duration: 520, easing: springEase(), delay: 60 });
+  });
+  // FLIP
+  if (!animateIn && !reduced()) list.forEach((t) => {
+    const el = cardEls.get(t.id), a = first.get(t.id); if (!a) return; const b = el.getBoundingClientRect();
+    const dx = a.left - b.left, dy = a.top - b.top; if (Math.abs(dx) < 1 && Math.abs(dy) < 1) return;
+    el.animate([{ transform: `translate(${dx}px,${dy}px)` }, { transform: 'none' }], { duration: 520, easing: springEase() });
+  });
+  const empty = list.length === 0;
+  $('#homeEmpty').hidden = !empty; $('#endNote').hidden = empty;
+  if (empty) renderEmpty();
+}
+
+function renderFilters() {
+  const counts = { all: tasks.filter((t) => !t.finished).length };
+  const items = [['all', 'Todas'], ['mine', 'Mías'], ['today', 'Hoy'], ...['limpieza', 'lukas', 'plantas', 'pagos'].map((k) => [k, `${LISTS[k].e} ${LISTS[k].n}`])];
+  const nav = $('#filters'), sl = nav.scrollLeft;
+  nav.innerHTML = items.map(([k, l]) => `<button class="chip" data-filter="${k}" aria-pressed="${filter === k}">${l}${k === 'all' ? ` <span class="chip__count">${counts.all}</span>` : ''}</button>`).join('');
+  nav.scrollLeft = sl;
+}
+function renderSummary() {
+  const live = tasks.filter((t) => !t.finished && !t.flash);
+  const over = live.filter((t) => NOW > t.due).length, today = live.filter((t) => NOW <= t.due && sameDay(t.due, NOW)).length;
+  const parts = [];
+  if (over) parts.push(`<span class="dot" style="background:var(--coral)"></span><b>${over} vencida${over > 1 ? 's' : ''}</b>`);
+  if (today) parts.push(`<span class="dot" style="background:var(--mustard)"></span><b>${today} para hoy</b>`);
+  $('#summary').innerHTML = parts.length ? parts.join(' &nbsp;·&nbsp; ') + '. Lo demás va bien.' : 'Todo al día. Lukas aprueba.';
+  $('#statTiles').innerHTML = [['coral', over, 'vencidas'], ['mustard', today, 'para hoy'], ['leaf', live.filter((t) => t.due - NOW < 7 * DAY && t.due >= NOW).length, 'esta semana']].map(([c, n, l]) => `<div class="stat-tile" style="background:var(--${c})"><b>${n}</b><span>${l}</span></div>`).join('');
+}
+function renderEmpty() {
+  const next = tasks.filter((t) => !t.finished).sort((a, b) => a.due - b.due)[0];
+  const title = filter === 'today' ? 'Nada para hoy' : filter === 'all' ? 'Nada pendiente' : 'Aquí no hay nada';
+  const msg = next ? `Lo próximo es «${next.title}», ${dueLabel(next)}.` : 'Crea una tarea cuando haga falta.';
+  $('#homeEmpty').innerHTML = `<div class="empty"><div class="art">${LukasArt.sleepingPot()}</div><div class="empty__title">${title}</div><p class="empty__msg">${msg}</p>${filter !== 'all' ? '<button class="btn btn--bordered btn--sm" data-filter="all" style="margin-top:8px">Ver todas</button>' : ''}</div>`;
+  if (!reduced()) $('#homeEmpty .empty').animate([{ opacity: 0, transform: 'translateY(10px)' }, { opacity: 1, transform: 'none' }], { duration: 420, easing: 'cubic-bezier(.16,1,.3,1)', delay: 150, fill: 'backwards' });
+}
+
+/* =================== carga (skeleton) =================== */
+function simulateLoad(ms = 900) {
+  const grid = $('#grid'); cardEls.forEach((el) => el.remove()); cardEls.clear();
+  $('#homeEmpty').hidden = true;
+  grid.setAttribute('aria-busy', 'true');
+  grid.innerHTML = Array.from({ length: 6 }, () => `<div class="skel-card"><div class="skeleton skeleton--circle"></div><div class="skeleton skeleton--line" style="width:80%"></div><div class="skeleton skeleton--line" style="width:46%;height:28px"></div></div>`).join('');
+  $('#summary').innerHTML = '<span class="skeleton skeleton--line" style="display:block;width:60%;height:16px;margin-top:4px"></span>';
+  $$('#filters .chip__count').forEach((c) => c.style.visibility = 'hidden');
+  setTimeout(() => { grid.innerHTML = ''; grid.removeAttribute('aria-busy'); renderHome({ animateIn: true }); }, ms);
+}
+
+/* =================== navegación =================== */
+let current = 'home', openId = null;
+function swap(fromId, toId, kind, mutate) {
+  const from = $('#' + fromId), to = $('#' + toId);
+  const apply = () => { from.hidden = true; to.hidden = false; from.style.viewTransitionName = ''; to.style.viewTransitionName = 'screen'; mutate && mutate(); };
+  if (!document.startViewTransition || reduced()) {
+    apply(); to.classList.remove('enter-push', 'enter-pop', 'enter-fade'); void to.offsetWidth;
+    to.classList.add(reduced() ? 'enter-fade' : kind === 'push' ? 'enter-push' : kind === 'pop' ? 'enter-pop' : 'enter-fade');
+    return Promise.resolve();
+  }
+  html.classList.add('vt-' + kind); from.style.viewTransitionName = 'screen';
+  const vt = document.startViewTransition(apply);
+  return vt.finished.finally(() => { html.classList.remove('vt-' + kind); $$('[style*="view-transition-name"]').forEach((e) => { if (e !== to) e.style.viewTransitionName = ''; }); to.style.viewTransitionName = ''; });
+}
+function openDetail(id) {
+  const t = byId(id); if (!t) return; openId = id;
+  const card = cardEls.get(id);
+  if (card) card.style.viewTransitionName = 'hero';
+  swap('home', 'detail', 'push', () => {
+    if (card) card.style.viewTransitionName = '';
+    renderDetail(t); $('#hero').style.viewTransitionName = 'hero';
+    $('#detail').scrollTop = 0; $('#tabbarWrap').classList.add('is-hidden'); app.classList.add('on-detail');
+  }).then(() => { $('#hero').style.viewTransitionName = ''; $('#backBtn').focus({ preventScroll: true }); });
+  current = 'detail';
+}
+function closeDetail(after) {
+  const id = openId; $('#hero').style.viewTransitionName = 'hero';
+  return swap('detail', 'home', 'pop', () => {
+    $('#hero').style.viewTransitionName = '';
+    $('#tabbarWrap').classList.remove('is-hidden'); app.classList.remove('on-detail');
+    const el = cardEls.get(id); if (el && byId(id)) el.style.viewTransitionName = 'hero';
+  }).then(() => { const el = cardEls.get(id); if (el) el.style.viewTransitionName = ''; current = 'home'; openId = null; after && after(); const f = el && el.querySelector('.task-card__open'); f && f.focus({ preventScroll: true }); });
+}
+function goTab(tab) {
+  if (tab === current) { $('#' + tab).scrollTo({ top: 0, behavior: reduced() ? 'auto' : 'smooth' }); return; }
+  $$('.tabbar__item').forEach((b) => { if (b.dataset.tab === tab) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current'); });
+  const from = current; current = tab; swap(from, tab, 'tab');
+}
+
+/* =================== detalle =================== */
+function renderDetail(t) {
+  const st = status(t), who = assignee(t);
+  const hero = $('#hero'); hero.style.setProperty('--card', `var(--${t.color})`);
+  const ring = $('#heroRing'); ring.style.setProperty('--p', (t.flash ? 0 : progress(t)).toFixed(3)); ring.classList.toggle('is-overdue', st === 'overdue');
+  $('#heroEmoji').textContent = t.e; $('#heroTitle').textContent = t.title; $('#heroSched').textContent = schedText(t);
+  $('#heroStatus').innerHTML = chipHTML(st, dueLabel(t));
+  const rot = t.who.mode === 'rotation' ? `<span class="rot"><span class="avatar-stack">${t.who.rot.map((k) => `<span class="avatar avatar--sm">${PEOPLE[k].e}</span>`).join('')}</span></span>` : '';
+  $('#detailInfo').innerHTML = `
+    <div class="row"><span class="row__main"><span class="row__title">${NOW > t.due ? 'Vencía' : 'Próximo'}</span></span><span class="row__value">${fmtDate(t.due)}</span></div>
+    <div class="row"><span class="row__main"><span class="row__title">Le toca a</span>${t.who.mode === 'rotation' ? `<span class="row__sub">Rotación: ${t.who.rot.map((k) => PEOPLE[k].name).join(' → ')}</span>` : t.who.mode === 'anyone' ? '<span class="row__sub">Cualquiera del hogar</span>' : ''}</span>${rot}<span class="row__value">${who.e} ${who.name}</span></div>
+    <div class="row"><span class="row__main"><span class="row__title">Lista</span></span><span class="row__value">${LISTS[t.list].e} ${LISTS[t.list].n}</span></div>`;
+  $('#detailDesc').innerHTML = t.desc ? `<p class="desc">${t.desc}</p>` : '';
+  $('#detailHistory').innerHTML = t.hist.length ? t.hist.slice(0, 4).map(([k, d, x, other]) => k === 'done'
+    ? `<div class="row row--lead"><span class="row__lead">${icon('check', 'ico--md')}</span><span class="row__main"><span class="row__title">Hecha${other ? ` por ${PEOPLE[x].name}` : ''}</span><span class="row__sub">${fmtDate(d)}${other ? '' : ` · crédito ${PEOPLE[x].name}`}</span></span></div>`
+    : k === 'skipped' ? `<div class="row row--lead"><span class="row__lead">${icon('skip', 'ico--md')}</span><span class="row__main"><span class="row__title">Saltada</span><span class="row__sub">${fmtDate(d)}</span></span></div>`
+    : `<div class="row row--lead"><span class="row__lead">${icon('snooze', 'ico--md')}</span><span class="row__main"><span class="row__title">Pospuesta ${x}</span><span class="row__sub">${fmtDate(d)}</span></span></div>`).join('')
+    : `<div class="row"><span class="row__main"><span class="row__sub">Todavía no se ha hecho.</span></span></div>`;
+  $('#doneBtn').disabled = !!t.flash; $('#otherBtn').disabled = !!t.flash;
+}
+
+/* =================== completar =================== */
+function leafBurst(x, y, n = 14) {
+  if (reduced()) return;
+  const fx = $('#fx'), a = app.getBoundingClientRect(), fills = ['var(--leaf)', 'var(--moss)', 'var(--olive)'];
+  for (let i = 0; i < n; i++) {
+    const el = document.createElement('div'); el.className = 'leaf'; el.innerHTML = LukasArt.leaf(fills[i % fills.length]);
+    el.style.left = (x - a.left) + 'px'; el.style.top = (y - a.top) + 'px'; fx.appendChild(el);
+    const ang = (-90 + (i / n) * 360 + Math.random() * 24) * Math.PI / 180, dist = 70 + Math.random() * 70;
+    const dx = Math.cos(ang) * dist, dy = Math.sin(ang) * dist - 30, rot = (Math.random() * 360 - 180) | 0, s = .7 + Math.random() * .6;
+    el.animate([
+      { transform: `translate(0,0) rotate(0) scale(.2)`, opacity: 0 },
+      { transform: `translate(${dx * .6}px,${dy * .6}px) rotate(${rot * .5}deg) scale(${s})`, opacity: 1, offset: .35 },
+      { transform: `translate(${dx}px,${dy + 90}px) rotate(${rot}deg) scale(${s * .9})`, opacity: 0 }
+    ], { duration: 1000 + Math.random() * 300, easing: 'cubic-bezier(.2,.7,.3,1)' }).onfinish = () => el.remove();
+  }
+}
+function squash(el) {
+  if (reduced() || !el) return;
+  el.animate([{ transform: 'scale(1,1)' }, { transform: 'scale(1.07,.9)', offset: .25 }, { transform: 'scale(.96,1.05)', offset: .55 }, { transform: 'scale(1.01,.99)', offset: .8 }, { transform: 'scale(1,1)' }], { duration: 560, easing: 'ease-out' });
+}
+let undoStack = null;
+function complete(id, creditKey, source) {
+  const t = byId(id); if (!t || t.flash) return;
+  const snapshot = structuredClone(t);
+  const who = creditKey || (t.who.mode === 'anyone' ? 'h' : t.who.cur);
+  const other = !!creditKey && creditKey !== (t.who.mode === 'anyone' ? 'h' : t.who.cur);
+  vibrate([12, 40, 18]);
+  // 1) estado visual "recién hecha": anillo se vacía + squash + hojitas
+  t.flash = true; t.flashP = 0;
+  const card = cardEls.get(id), inDetail = source === 'detail';
+  if (inDetail) { $('#hero').classList.add('is-done-flash'); renderDetail(t); }
+  if (card) { card.classList.add('is-done-flash'); card.innerHTML = cardHTML({ ...t, flashP: progress(snapshot) }); card.classList.add('is-animating'); requestAnimationFrame(() => requestAnimationFrame(() => { const r = card.querySelector('.ring'); r && r.style.setProperty('--p', 0); })); }
+  const ringEl = inDetail ? $('#heroRing') : card && card.querySelector('.ring');
+  if (ringEl) { if (inDetail) ringEl.style.setProperty('--p', 0); const r = ringEl.getBoundingClientRect(); setTimeout(() => leafBurst(r.left + r.width / 2, r.top + r.height / 2, inDetail ? 18 : 12), reduced() ? 0 : 380); squash(inDetail ? ringEl : card); const em = ringEl.querySelector('.ring__emoji'); if (em && !reduced()) em.animate([{ transform: 'scale(1)' }, { transform: 'scale(1.35) rotate(-8deg)' }, { transform: 'scale(1)' }], { duration: 520, easing: 'ease-out', delay: 300 }); }
+  renderSummary();
+  // 2) recalcular: próximo vencimiento, turno, historial
+  const next = nextDue(t);
+  const finalize = () => {
+    t.flash = false; delete t.flashP;
+    if (t.s.type === 'once' || !next) { t.finished = true; }
+    else { t.cycleStart = new Date(NOW); t.due = next; }
+    if (t.who.mode === 'rotation') { const r = t.who.rot; t.who.cur = r[(r.indexOf(t.who.cur) + 1) % r.length]; }
+    t.hist.unshift(['done', new Date(NOW), who, other]);
+    if (card) { card.classList.remove('is-animating', 'is-done-flash'); }
+    $('#hero').classList.remove('is-done-flash');
+    if (current === 'home') renderHome();
+  };
+  undoStack = { id, snapshot };
+  const msg = t.s.type === 'once' ? `Hecha${other ? ' por ' + PEOPLE[who].name : ''}. Pasa a Terminadas.` : `Hecha${other ? ' por ' + PEOPLE[who].name : ''} · próximo: ${fmtDate(next)}`;
+  toast(msg, { action: 'Deshacer', onAction: undo, paw: true });
+  if (inDetail) setTimeout(() => { if (current === 'detail' && openId === id) closeDetail(() => setTimeout(finalize, 250)); else finalize(); }, reduced() ? 700 : 1250);
+  else setTimeout(finalize, reduced() ? 500 : 1250);
+}
+function undo() {
+  if (!undoStack) return; const { id, snapshot } = undoStack; undoStack = null;
+  const i = tasks.findIndex((t) => t.id === id); if (i < 0) tasks.push(snapshot); else tasks[i] = snapshot;
+  snapshot.due = new Date(snapshot.due); snapshot.cycleStart = new Date(snapshot.cycleStart);
+  const el = cardEls.get(id); if (el) el.classList.remove('is-animating', 'is-done-flash');
+  renderHome(); if (current === 'detail' && openId === id) renderDetail(snapshot);
+  toast('Deshecho. Todo como antes.');
+}
+function skip(id) {
+  const t = byId(id); const snap = structuredClone(t);
+  const next = nextDue(t, new Date(Math.max(+t.due, +NOW)));
+  if (!next) return toast('Las tareas de una vez no se pueden saltar.');
+  t.cycleStart = new Date(Math.max(+t.due, +NOW) - (next - t.due)); t.due = next; t.hist.unshift(['skipped', new Date(NOW)]);
+  if (t.s.anchor === 'completion') t.cycleStart = new Date(NOW);
+  undoStack = { id, snapshot: snap };
+  toast(`Saltada · próximo: ${fmtDate(next)}`, { action: 'Deshacer', onAction: undo });
+  if (current === 'detail') renderDetail(t); renderHome();
+}
+function snooze(id, hours, label) {
+  const t = byId(id); const snap = structuredClone(t);
+  t.due = new Date(+NOW + hours * H); if (t.cycleStart > NOW) t.cycleStart = new Date(NOW);
+  t.hist.unshift(['snoozed', new Date(NOW), label]);
+  undoStack = { id, snapshot: snap };
+  toast(`Pospuesta a ${fmtDate(t.due)}`, { action: 'Deshacer', onAction: undo });
+  if (current === 'detail') renderDetail(t); renderHome();
+}
+function removeTask(id) {
+  const t = byId(id); const snap = structuredClone(t);
+  const doIt = () => { tasks = tasks.filter((x) => x.id !== id); undoStack = { id, snapshot: snap }; renderHome(); toast(`Borrada «${snap.title}»`, { action: 'Deshacer', onAction: undo }); };
+  if (current === 'detail') closeDetail(doIt); else doIt();
+}
+
+/* =================== toasts =================== */
+function toast(msg, { action, onAction, paw } = {}) {
+  const box = $('#toasts'); $$('.toast', box).forEach((t) => dismiss(t));
+  const el = document.createElement('div'); el.className = 'toast'; el.setAttribute('role', 'status');
+  el.innerHTML = `${paw ? '<svg class="ico toast__paw" aria-hidden="true"><use href="#i-paw"/></svg>' : ''}<span class="toast__msg">${msg}</span>${action ? `<button class="toast__action">${action}</button>` : ''}`;
+  if (action) el.querySelector('button').onclick = () => { dismiss(el); onAction && onAction(); };
+  box.appendChild(el); el._t = setTimeout(() => dismiss(el), 5000);
+}
+function dismiss(el) { clearTimeout(el._t); if (el.classList.contains('is-leaving')) return; el.classList.add('is-leaving'); setTimeout(() => el.remove(), 220); }
+
+/* =================== sheets =================== */
+const scrim = $('#scrim'); let openSheet = null, lastFocus = null;
+function showSheet(el) {
+  if (openSheet) hideSheet(openSheet, true);
+  $$('#toasts .toast').forEach((t) => dismiss(t));
+  lastFocus = document.activeElement; openSheet = el; el.inert = false; el.style.removeProperty('--drag');
+  requestAnimationFrame(() => { el.classList.add('is-open'); scrim.classList.add('is-open'); });
+}
+function hideSheet(el = openSheet, instant) {
+  if (!el) return; el.classList.remove('is-open'); el.inert = true; el.style.removeProperty('--drag');
+  if (openSheet === el) { openSheet = null; scrim.classList.remove('is-open'); }
+  if (!instant && lastFocus && lastFocus.isConnected) lastFocus.focus({ preventScroll: true });
+}
+scrim.addEventListener('click', () => { hideSheet(); closeAlert(); });
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') { if ($('#alertWrap').classList.contains('is-open')) closeAlert(); else hideSheet(); } });
+$$('[data-close]').forEach((b) => b.addEventListener('click', () => hideSheet()));
+// arrastrar para cerrar
+$$('.sheet').forEach((sheet) => {
+  let y0 = null, t0 = 0, dy = 0;
+  sheet.addEventListener('pointerdown', (e) => { if (!e.target.closest('[data-drag]') || e.target.closest('button')) return; y0 = e.clientY; t0 = performance.now(); dy = 0; sheet.classList.add('is-dragging'); sheet.setPointerCapture(e.pointerId); });
+  sheet.addEventListener('pointermove', (e) => { if (y0 == null) return; dy = Math.max(0, e.clientY - y0); sheet.style.setProperty('--drag', (dy < 0 ? dy / 3 : dy) + 'px'); });
+  const end = () => { if (y0 == null) return; sheet.classList.remove('is-dragging'); const v = dy / (performance.now() - t0); y0 = null; if (dy > 140 || v > .6) hideSheet(sheet); else sheet.style.removeProperty('--drag'); };
+  sheet.addEventListener('pointerup', end); sheet.addEventListener('pointercancel', end);
+});
+
+/* action sheet de una tarea */
+function openActions(id) {
+  const t = byId(id); const st = status(t);
+  $('#actBody').innerHTML = `<div class="action-sheet__group"><div class="action-sheet__title">${t.e} ${t.title} · ${dueLabel(t)}</div>
+    <button class="action-sheet__btn" data-a="done">${icon('check', 'ico--md')}Hecha</button>
+    <button class="action-sheet__btn" data-a="other">${icon('hand', 'ico--md')}La hizo alguien más</button>
+    <button class="action-sheet__btn" data-a="snooze">${icon('snooze', 'ico--md')}Posponer</button>
+    ${t.s.type !== 'once' ? `<button class="action-sheet__btn" data-a="skip">${icon('skip', 'ico--md')}Saltar esta vez</button>` : ''}
+    <button class="action-sheet__btn" data-a="edit">${icon('edit', 'ico--md')}Editar</button>
+    <button class="action-sheet__btn action-sheet__btn--danger" data-a="delete">${icon('trash', 'ico--md')}Borrar</button></div>
+    <div class="action-sheet__group"><button class="action-sheet__btn action-sheet__btn--cancel" data-a="cancel">Cancelar</button></div><div style="height:var(--safe-bottom)"></div>`;
+  $('#actBody').onclick = (e) => { const b = e.target.closest('[data-a]'); if (!b) return; act(b.dataset.a, id, 'home'); };
+  showSheet($('#actSheet'));
+}
+function openSnooze(id, source) {
+  $('#actBody').innerHTML = `<div class="action-sheet__group"><div class="action-sheet__title">Posponer «${byId(id).title}»</div>
+    <button class="action-sheet__btn" data-h="1">+1 hora</button><button class="action-sheet__btn" data-h="24">+1 día</button><button class="action-sheet__btn" data-h="72">+3 días</button></div>
+    <div class="action-sheet__group"><button class="action-sheet__btn action-sheet__btn--cancel" data-h="0">Cancelar</button></div><div style="height:var(--safe-bottom)"></div>`;
+  $('#actBody').onclick = (e) => { const b = e.target.closest('[data-h]'); if (!b) return; hideSheet(); const h = +b.dataset.h; if (h) snooze(id, h, h === 1 ? '+1 h' : h === 24 ? '+1 día' : '+3 días'); };
+  showSheet($('#actSheet'));
+}
+function act(a, id, source) {
+  if (a === 'cancel') return hideSheet();
+  if (a === 'snooze') return openSnooze(id, source);
+  hideSheet(undefined, true);
+  if (a === 'done') return complete(id, null, source);
+  if (a === 'other') return openWho(id, source);
+  if (a === 'skip') return skip(id);
+  if (a === 'edit') return openCreate(id);
+  if (a === 'delete') return confirmDelete(id);
+}
+function openWho(id, source) {
+  const t = byId(id); const def = t.who.mode === 'anyone' ? null : t.who.cur;
+  $('#whoSub').textContent = def ? `Si no eliges, el crédito es para ${PEOPLE[def].name}, a quien le tocaba.` : 'Si no eliges, el crédito es para el Hogar.';
+  $('#whoGrid').innerHTML = ['a', 'm'].map((k) => `<button class="person" data-k="${k}"><span class="avatar">${PEOPLE[k].e}</span>${PEOPLE[k].name}</button>`).join('');
+  $('#whoGrid').onclick = (e) => { const b = e.target.closest('[data-k]'); if (!b) return; b.setAttribute('aria-checked', 'true'); hideSheet(undefined, true); setTimeout(() => complete(id, b.dataset.k, source), 120); };
+  showSheet($('#whoSheet'));
+}
+function confirmDelete(id) {
+  const t = byId(id), w = $('#alertWrap');
+  w.innerHTML = `<div class="alert" role="alertdialog" aria-modal="true" aria-labelledby="alT" aria-describedby="alM"><div class="alert__body"><div class="alert__title" id="alT">¿Borrar «${t.title}»?</div><p class="alert__msg" id="alM">Desaparece para todos. Un admin puede restaurarla desde la Papelera.</p></div><div class="alert__actions"><button data-x="no">Cancelar</button><button class="is-danger" data-x="yes">Borrar</button></div></div>`;
+  w.classList.add('is-open'); w.setAttribute('aria-hidden', 'false'); scrim.classList.add('is-open'); scrim.style.zIndex = 51;
+  w.querySelector('[data-x="no"]').focus();
+  w.onclick = (e) => { const b = e.target.closest('[data-x]'); if (!b) return; closeAlert(); if (b.dataset.x === 'yes') removeTask(id); };
+}
+function closeAlert() { const w = $('#alertWrap'); if (!w.classList.contains('is-open')) return; w.classList.remove('is-open'); w.setAttribute('aria-hidden', 'true'); scrim.style.zIndex = ''; if (!openSheet) scrim.classList.remove('is-open'); }
+
+/* =================== crear / editar =================== */
+const EMOJI = {
+  casa: ['🧹', '🧽', '🫧', '🧺', '🛏️', '🗑️', '♻️', '🪟', '🚿', '🍽️', '🧼', '🪣'],
+  lukas: ['🐱', '🐈', '🪣', '💊', '💉', '🐟', '🧶', '🐾'],
+  plantas: ['🌱', '🪴', '🌿', '💧', '🌵', '🍃', '🌻', '🪻'],
+  pagos: ['💸', '🏠', '🧾', '💡', '📶', '💳', '🔌', '📮'],
+  otros: ['🛒', '🚗', '🔋', '🧯', '📦', '🎂', '🦷', '✂️'],
+};
+const KEYWORDS = [[/reg|plant|maceta|abon|jard/, 'plantas'], [/lukas|gat|arena|vet|vacun|desparas|pulga/, 'lukas'], [/pag|apart|alquil|luz|agua|internet|recib|factur/, 'pagos'], [/barr|limp|lav|basur|sában|saban|cama|ropa|plat|coc|baño|ventan|trapear/, 'casa']];
+const KEY_EMOJI = [[/basur/, '🗑️'], [/reg/, '🌱'], [/barr/, '🧹'], [/arena/, '🪣'], [/sában|saban|cama/, '🛏️'], [/ropa|lav/, '🧺'], [/plat|coc/, '🍽️'], [/ventan/, '🪟'], [/vacun/, '💉'], [/desparas|pastill/, '💊'], [/apart|alquil/, '🏠'], [/luz/, '💡'], [/internet/, '📶'], [/compr|súper|super/, '🛒'], [/plant/, '🪴'], [/lukas|gat/, '🐱'], [/pag/, '💸']];
+const F = { editing: null, e: '✨', userEmoji: false, name: '', type: 'interval', every: 3, unit: 'day', anchor: 'completion', days: [2, 4], day: 3, date: '2026-10-20', time: '09:00', who: 'h', rot: false, list: 'general', color: 'none' };
+function setSeg(seg, v) { const bs = $$('button', seg); const i = Math.max(0, bs.findIndex((b) => b.dataset.v === v)); bs.forEach((b, j) => b.setAttribute('aria-pressed', j === i)); seg.style.setProperty('--i', i); }
+function suggestEmoji(q) {
+  q = (q || '').toLowerCase();
+  const cat = (KEYWORDS.find(([r]) => r.test(q)) || [])[1];
+  const all = Object.values(EMOJI).flat();
+  const list = cat ? [...EMOJI[cat], ...all.filter((e) => !EMOJI[cat].includes(e))] : all;
+  $('#emojiHint').textContent = cat ? `Sugerencias para «${q.trim()}»` : 'Casa · Lukas · Plantas · Pagos · Otros';
+  $('#emojiGrid').innerHTML = list.slice(0, 40).map((e) => `<button type="button" aria-pressed="${e === F.e}" aria-label="${e}">${e}</button>`).join('');
+}
+function setEmoji(e, user) {
+  if (e === F.e) return; F.e = e; if (user) F.userEmoji = true;
+  const w = $('#wellEmoji'); w.textContent = e;
+  if (!reduced()) w.animate([{ transform: 'scale(.4) rotate(-20deg)', opacity: 0 }, { transform: 'scale(1)', opacity: 1 }], { duration: 480, easing: springEase() });
+  $$('#emojiGrid button').forEach((b) => b.setAttribute('aria-pressed', b.textContent === e));
+}
+function renderCreate() {
+  $('#nameInput').value = F.name;
+  $('#wellEmoji').textContent = F.e;
+  $('#emojiWell').style.setProperty('--card', F.color === 'none' ? 'var(--surface-2)' : `var(--${F.color})`);
+  setSeg($('#typeSeg'), F.type); setSeg($('#unitSeg'), F.unit); setSeg($('#anchorSeg'), F.anchor);
+  $$('.type-panel').forEach((p) => p.hidden = p.dataset.panel !== F.type);
+  $('#everyOut').textContent = F.every;
+  $('#wdPick').innerHTML = ['L', 'M', 'M', 'J', 'V', 'S', 'D'].map((l, i) => { const d = (i + 1) % 7; return `<button type="button" data-d="${d}" aria-pressed="${F.days.includes(d)}" aria-label="${WDL[d]}">${l}</button>`; }).join('');
+  $('#dayPick').innerHTML = Array.from({ length: 31 }, (_, i) => `<button type="button" data-day="${i + 1}" aria-pressed="${F.day === i + 1}">${i + 1}</button>`).join('') + `<button type="button" class="last" data-day="last" aria-pressed="${F.day === 'last'}">Último día</button>`;
+  $('#onceDate').value = F.date; $('#timeInput').value = F.time; $('#timeOut').textContent = F.time;
+  $('#assignPick').innerHTML = [['h', 'Cualquiera'], ['a', 'Andrés'], ['m', 'Mari']].map(([k, n]) => `<button type="button" class="person" role="radio" data-k="${k}" aria-checked="${F.who === k}"><span class="avatar">${PEOPLE[k].e}</span>${n}</button>`).join('');
+  $('#rotSwitch').checked = F.rot;
+  $('#listPick').innerHTML = Object.entries(LISTS).map(([k, l]) => `<button type="button" class="chip" data-l="${k}" aria-pressed="${F.list === k}">${l.e} ${l.n}</button>`).join('');
+  $('#colorPick').innerHTML = COLORS.map((c) => `<button type="button" class="swatch ${c === 'none' ? 'swatch--none' : ''}" style="--c:var(--${c})" role="radio" data-c="${c}" aria-checked="${F.color === c}" aria-label="${c === 'none' ? 'Sin color' : c}"><svg viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg></button>`).join('');
+  suggestEmoji(F.name); updateSummary();
+}
+function updateSummary() {
+  const t = { s: F.type === 'interval' ? { type: 'interval', every: F.every, unit: F.unit, anchor: F.anchor } : F.type === 'weekly' ? { type: 'weekly', days: [...F.days].sort((a, b) => ((a + 6) % 7) - ((b + 6) % 7)) } : F.type === 'monthly' ? { type: 'monthly', day: F.day } : { type: 'once', date: F.date }, time: F.time };
+  const who = F.rot ? 'Rotan Andrés y Mari' : F.who === 'h' ? 'Cualquiera' : PEOPLE[F.who].name;
+  const ok = F.name.trim().length > 0 && !(F.type === 'weekly' && !F.days.length);
+  $('#createSummary').textContent = F.type === 'weekly' && !F.days.length ? 'Elige al menos un día.' : `${schedText(t)} · ${who}`;
+  $('#saveBtn').disabled = !ok; $('#saveTop').disabled = !ok;
+}
+function openCreate(editId) {
+  const t = editId && byId(editId);
+  Object.assign(F, { editing: editId || null, e: '✨', userEmoji: false, name: '', type: 'interval', every: 3, unit: 'day', anchor: 'completion', days: [2, 4], day: 3, date: '2026-10-20', time: '09:00', who: 'h', rot: false, list: 'general', color: 'none' });
+  if (t) Object.assign(F, { e: t.e, userEmoji: true, name: t.title, type: t.s.type, every: t.s.every || 3, unit: t.s.unit || 'day', anchor: t.s.anchor || 'completion', days: t.s.days || [2, 4], day: t.s.day || 3, date: t.s.date || '2026-10-20', time: t.time, who: t.who.mode === 'anyone' ? 'h' : t.who.cur, rot: t.who.mode === 'rotation', list: t.list, color: t.color });
+  $('#createTitle').textContent = t ? 'Editar tarea' : 'Nueva tarea';
+  $('#saveBtn').textContent = t ? 'Guardar cambios' : 'Agregar tarea'; $('#saveTop').textContent = t ? 'Guardar' : 'Agregar';
+  $('#emojiPanel').classList.remove('is-open'); $('#emojiWell').setAttribute('aria-expanded', 'false');
+  renderCreate(); $('#createSheet .sheet__body').scrollTop = 0;
+  showSheet($('#createSheet'));
+  if (!t) setTimeout(() => $('#nameInput').focus({ preventScroll: true }), reduced() ? 50 : 380);
+}
+$('#nameInput').addEventListener('input', (e) => {
+  F.name = e.target.value; const q = F.name.toLowerCase();
+  if (!F.userEmoji) { const hit = KEY_EMOJI.find(([r]) => r.test(q)); setEmoji(hit ? hit[1] : '✨'); }
+  if ($('#emojiPanel').classList.contains('is-open') && !$('#emojiSearch').value) suggestEmoji(F.name);
+  $('#nameInput').classList.remove('is-error'); updateSummary();
+});
+$('#emojiWell').addEventListener('click', () => { const p = $('#emojiPanel'), open = !p.classList.contains('is-open'); p.classList.toggle('is-open', open); $('#emojiWell').setAttribute('aria-expanded', open); if (open) suggestEmoji($('#emojiSearch').value || F.name); });
+$('#emojiSearch').addEventListener('input', (e) => suggestEmoji(e.target.value));
+$('#emojiGrid').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) setEmoji(b.textContent, true); });
+$('#typeSeg').addEventListener('click', (e) => {
+  const b = e.target.closest('button'); if (!b || b.dataset.v === F.type) return;
+  const order = ['interval', 'weekly', 'monthly', 'once'], dir = order.indexOf(b.dataset.v) > order.indexOf(F.type) ? 1 : -1;
+  F.type = b.dataset.v; setSeg($('#typeSeg'), F.type);
+  $$('.type-panel').forEach((p) => { p.hidden = p.dataset.panel !== F.type; if (!p.hidden) { p.style.setProperty('--from', dir * 16 + 'px'); p.classList.remove('is-entering'); void p.offsetWidth; p.classList.add('is-entering'); } });
+  updateSummary();
+});
+$('#unitSeg').addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; F.unit = b.dataset.v; setSeg($('#unitSeg'), F.unit); updateSummary(); });
+$('#anchorSeg').addEventListener('click', (e) => { const b = e.target.closest('button'); if (!b) return; F.anchor = b.dataset.v; setSeg($('#anchorSeg'), F.anchor); updateSummary(); });
+$('#createSheet').addEventListener('click', (e) => {
+  const st = e.target.closest('[data-step]'); if (st) { F.every = Math.max(1, Math.min(99, F.every + +st.dataset.step)); $('#everyOut').textContent = F.every; updateSummary(); }
+  const d = e.target.closest('[data-d]'); if (d) { const n = +d.dataset.d; F.days = F.days.includes(n) ? F.days.filter((x) => x !== n) : [...F.days, n]; d.setAttribute('aria-pressed', F.days.includes(n)); updateSummary(); }
+  const dm = e.target.closest('[data-day]'); if (dm) { F.day = dm.dataset.day === 'last' ? 'last' : +dm.dataset.day; $$('#dayPick button').forEach((b) => b.setAttribute('aria-pressed', b === dm)); updateSummary(); }
+  const p = e.target.closest('#assignPick [data-k]'); if (p) { F.who = p.dataset.k; if (F.rot && F.who === 'h') F.rot = false; $('#rotSwitch').checked = F.rot; $$('#assignPick .person').forEach((b) => b.setAttribute('aria-checked', b === p)); updateSummary(); }
+  const l = e.target.closest('[data-l]'); if (l) { F.list = l.dataset.l; $$('#listPick .chip').forEach((b) => b.setAttribute('aria-pressed', b === l)); }
+  const c = e.target.closest('[data-c]'); if (c) { F.color = c.dataset.c; $$('#colorPick .swatch').forEach((b) => b.setAttribute('aria-checked', b === c)); $('#emojiWell').style.setProperty('--card', F.color === 'none' ? 'var(--surface-2)' : `var(--${F.color})`); vibrate(6); }
+});
+$('#rotSwitch').addEventListener('change', (e) => { F.rot = e.target.checked; if (F.rot && F.who === 'h') { F.who = 'a'; $$('#assignPick .person').forEach((b) => b.setAttribute('aria-checked', b.dataset.k === 'a')); } updateSummary(); });
+$('#timeInput').addEventListener('input', (e) => { F.time = e.target.value || '09:00'; $('#timeOut').textContent = F.time; updateSummary(); });
+$('.time-pill').addEventListener('click', () => { try { $('#timeInput').showPicker(); } catch (e) {} });
+$('#onceDate').addEventListener('input', (e) => { F.date = e.target.value; updateSummary(); });
+$('#saveTop').addEventListener('click', () => $('#saveBtn').click());
+$('#nameInput').addEventListener('keydown', (e) => { if (e.key === 'Enter' && F.name.trim()) { e.preventDefault(); $('#saveBtn').click(); } });
+$('#saveBtn').addEventListener('click', () => {
+  if (!F.name.trim()) { $('#nameInput').classList.add('is-error'); $('#nameInput').focus(); return; }
+  const s = F.type === 'interval' ? { type: 'interval', every: F.every, unit: F.unit, anchor: F.anchor } : F.type === 'weekly' ? { type: 'weekly', days: [...F.days] } : F.type === 'monthly' ? { type: 'monthly', day: F.day } : { type: 'once', date: F.date };
+  const who = F.rot ? { mode: 'rotation', cur: F.who === 'h' ? 'a' : F.who, rot: ['a', 'm'] } : F.who === 'h' ? { mode: 'anyone' } : { mode: 'fixed', cur: F.who };
+  const color = F.color === 'none' ? 'surface' : F.color;
+  if (F.editing) {
+    const t = byId(F.editing); Object.assign(t, { e: F.e, title: F.name.trim(), s, time: F.time, who, list: F.list, color });
+    if (s.type === 'once') t.due = atTime(new Date(F.date + 'T00:00'), F.time);
+    else { const n = nextDue({ ...t, due: t.cycleStart }, t.cycleStart); if (n) t.due = n; }
+    hideSheet(); renderHome(); if (current === 'detail') renderDetail(t); toast('Cambios guardados', { paw: true });
+  } else {
+    const t = { id: 't' + Date.now(), e: F.e, title: F.name.trim(), color, list: F.list, s, time: F.time, who, cycleStart: new Date(NOW), hist: [] };
+    t.due = s.type === 'once' ? atTime(new Date(F.date + 'T00:00'), F.time) : nextDue({ ...t, due: NOW }, NOW);
+    tasks.push(t); hideSheet();
+    if (filter !== 'all' && !visible().some((x) => x.id === t.id)) filter = 'all';
+    setTimeout(() => { renderHome(); const el = cardEls.get(t.id); if (el) { el.scrollIntoView({ block: 'nearest', behavior: reduced() ? 'auto' : 'smooth' }); const r = el.getBoundingClientRect(); setTimeout(() => leafBurst(r.left + r.width / 2, r.top + 70, 8), 300); } }, reduced() ? 0 : 260);
+    toast(`Tarea creada · ${dueLabel(t).replace(/^en /, 'toca en ')}`, { paw: true });
+  }
+});
+
+
+/* =================== pendientes de casa =================== */
+const TODO_EMOJI = [[/bombill|luz|lámpar|lampar/, '💡'], [/puert|bisagr|chap/, '🚪'], [/pint/, '🎨'], [/repis|estant|cuadro|colgar/, '🔨'], [/don|ropa/, '👕'], [/caja|mudanz/, '📦'], [/cortin/, '🪟'], [/compr|súper|super/, '🛒'], [/plant|maceta/, '🪴'], [/lukas|gat|rascador/, '🐱'], [/fug|grifo|tuber|llave/, '🔧'], [/limpi|orden/, '🧹'], [/cocin|nevera|refri/, '🍳'], [/carro|auto/, '🚗'], [/factur|banco|pag/, '🧾']];
+const todoEmoji = (t) => (TODO_EMOJI.find(([r]) => r.test(t.toLowerCase())) || [, '📝'])[1];
+const todoSeed = () => [
+  { id: 'p1', text: 'Cambiar el bombillo del pasillo', who: 'a', soon: true },
+  { id: 'p2', text: 'Arreglar la puerta del clóset', who: 'h', soon: false },
+  { id: 'p3', text: 'Colgar la repisa del baño', who: 'a', soon: false },
+  { id: 'p4', text: 'Llevar ropa a donar', who: 'm', soon: true },
+  { id: 'p5', text: 'Comprar rascador nuevo para Lukas', who: 'h', soon: false },
+  { id: 'p6', text: 'Pintar la pared de la sala', who: 'h', soon: false },
+  { id: 'p7', text: 'Desarmar las cajas de la mudanza', who: 'm', soon: false, done: true },
+  { id: 'p8', text: 'Revisar la fuga del grifo', who: 'a', soon: false, done: true },
+].map((t) => ({ ...t, e: todoEmoji(t.text) }));
+let todos = todoSeed(), todoFilter = 'all';
+const QA = { who: 'h', soon: false };
+const todoRow = (t) => `<div class="todo ${t.done ? 'is-done' : ''}" data-tid="${t.id}">
+    <button class="check" role="checkbox" aria-checked="${!!t.done}" aria-label="${t.done ? 'Desmarcar' : 'Marcar como hecho'}: ${t.text}" data-tcheck="${t.id}"><i><svg viewBox="0 0 24 24"><path d="m6 12.5 4 4 8-9"/></svg></i></button>
+    <span class="todo__emoji" aria-hidden="true">${t.e}</span>
+    <button class="todo__main" data-tmore="${t.id}"><span class="todo__text">${t.text}</span>
+      <span class="todo__meta">${t.who === 'h' ? '🏡 Cualquiera' : `${PEOPLE[t.who].e} ${PEOPLE[t.who].name}`}${t.soon && !t.done ? ' <span class="tag-soon">pronto</span>' : ''}</span></button>
+  </div>`;
+function renderTodos({ animateId } = {}) {
+  const open = todos.filter((t) => !t.done), done = todos.filter((t) => t.done);
+  let list = open;
+  if (todoFilter === 'mine') list = open.filter((t) => t.who === 'a');
+  if (todoFilter === 'soon') list = open.filter((t) => t.soon);
+  list = [...list].sort((a, b) => (b.soon - a.soon));
+  $('#todoSummary').innerHTML = open.length ? `<b>${open.length} por hacer</b>. Sin fecha: se hacen cuando se pueda.` : 'Todo hecho en casa.';
+  $('#todoFilters').innerHTML = [['all', `Todos <span class="chip__count">${open.length}</span>`], ['mine', 'Míos'], ['soon', 'Pronto']].map(([k, l]) => `<button class="chip" data-tf="${k}" aria-pressed="${todoFilter === k}">${l}</button>`).join('');
+  $('#todoList').innerHTML = list.length ? `<div class="todo-group">${list.map(todoRow).join('')}</div>`
+    : `<div class="todo-empty"><div class="art">${LukasArt.peek()}</div><b>${open.length ? 'Nada aquí' : 'Nada pendiente en casa'}</b>${open.length ? 'Prueba con «Todos».' : 'Cuando aparezca algo, anótalo arriba.'}</div>`;
+  $('#todoDoneLabel').textContent = `Hechos (${done.length})`;
+  $('#todoDone').hidden = !done.length;
+  $('#todoDoneList').innerHTML = done.map(todoRow).join('');
+  $('#todoDot').hidden = !open.some((t) => t.soon);
+  if (animateId && !reduced()) { const el = $(`#todoList [data-tid="${animateId}"]`); el && el.animate([{ opacity: 0, transform: 'translateY(-8px)' }, { opacity: 1, transform: 'none' }], { duration: 420, easing: springEase() }); }
+}
+function toggleTodo(id) {
+  const t = todos.find((x) => x.id === id); if (!t) return;
+  const row = document.querySelector(`[data-tid="${id}"]`);
+  const finish = () => { t.done = !t.done; renderTodos(); };
+  vibrate(10);
+  if (!t.done) {
+    if (row) { row.classList.add('is-done'); row.querySelector('.check').setAttribute('aria-checked', 'true'); }
+    toast(`Hecho: ${t.text}`, { action: 'Deshacer', paw: true, onAction: () => { t.done = false; renderTodos(); } });
+    if (row && !reduced()) {
+      const h = row.offsetHeight;
+      setTimeout(() => row.animate([{ height: h + 'px', opacity: 1 }, { height: '0px', opacity: 0, paddingTop: 0, paddingBottom: 0 }], { duration: 320, easing: 'cubic-bezier(.7,0,.84,0)', fill: 'forwards' }).onfinish = finish, 520);
+    } else finish();
+  } else finish();
+}
+function addTodo(text) {
+  const t = { id: 'p' + Date.now(), text, who: QA.who, soon: QA.soon, e: todoEmoji(text) };
+  todos.unshift(t); if (todoFilter !== 'all' && !((todoFilter === 'soon' && t.soon) || (todoFilter === 'mine' && t.who === 'a'))) todoFilter = 'all';
+  renderTodos({ animateId: t.id });
+}
+$('#quickAdd').addEventListener('submit', (e) => { e.preventDefault(); const v = $('#todoInput').value.trim(); if (!v) return; addTodo(v); $('#todoInput').value = ''; $('#todoAddBtn').disabled = true; $('#todoInput').focus(); });
+$('#todoInput').addEventListener('input', (e) => { $('#todoAddBtn').disabled = !e.target.value.trim(); $('#quickAdd').classList.add('is-open'); });
+$('#todoInput').addEventListener('focus', () => $('#quickAdd').classList.add('is-open'));
+$('#todoOpts').addEventListener('click', (e) => {
+  const w = e.target.closest('[data-tw]'); if (w) { QA.who = w.dataset.tw; $$('#todoOpts [data-tw]').forEach((b) => b.setAttribute('aria-pressed', b === w)); }
+  const so = e.target.closest('[data-tsoon]'); if (so) { QA.soon = !QA.soon; so.setAttribute('aria-pressed', QA.soon); }
+});
+$('#todo').addEventListener('click', (e) => {
+  const c = e.target.closest('[data-tcheck]'); if (c) return toggleTodo(c.dataset.tcheck);
+  const f = e.target.closest('[data-tf]'); if (f) { todoFilter = f.dataset.tf; renderTodos(); return; }
+  const m = e.target.closest('[data-tmore]'); if (m) return openTodoActions(m.dataset.tmore);
+});
+function openTodoActions(id) {
+  const t = todos.find((x) => x.id === id);
+  $('#actBody').innerHTML = `<div class="action-sheet__group"><div class="action-sheet__title">${t.e} ${t.text}</div>
+    <button class="action-sheet__btn" data-x="toggle">${icon('check', 'ico--md')}${t.done ? 'Marcar como pendiente' : 'Marcar como hecho'}</button>
+    ${t.done ? '' : `<button class="action-sheet__btn" data-x="soon">${icon('clock', 'ico--md')}${t.soon ? 'Quitar «pronto»' : 'Marcar como pronto'}</button>`}
+    ${t.done ? '' : ['h', 'a', 'm'].filter((k) => k !== t.who).map((k) => `<button class="action-sheet__btn" data-x="who" data-k="${k}">Pasar a ${k === 'h' ? '🏡 Cualquiera' : PEOPLE[k].e + ' ' + PEOPLE[k].name}</button>`).join('')}
+    <button class="action-sheet__btn action-sheet__btn--danger" data-x="del">${icon('trash', 'ico--md')}Borrar</button></div>
+    <div class="action-sheet__group"><button class="action-sheet__btn action-sheet__btn--cancel" data-x="cancel">Cancelar</button></div><div style="height:var(--safe-bottom)"></div>`;
+  $('#actBody').onclick = (e) => {
+    const b = e.target.closest('[data-x]'); if (!b) return; hideSheet(undefined, true);
+    if (b.dataset.x === 'toggle') return setTimeout(() => toggleTodo(id), 120);
+    if (b.dataset.x === 'soon') t.soon = !t.soon;
+    if (b.dataset.x === 'who') t.who = b.dataset.k;
+    if (b.dataset.x === 'del') { const i = todos.indexOf(t); todos.splice(i, 1); toast(`Borrado: ${t.text}`, { action: 'Deshacer', onAction: () => { todos.splice(i, 0, t); renderTodos(); } }); }
+    renderTodos();
+  };
+  showSheet($('#actSheet'));
+}
+
+/* =================== eventos globales =================== */
+document.addEventListener('click', (e) => {
+  const open = e.target.closest('[data-open]'); if (open) return openDetail(open.dataset.open);
+  const more = e.target.closest('[data-more]'); if (more) return openActions(more.dataset.more);
+  const f = e.target.closest('[data-filter]'); if (f) { filter = f.dataset.filter; store.set('lukas-filter', filter); renderHome(); return; }
+  const tab = e.target.closest('.tabbar__item'); if (tab) return goTab(tab.dataset.tab);
+});
+$('#newBtn').addEventListener('click', () => openCreate());
+$('#houseBtn').addEventListener('click', () => toast('Selector de hogar: aquí aparece el menú con tus hogares.'));
+$('#backBtn').addEventListener('click', () => closeDetail());
+$('#detailMore').addEventListener('click', () => openActions(openId));
+$('#doneBtn').addEventListener('click', () => complete(openId, null, 'detail'));
+$('#otherBtn').addEventListener('click', () => openWho(openId, 'detail'));
+$$('.quick [data-act]').forEach((b) => b.addEventListener('click', () => act(b.dataset.act, openId, 'detail')));
+// gesto de borde para volver (iOS-like)
+(() => { let x0 = null, y0; $('#detail').addEventListener('pointerdown', (e) => { const r = app.getBoundingClientRect(); if (e.clientX - r.left < 24) { x0 = e.clientX; y0 = e.clientY; } });
+  $('#detail').addEventListener('pointerup', (e) => { if (x0 != null && e.clientX - x0 > 80 && Math.abs(e.clientY - y0) < 60) closeDetail(); x0 = null; }); })();
+
+/* =================== tema y movimiento =================== */
+function applyTheme(pref, origin) {
+  store.set('lukas-theme', pref);
+  const dark = pref === 'dark' || (pref === 'system' && matchMedia('(prefers-color-scheme: dark)').matches);
+  const go = () => { html.dataset.theme = dark ? 'dark' : 'light'; $('meta[name="theme-color"]').content = dark ? '#161616' : '#FBF6DC'; setSeg($('#themeSeg'), pref); };
+  if (origin && document.startViewTransition && !reduced() && html.dataset.theme !== (dark ? 'dark' : 'light')) {
+    const r = origin.getBoundingClientRect(); html.style.setProperty('--rx', r.left + r.width / 2 + 'px'); html.style.setProperty('--ry', r.top + r.height / 2 + 'px');
+    html.classList.add('vt-theme'); document.startViewTransition(go).finished.finally(() => html.classList.remove('vt-theme'));
+  } else go();
+}
+$('#themeSeg').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) applyTheme(b.dataset.v, b); });
+$('#pThemeBtn').addEventListener('click', (e) => applyTheme(html.dataset.theme === 'dark' ? 'light' : 'dark', e.currentTarget));
+function setRM(on) { html.classList.toggle('rm', on); $('#rmSwitch').checked = on; $('#pRmBtn').textContent = 'Movimiento reducido: ' + (on ? 'sí' : 'no'); store.set('lukas-rm', on ? '1' : '0'); }
+$('#rmSwitch').addEventListener('change', (e) => setRM(e.target.checked));
+$('#pRmBtn').addEventListener('click', () => setRM(!html.classList.contains('rm')));
+const toHomeAnd = (fn) => { if (current !== 'home') goTab('home'); setTimeout(fn, 60); };
+$('#sLoad').addEventListener('click', () => toHomeAnd(() => simulateLoad()));
+$('#pLoadBtn').addEventListener('click', () => { if (current === 'detail') closeDetail(() => simulateLoad()); else toHomeAnd(() => simulateLoad()); });
+$('#sEmpty').addEventListener('click', () => toHomeAnd(() => { tasks.forEach((t) => { const n = nextDue(t); if (t.s.type === 'once' || !n) t.finished = true; else { t.cycleStart = new Date(NOW); t.due = n; } }); filter = 'today'; renderHome(); }));
+const reset = () => { todos = todoSeed(); renderTodos(); tasks = seed(); filter = 'all'; store.set('lukas-filter', 'all'); undoStack = null; if (current === 'detail') closeDetail(() => simulateLoad(500)); else toHomeAnd(() => simulateLoad(500)); };
+$('#sReset').addEventListener('click', reset); $('#pResetBtn').addEventListener('click', reset);
+
+/* =================== arranque =================== */
+const iconSVG = LukasArt.icon().replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" ');
+$('#favicon').href = 'data:image/svg+xml,' + encodeURIComponent(iconSVG);
+$('#panelMark').innerHTML = LukasArt.icon({ radius: 0 });
+$('#peekArt').innerHTML = LukasArt.peek();
+$$('[data-art]').forEach((el) => el.innerHTML = LukasArt[el.dataset.art]());
+applyTheme(store.get('lukas-theme') || 'light');
+setRM(store.get('lukas-rm') === '1');
+setSeg($('#themeSeg'), store.get('lukas-theme') || 'light');
+$('#home').style.viewTransitionName = '';
+renderFilters(); renderSummary(); renderTodos();
+simulateLoad(750);
+})();
+</script>
+</body>
+</html>
