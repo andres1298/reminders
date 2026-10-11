@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Schedule } from "../schedule";
-import { buildState, scheduleFromRow, scheduleToRow, snoozeLabel, taskFromRow } from "./mapping";
+import { buildState, scheduleFromRow, scheduleToRow, snoozeLabel, taskFromRow, taskToRow } from "./mapping";
 import type { EventRow, TaskRow } from "./rows";
 
 const baseTask: TaskRow = {
@@ -144,5 +144,12 @@ describe("buildState", () => {
     expect(s.members).toEqual([{ id: "u1", name: "Andrés", emoji: "🌵", role: "admin" }]);
     expect(s.household.timeZone).toBe("America/Costa_Rica");
     expect(s.tasks[0].listId).toBe("a");
+  });
+});
+
+describe("taskToRow", () => {
+  it("sin lista guarda NULL (no un uuid vacío)", () => {
+    const t = { ...taskFromRow(baseTask, [], [], ""), listId: "" };
+    expect(taskToRow(t, "h1", "u1").list_id).toBeNull();
   });
 });

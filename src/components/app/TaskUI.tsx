@@ -8,7 +8,8 @@ import { createContext, useCallback, useContext, useMemo, useRef, useState, useS
 import { useRouter } from "next/navigation";
 import { centerOf, leafBurst, prefersReducedMotion, squash, vibrate } from "@/lib/fx";
 import { formatDue } from "@/lib/status";
-import { getState, setState, tickNow } from "@/lib/store";
+import { getState, tickNow } from "@/lib/store";
+import { rpcComplete, rpcDeleteTask, rpcRestoreTask, rpcSkip, rpcSnooze, rpcUndo } from "@/lib/supabase/remote";
 import { AlreadyDoneError, completeTask, deleteTask, restoreTask, skipTask, snoozeTask, undoLast } from "@/lib/tasks";
 import { currentAssignee } from "@/lib/types";
 import { viewTask } from "@/lib/view";
@@ -17,6 +18,7 @@ import { Sheet } from "@/components/ui/Sheet";
 import { Avatar } from "@/components/ui/Avatar";
 import { useToast } from "@/components/ui/Toast";
 import { CreateTaskSheet } from "@/components/tasks/CreateTaskSheet";
+import { useSync } from "./DataProvider";
 
 // --- tareas "recién hechas" (anillo vaciándose antes de reordenar) ----------
 type Flash = Map<string, number>;
@@ -56,6 +58,7 @@ const FLASH_MS = 1250;
 export function TaskUIProvider({ children }: { children: ReactNode }) {
   const toast = useToast();
   const router = useRouter();
+  const sync = useSync();
   const pending = useRef(new Map<string, ReturnType<typeof setTimeout>>());
   const [sheet, setSheet] = useState<
     | { kind: "actions"; id: string }
@@ -77,7 +80,7 @@ export function TaskUIProvider({ children }: { children: ReactNode }) {
         setFlash(next);
       } else {
         try {
-          setState(undoLast(getState(), id));
+          sync.run((s) => undoLast(s, id), (db) => rpcUndo(db, id));
         } catch {
           return;
         }
@@ -85,7 +88,7 @@ export function TaskUIProvider({ children }: { children: ReactNode }) {
       tickNow();
       toast("Deshecho. Todo como antes.");
     },
-    [toast],
+    [sync, toast],
   );
 
   const complete = useCallback(
@@ -130,9 +133,18 @@ export function TaskUIProvider({ children }: { children: ReactNode }) {
         pending.current.delete(id);
         // recalcula sobre el estado actual (pudo cambiar en el intervalo)
         try {
-          const latest = getState();
-          const t = latest.tasks.find((x) => x.id === id);
-          setState(completeTask(latest, id, now, { expectedDue: t?.nextDueAt, creditTo }).state);
+          let expected = "";
+          let nextDue: Date | null = null;
+          sync.run(
+            (latest) => {
+              expected = latest.tasks.find((x) => x.id === id)?.nextDueAt ?? "";
+              const r = completeTask(latest, id, now, { expectedDue: expected, creditTo });
+              nextDue = r.nextDue;
+              return r.state;
+            },
+            // p_credited_to null = el responsable (o Hogar): solo se manda si alguien eligió
+            (db) => rpcComplete(db, id, expected, (nextDue as Date | null)?.toISOString() ?? null, creditTo ?? null),
+          );
         } catch {
           /* ya no aplica */
         }
@@ -155,41 +167,63 @@ export function TaskUIProvider({ children }: { children: ReactNode }) {
         pending.current.set(id, setTimeout(commit, wait));
       }
     },
-    [router, toast, undo],
+    [router, sync, toast, undo],
   );
 
   const skip = useCallback(
     (id: string) => {
       try {
-        const { state, nextDue } = skipTask(getState(), id, new Date());
-        setState(state);
+        let expected = "";
+        let nextDue = new Date();
+        sync.run(
+          (s) => {
+            expected = s.tasks.find((t) => t.id === id)?.nextDueAt ?? "";
+            const r = skipTask(s, id, new Date());
+            nextDue = r.nextDue;
+            return r.state;
+          },
+          (db) => rpcSkip(db, id, expected, nextDue.toISOString()),
+        );
         tickNow();
-        toast(`Saltada · próximo: ${formatDue(nextDue, state.household.timeZone)}`, { action: "Deshacer", onAction: () => undo(id) });
+        toast(`Saltada · próximo: ${formatDue(nextDue, getState().household.timeZone)}`, { action: "Deshacer", onAction: () => undo(id) });
       } catch {
         toast("Las tareas de una vez no se pueden saltar.");
       }
     },
-    [toast, undo],
+    [sync, toast, undo],
   );
 
   const snooze = useCallback(
     (id: string, minutes: number, label: string) => {
-      const { state, until } = snoozeTask(getState(), id, new Date(), minutes, label);
-      setState(state);
+      let until = new Date();
+      sync.run(
+        (s) => {
+          const r = snoozeTask(s, id, new Date(), minutes, label);
+          until = r.until;
+          return r.state;
+        },
+        (db) => rpcSnooze(db, id, until.toISOString()),
+      );
       tickNow();
-      toast(`Pospuesta a ${formatDue(until, state.household.timeZone)}`, { action: "Deshacer", onAction: () => undo(id) });
+      toast(`Pospuesta a ${formatDue(until, getState().household.timeZone)}`, { action: "Deshacer", onAction: () => undo(id) });
     },
-    [toast, undo],
+    [sync, toast, undo],
   );
 
   const doDelete = useCallback(
     (id: string) => {
       const title = getState().tasks.find((t) => t.id === id)?.title ?? "";
-      setState(deleteTask(getState(), id, new Date()));
+      sync.run((s) => deleteTask(s, id, new Date()), (db) => rpcDeleteTask(db, id));
       if (location.pathname === `/t/${id}`) router.push("/", { transitionTypes: ["nav-back"] });
-      toast(`Borrada «${title}»`, { action: "Deshacer", onAction: () => setState(restoreTask(getState(), id)) });
+      const restore = () =>
+        sync.run(
+          // si la foto ya no la trae, solo se restaura en el servidor y llega con la siguiente
+          (s) => (s.tasks.some((t) => t.id === id) ? restoreTask(s, id) : s),
+          (db) => rpcRestoreTask(db, id),
+        );
+      toast(`Borrada «${title}»`, { action: "Deshacer", onAction: restore });
     },
-    [router, toast],
+    [router, sync, toast],
   );
 
   const api = useMemo<TaskUI>(

@@ -104,7 +104,7 @@ export function taskToRow(t: Task, householdId: string, userId: string): TaskWri
   return {
     id: t.id,
     household_id: householdId,
-    list_id: t.listId,
+    list_id: t.listId || null,
     emoji: t.emoji,
     title: t.title,
     description: t.description || null,

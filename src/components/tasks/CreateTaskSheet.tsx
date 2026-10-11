@@ -2,8 +2,11 @@
 import { useMemo, useState, type CSSProperties } from "react";
 import { TZDate } from "@date-fns/tz";
 import type { IntervalUnit, Anchor, Schedule } from "@/lib/schedule";
-import { getState, setState, tickNow } from "@/lib/store";
+import { getState, tickNow } from "@/lib/store";
+import { saveTask } from "@/lib/supabase/remote";
 import { createTask, updateTask, type TaskInput } from "@/lib/tasks";
+import type { Task } from "@/lib/types";
+import { useSync } from "@/components/app/DataProvider";
 import { dueLabel } from "@/lib/status";
 import { CARD_COLORS, type Assignment, type CardColor } from "@/lib/types";
 import { scheduleText } from "@/lib/view";
@@ -65,7 +68,7 @@ function initialForm(editId?: string): Form {
   const base: Form = {
     emoji: "✨", userEmoji: false, title: "", description: "", kind: "interval", every: 3, unit: "day", anchor: "completion",
     weekdays: [2, 4], everyWeeks: 1, day: 3, date: todayIn(s.household.timeZone), time: "09:00", who: "anyone", rotation: false,
-    listId: "general", color: "none",
+    listId: s.lists[0]?.id ?? "", color: "none",
   };
   const t = editId ? s.tasks.find((x) => x.id === editId) : undefined;
   if (!t) return base;
@@ -106,6 +109,7 @@ export function CreateTaskSheet(props: {
 
 function CreateTaskForm({ editId, onOpenChange, onSaved }: { editId?: string; onOpenChange: (o: boolean) => void; onSaved: (m: string) => void }) {
   const state = getState();
+  const sync = useSync();
   const [f, setF] = useState<Form>(() => initialForm(editId));
   const [emojiOpen, setEmojiOpen] = useState(false);
   const [emojiQuery, setEmojiQuery] = useState("");
@@ -143,12 +147,23 @@ function CreateTaskForm({ editId, onOpenChange, onSaved }: { editId?: string; on
     };
     const now = new Date();
     if (editId) {
-      setState(updateTask(getState(), editId, { ...input, startsOn: getState().tasks.find((t) => t.id === editId)!.startsOn }, now));
+      sync.run(
+        (s) => updateTask(s, editId, { ...input, startsOn: s.tasks.find((t) => t.id === editId)!.startsOn }, now),
+        (db, s) => saveTask(db, s.tasks.find((t) => t.id === editId)!, s.household.id, s.me, false),
+      );
       onSaved("Cambios guardados");
     } else {
-      const r = createTask(getState(), input, now);
-      setState(r.state);
-      onSaved(`Tarea creada · ${dueLabel(new Date(r.task.nextDueAt!), now, state.household.timeZone).replace(/^en /, "toca en ")}`);
+      let created: Task | undefined;
+      sync.run(
+        (s) => {
+          const r = createTask(s, input, now);
+          created = r.task;
+          return r.state;
+        },
+        (db, s) => saveTask(db, created!, s.household.id, s.me, true),
+      );
+      const task = created as Task | undefined;
+      if (task) onSaved(`Tarea creada · ${dueLabel(new Date(task.nextDueAt!), now, state.household.timeZone).replace(/^en /, "toca en ")}`);
     }
     tickNow();
     onOpenChange(false);

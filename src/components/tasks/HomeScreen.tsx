@@ -30,7 +30,7 @@ export function HomeScreen() {
     { id: "all", label: "Todas" },
     { id: "mine", label: "Mías" },
     { id: "today", label: "Hoy" },
-    ...(state?.lists.filter((l) => l.id !== "general").map((l) => ({ id: `list:${l.id}` as HomeFilter, label: `${l.emoji} ${l.name}` })) ?? []),
+    ...(state?.lists.slice(1).map((l) => ({ id: `list:${l.id}` as HomeFilter, label: `${l.emoji} ${l.name}` })) ?? []),
   ];
   const total = ready ? homeTasks(state, now, "all").length : 0;
   const next = ready ? homeTasks(state, now, "all").sort((a, b) => +new Date(a.task.nextDueAt!) - +new Date(b.task.nextDueAt!))[0] : null;

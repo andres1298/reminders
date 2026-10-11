@@ -2,19 +2,22 @@
 import { useState, type FormEvent } from "react";
 import { AnimatePresence, motion } from "motion/react";
 import { vibrate } from "@/lib/fx";
-import { getState, setState, useAppState } from "@/lib/store";
+import { getState, useAppState } from "@/lib/store";
+import { insertTodo, patchTodo, rpcDeleteTodo, rpcRestoreTodo } from "@/lib/supabase/remote";
 import { addTodo, updateTodo } from "@/lib/tasks";
 import { HOGAR, type Todo } from "@/lib/types";
 import { LukasArt } from "@/components/lukas/LukasArt";
 import { Icon } from "@/components/ui/Icon";
 import { Sheet } from "@/components/ui/Sheet";
 import { useToast } from "@/components/ui/Toast";
+import { useSync } from "@/components/app/DataProvider";
 
 type Filter = "all" | "mine" | "soon";
 
 export function TodoScreen() {
   const state = useAppState();
   const toast = useToast();
+  const sync = useSync();
   const [text, setText] = useState("");
   const [optsOpen, setOptsOpen] = useState(false);
   const [who, setWho] = useState<string | null>(null);
@@ -31,11 +34,23 @@ export function TodoScreen() {
     .sort((a, b) => Number(b.soon) - Number(a.soon) || +new Date(b.createdAt) - +new Date(a.createdAt));
   const member = (id: string | null) => (id && state?.members.find((m) => m.id === id)) || null;
 
+  function patch(id: string, local: Parameters<typeof updateTodo>[2], remote: Parameters<typeof patchTodo>[2]) {
+    sync.run((s) => updateTodo(s, id, local), (db) => patchTodo(db, id, remote));
+  }
+  const setDone = (id: string, doneAt: string | null) => patch(id, { doneAt }, { done_at: doneAt });
+
   function submit(e: FormEvent) {
     e.preventDefault();
     if (!text.trim()) return;
-    const r = addTodo(getState(), text, who, soon, new Date());
-    setState(r.state);
+    let added: Todo | undefined;
+    sync.run(
+      (s) => {
+        const r = addTodo(s, text, who, soon, new Date());
+        added = r.todo;
+        return r.state;
+      },
+      (db, s) => insertTodo(db, added!, s.household.id, s.me),
+    );
     setText("");
     if (filter !== "all" && !((filter === "soon" && soon) || (filter === "mine" && who === getState().me))) setFilter("all");
   }
@@ -43,17 +58,17 @@ export function TodoScreen() {
   function toggle(t: Todo) {
     vibrate(10);
     if (t.doneAt) {
-      setState(updateTodo(getState(), t.id, { doneAt: null }));
+      setDone(t.id, null);
       return;
     }
     setChecking((s) => new Set(s).add(t.id));
     toast(`Hecho: ${t.text}`, {
       action: "Deshacer",
       paw: true,
-      onAction: () => setState(updateTodo(getState(), t.id, { doneAt: null })),
+      onAction: () => setDone(t.id, null),
     });
     setTimeout(() => {
-      setState(updateTodo(getState(), t.id, { doneAt: new Date().toISOString() }));
+      setDone(t.id, new Date().toISOString());
       setChecking((s) => {
         const n = new Set(s);
         n.delete(t.id);
@@ -187,7 +202,7 @@ export function TodoScreen() {
                 <Icon name="check" size="md" />{current.doneAt ? "Marcar como pendiente" : "Marcar como hecho"}
               </button>
               {!current.doneAt && (
-                <button className="action-sheet__btn" onClick={() => { setState(updateTodo(getState(), current.id, { soon: !current.soon })); closeActions(); }}>
+                <button className="action-sheet__btn" onClick={() => { patch(current.id, { soon: !current.soon }, { soon: !current.soon }); closeActions(); }}>
                   <Icon name="clock" size="md" />{current.soon ? "Quitar «pronto»" : "Marcar como pronto"}
                 </button>
               )}
@@ -195,7 +210,7 @@ export function TodoScreen() {
                 [null, ...state.members.map((m) => m.id)]
                   .filter((k) => k !== current.assigneeId)
                   .map((k) => (
-                    <button key={k ?? "anyone"} className="action-sheet__btn" onClick={() => { setState(updateTodo(getState(), current.id, { assigneeId: k })); closeActions(); }}>
+                    <button key={k ?? "anyone"} className="action-sheet__btn" onClick={() => { patch(current.id, { assigneeId: k }, { assignee_id: k }); closeActions(); }}>
                       Pasar a {k ? `${member(k)!.emoji} ${member(k)!.name}` : "🏡 Cualquiera"}
                     </button>
                   ))}
@@ -203,9 +218,9 @@ export function TodoScreen() {
                 className="action-sheet__btn action-sheet__btn--danger"
                 onClick={() => {
                   const t = current;
-                  setState(updateTodo(getState(), t.id, { deletedAt: new Date().toISOString() }));
+                  sync.run((s) => updateTodo(s, t.id, { deletedAt: new Date().toISOString() }), (db) => rpcDeleteTodo(db, t.id));
                   closeActions();
-                  toast(`Borrado: ${t.text}`, { action: "Deshacer", onAction: () => setState(updateTodo(getState(), t.id, { deletedAt: null })) });
+                  toast(`Borrado: ${t.text}`, { action: "Deshacer", onAction: () => sync.run((s) => updateTodo(s, t.id, { deletedAt: null }), (db) => rpcRestoreTodo(db, t.id)) });
                 }}
               >
                 <Icon name="trash" size="md" />Borrar

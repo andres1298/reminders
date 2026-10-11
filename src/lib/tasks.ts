@@ -18,8 +18,8 @@ export class AlreadyDoneError extends Error {
   }
 }
 
-let seq = 0;
-export const newId = (p: string) => `${p}_${Date.now().toString(36)}${(seq++).toString(36)}`;
+/** Ids como los de Postgres (uuid): la tarjeta optimista y la fila comparten id. */
+export const newId = () => crypto.randomUUID();
 
 export function scheduleContext(state: AppState, task: Pick<Task, "schedule" | "dueTime" | "startsOn">): ScheduleContext {
   return { schedule: task.schedule, dueTime: task.dueTime, startsOn: task.startsOn, timeZone: state.household.timeZone };
@@ -64,7 +64,7 @@ export function completeTask(
   const next = nextDueAfterCompletion(scheduleContext(state, t), new Date(t.nextDueAt), now);
   const creditedTo = opts.creditTo ?? currentAssignee(t.assignment);
   const event: TaskEvent = {
-    id: newId("ev"),
+    id: newId(),
     kind: "done",
     at: now.toISOString(),
     creditedTo,
@@ -92,7 +92,7 @@ export function skipTask(state: AppState, id: string, now: Date): { state: AppSt
     ...t,
     cycleStartedAt: start.toISOString(),
     nextDueAt: next.toISOString(),
-    history: [{ id: newId("ev"), kind: "skipped", at: now.toISOString(), prev: snapshot(t) }, ...t.history],
+    history: [{ id: newId(), kind: "skipped", at: now.toISOString(), prev: snapshot(t) }, ...t.history],
   };
   return { state: replaceTask(state, updated), nextDue: next };
 }
@@ -104,7 +104,7 @@ export function snoozeTask(state: AppState, id: string, now: Date, minutes: numb
     ...t,
     nextDueAt: until.toISOString(),
     cycleStartedAt: new Date(Math.min(+new Date(t.cycleStartedAt), +now)).toISOString(),
-    history: [{ id: newId("ev"), kind: "snoozed", at: now.toISOString(), label, prev: snapshot(t) }, ...t.history],
+    history: [{ id: newId(), kind: "snoozed", at: now.toISOString(), label, prev: snapshot(t) }, ...t.history],
   };
   return { state: replaceTask(state, updated), until };
 }
@@ -141,7 +141,7 @@ export function createTask(state: AppState, input: TaskInput, now: Date): { stat
   const due = firstDue(scheduleContext(state, input), now);
   const task: Task = {
     ...input,
-    id: newId("t"),
+    id: newId(),
     cycleStartedAt: now.toISOString(),
     nextDueAt: due.toISOString(),
     completedAt: null,
@@ -185,7 +185,7 @@ export const todoEmoji = (text: string) => TODO_EMOJI.find(([r]) => r.test(text.
 export function addTodo(state: AppState, text: string, assigneeId: string | null, soon: boolean, now: Date): { state: AppState; todo: Todo } {
   const clean = text.trim().slice(0, 80);
   if (!clean) throw new Error("empty_todo");
-  const todo: Todo = { id: newId("p"), text: clean, emoji: todoEmoji(clean), assigneeId, soon, doneAt: null, createdAt: now.toISOString(), deletedAt: null };
+  const todo: Todo = { id: newId(), text: clean, emoji: todoEmoji(clean), assigneeId, soon, doneAt: null, createdAt: now.toISOString(), deletedAt: null };
   return { state: { ...state, todos: [todo, ...state.todos] }, todo };
 }
 
