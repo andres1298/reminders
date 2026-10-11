@@ -23,13 +23,14 @@ export async function loadSnapshot(db: SupabaseClient, userId: string): Promise<
   const hh = mine[0].household_id;
   const since = new Date(Date.now() - EVENTS_DAYS * 24 * 3600 * 1000).toISOString();
 
-  const [household, members, lists, tasks, events, todos] = await Promise.all([
+  const [household, members, lists, tasks, events, todos, profile] = await Promise.all([
     db.from("households").select("id, name, emoji, timezone").eq("id", hh).single(),
     db.from("household_members").select("user_id, role, profiles!inner(display_name, avatar_emoji)").eq("household_id", hh).order("joined_at"),
     db.from("lists").select("id, name, emoji, position").eq("household_id", hh).is("deleted_at", null),
     db.from("tasks").select("*").eq("household_id", hh).is("deleted_at", null).is("paused_at", null),
     db.from("task_events").select("*").eq("household_id", hh).gte("created_at", since).order("created_at", { ascending: false }),
     db.from("household_todos").select("*").eq("household_id", hh).is("deleted_at", null),
+    db.from("profiles").select("is_super_admin").eq("id", userId).single(),
   ]);
   const taskRows = rows<TaskRow[]>(tasks);
   const rotation = taskRows.some((t) => t.assignment_mode === "rotation")
@@ -45,5 +46,6 @@ export async function loadSnapshot(db: SupabaseClient, userId: string): Promise<
     rotation,
     events: rows<EventRow[]>(events),
     todos: rows<TodoRow[]>(todos),
+    isSuperAdmin: rows<{ is_super_admin: boolean }>(profile).is_super_admin,
   });
 }

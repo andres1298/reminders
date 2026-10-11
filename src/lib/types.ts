@@ -89,6 +89,8 @@ export interface AppState {
   lists: TaskList[];
   tasks: Task[];
   todos: Todo[];
+  /** puede abrir el panel de administración */
+  isSuperAdmin?: boolean;
 }
 
 export const HOGAR: Member = { id: "hogar", name: "Hogar", emoji: "🏡" };

@@ -161,6 +161,7 @@ export interface SnapshotRows {
   rotation: RotationRow[];
   events: EventRow[];
   todos: TodoRow[];
+  isSuperAdmin?: boolean;
 }
 
 export function buildState(input: SnapshotRows): AppState {
@@ -174,6 +175,7 @@ export function buildState(input: SnapshotRows): AppState {
     lists,
     tasks: input.tasks.map((t) => taskFromRow(t, input.rotation, input.events, defaultListId)),
     todos: input.todos.map(todoFromRow),
+    isSuperAdmin: !!input.isSuperAdmin,
   };
 }
 
