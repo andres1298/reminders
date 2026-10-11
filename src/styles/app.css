@@ -112,6 +112,33 @@ body:has(.vaul-sheet) .toasts{display:none}
 .fx .leaf{position:absolute;width:26px;height:26px;margin:-13px 0 0 -13px}
 .fx .leaf svg{width:100%;height:100%}
 
+/* PWA */
+.offline-pill{position:fixed;z-index:56;top:calc(var(--safe-top) + 8px);left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:8px;
+  padding:8px 14px;border-radius:var(--r-full);background:var(--ink-black);color:var(--ink-cream);font:600 13px/1 var(--font-text);box-shadow:var(--elev-1);
+  animation:toast-in var(--dur-spring) var(--ease-spring);white-space:nowrap}
+body:has(.offline-pill) .app-col{padding-top:44px}
+.offline-pill i{width:8px;height:8px;border-radius:50%;background:var(--coral)}
+:root[data-theme="dark"] .offline-pill{background:var(--ink-cream);color:var(--ink-black)}
+.install-card{margin:0 var(--margin);padding:var(--sp-16);border-radius:var(--r-lg);background:var(--surface);display:grid;gap:var(--sp-12)}
+.install-card__head{display:flex;gap:var(--sp-12);align-items:center}
+.install-card__head b{font:750 17px/1.2 var(--font-display)}
+.install-card__head p{font:400 14px/1.4 var(--font-text);color:var(--ink-muted);margin-top:2px}
+.install-card__icon{flex:none;width:52px;height:52px;border-radius:14px;background:url(/icons/icon-192.png) center/cover;border:var(--stroke-w) solid var(--stroke)}
+.install-steps{display:grid;gap:8px;padding-left:22px;list-style:decimal;font:500 14.5px/1.4 var(--font-text)}
+.install-steps .ico{vertical-align:-3px}
+.install-banner{display:flex;align-items:center;gap:var(--sp-12);margin:14px var(--margin) 0;padding:10px 6px 10px 12px;border-radius:var(--r-lg);background:var(--surface-2)}
+.install-banner .install-card__icon{width:40px;height:40px;border-radius:11px}
+.install-banner p{flex:1;font:500 14px/1.35 var(--font-text)}
+.install-banner .btn{flex:none}
+
+/* Instalada (pantalla completa): sin rebote de scroll ni zoom por doble toque */
+html{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+@media (display-mode: standalone){
+  html,body{overscroll-behavior-y:none}
+  body{-webkit-user-select:none;user-select:none}
+  input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text}
+}
+
 /* Pendientes */
 .todo-wrap{display:grid;gap:14px;padding:6px var(--margin) 0}
 .todo-wrap .filters{margin:0 calc(var(--margin) * -1);padding:0 var(--margin)}

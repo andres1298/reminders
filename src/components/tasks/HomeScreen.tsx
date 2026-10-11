@@ -8,6 +8,7 @@ import { LukasArt } from "@/components/lukas/LukasArt";
 import { Avatar } from "@/components/ui/Avatar";
 import { Icon } from "@/components/ui/Icon";
 import { TaskCard } from "./TaskCard";
+import { InstallBanner } from "@/components/app/pwa";
 
 export function HomeScreen() {
   // entrada escalonada solo si la pantalla arrancó sin datos (primera carga);
@@ -76,6 +77,8 @@ export function HomeScreen() {
           )}
         </p>
       </header>
+
+      <InstallBanner />
 
       <nav className="filters" aria-label="Filtros">
         {filters.map((f) => (

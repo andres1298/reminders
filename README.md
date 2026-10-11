@@ -12,6 +12,7 @@ Web app mobile-first para llevar las tareas del hogar que se repiten: cada tarea
 | Inicio, Detalle, Crear/editar, Pendientes de casa, Ajustes (tema) | ✅ |
 | Completar · La hizo alguien más · Posponer · Saltar · Borrar · Deshacer | ✅ |
 | Esquema Supabase con RLS y funciones atómicas | ✅ probado en Postgres |
+| PWA: manifest, íconos (192/512/maskable/Apple), service worker sin conexión, guía para instalar | ✅ |
 | Datos | 🟡 demo en el navegador (`localStorage`) hasta conectar Supabase |
 | Auth por invitación, Gestionar completo, Estadísticas por persona, Telegram, widget, ES/EN | ⏳ siguientes fases |
 
@@ -49,6 +50,13 @@ supabase/
   tests/               pruebas SQL con un stub mínimo del esquema auth de Supabase
 docs/                  spec, sistema de diseño (style guide) y prototipo
 ```
+
+## PWA
+
+- **Instalar:** en iPhone, Safari → Compartir → *Agregar a inicio* (iOS no tiene botón de instalar; la app lo explica en Ajustes y con un aviso descartable en Inicio). En Android/Chrome aparece "Instalar" cuando el navegador lo ofrece. Requiere HTTPS (Vercel).
+- **Sin conexión:** `public/sw.js` guarda en caché los archivos estáticos (cache-first) y las páginas y datos de navegación (network-first). La app abre y navega sin red con lo último guardado y muestra "Sin conexión". Solo se registra en producción. Si cambias la estrategia de caché, sube `VERSION` en `public/sw.js`.
+- **Íconos:** `node scripts/generate-icons.mjs` los regenera desde la ilustración de Lukas (necesita Playwright).
+- **Sin push:** los avisos van por Telegram (SPEC §1.2). Cuando se conecte Supabase se activará `experimental.useOffline` para reintentar acciones al volver la red.
 
 ## Decisiones de la fase 1
 

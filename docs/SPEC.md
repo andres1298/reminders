@@ -528,7 +528,7 @@ Rate limit: 60 req/min por token. Webhook de Telegram: `POST /api/telegram/webho
 | Telegram | Bot API vía `fetch` (sin SDK) |
 | Hosting | Vercel (plan gratuito, subdominio `*.vercel.app`) + Supabase (plan gratuito) |
 | Tests | Vitest (recurrencia, permisos), Playwright (flujos clave en viewport móvil) |
-| PWA | Manifest + íconos para "Agregar a inicio" (sin push) |
+| PWA | Manifest + íconos (192/512/maskable/Apple) + service worker propio para abrir sin conexión + guía de instalación en Ajustes (sin push) |
 
 ### 9.1 Email de autenticación sin dominio
 El SMTP por defecto de Supabase solo envía a miembros del equipo del proyecto y con límites muy bajos, así que **no sirve para invitar a conocidos**. Opciones:

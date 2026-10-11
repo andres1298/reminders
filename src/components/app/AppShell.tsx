@@ -4,6 +4,7 @@ import { MotionConfig } from "motion/react";
 import { ToastProvider } from "@/components/ui/Toast";
 import { TaskUIProvider } from "./TaskUI";
 import { TabBar } from "./TabBar";
+import { OfflineBanner, ServiceWorkerRegister } from "./pwa";
 
 export function AppShell({ children }: { children: ReactNode }) {
   return (
@@ -15,6 +16,8 @@ export function AppShell({ children }: { children: ReactNode }) {
             <TabBar />
           </Suspense>
           <div className="fx" id="lukas-fx" aria-hidden="true" />
+          <OfflineBanner />
+          <ServiceWorkerRegister />
         </TaskUIProvider>
       </ToastProvider>
     </MotionConfig>
