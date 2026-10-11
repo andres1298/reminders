@@ -7,7 +7,7 @@
  *  - Nada de otros orígenes (Supabase, Telegram) ni métodos distintos de GET.
  * Sube VERSION para descartar cachés viejas en el próximo despliegue.
  */
-const VERSION = "v2";
+const VERSION = "v3";
 const STATIC = `lukas-static-${VERSION}`;
 const PAGES = `lukas-pages-${VERSION}`;
 const SHELL = ["/", "/pendientes", "/gestionar", "/estadisticas", "/ajustes", "/manifest.webmanifest", "/icons/icon-192.png"];
@@ -48,7 +48,8 @@ async function networkFirst(request, fallbackUrl) {
   const cache = await caches.open(PAGES);
   try {
     const res = await fetch(request);
-    if (res.ok && res.type === "basic") cache.put(request, res.clone());
+    // una redirección (p. ej. a /entrar) no se guarda bajo la URL pedida
+    if (res.ok && res.type === "basic" && !res.redirected) cache.put(request, res.clone());
     return res;
   } catch (err) {
     const hit = (await cache.match(request)) || (fallbackUrl && (await cache.match(fallbackUrl)));

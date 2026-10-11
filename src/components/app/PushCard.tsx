@@ -4,7 +4,7 @@
  * iOS solo entrega push a la app instalada en la pantalla de inicio (16.4+).
  */
 import { useEffect, useState, useSyncExternalStore } from "react";
-import { pushAvailable, sendTestPush } from "@/app/actions/push";
+import { deletePushSubscription, pushAvailable, savePushSubscription, sendTestPush } from "@/app/actions/push";
 import { Icon } from "@/components/ui/Icon";
 import { useToast } from "@/components/ui/Toast";
 import { useStandalone } from "./pwa";
@@ -43,6 +43,8 @@ export function PushCard() {
           if (!alive) return;
           setSub(s);
           setPermission(Notification.permission);
+          // re-asocia el dispositivo a la cuenta con sesión (pudo cambiar)
+          if (s) void savePushSubscription(s.toJSON(), navigator.userAgent);
         });
     }
     return () => {
@@ -67,8 +69,9 @@ export function PushCard() {
       if (perm !== "granted") return;
       const reg = await navigator.serviceWorker.ready;
       const s = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: urlBase64ToUint8Array(VAPID) });
+      const saved = await savePushSubscription(s.toJSON(), navigator.userAgent);
       setSub(s);
-      toast("Notificaciones activadas en este dispositivo.", { paw: true });
+      toast(saved.ok ? "Notificaciones activadas en este dispositivo." : "Activadas, pero no se pudieron asociar a tu cuenta. Intenta otra vez.", saved.ok ? { paw: true } : {});
     } catch {
       toast("No se pudieron activar. Revisa los permisos del navegador.");
     } finally {
@@ -86,6 +89,7 @@ export function PushCard() {
 
   async function disable() {
     if (!sub) return;
+    await deletePushSubscription(sub.endpoint);
     await sub.unsubscribe();
     setSub(null);
     toast("Notificaciones desactivadas en este dispositivo.");

@@ -1,6 +1,7 @@
 "use client";
 /** Ajustes → Cuenta: nombre y emoji visibles, y cerrar sesión. */
 import { useState, type FormEvent } from "react";
+import { deletePushSubscription } from "@/app/actions/push";
 import { endSession, useAppState } from "@/lib/store";
 import { Avatar } from "@/components/ui/Avatar";
 import { useToast } from "@/components/ui/Toast";
@@ -29,6 +30,12 @@ export function AccountCard() {
   }
 
   async function signOut() {
+    try {
+      const sub = await navigator.serviceWorker?.getRegistration().then((r) => r?.pushManager.getSubscription());
+      if (sub) await deletePushSubscription(sub.endpoint);
+    } catch {
+      /* sin service worker: nada que borrar */
+    }
     await sync.db.auth.signOut();
     endSession();
     location.replace("/entrar");
