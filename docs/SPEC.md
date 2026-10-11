@@ -1,7 +1,7 @@
 # Lukas — Spec
 
-> **Estado:** Borrador v0.7 · **Fecha:** 2026-10-11
-> v0.7 incorpora las respuestas de las rondas 1 a 6 (la 6 sale de la revisión del prototipo de diseño). Lo marcado **[SUPUESTO]** es una propuesta por confirmar; las decisiones están en la sección 15 y las preguntas abiertas en la 16.
+> **Estado:** Borrador v0.8 · **Fecha:** 2026-10-11
+> v0.8 incorpora las respuestas de las rondas 1 a 7 (la 6 sale de la revisión del prototipo; la 7 agrega notificaciones push). Lo marcado **[SUPUESTO]** es una propuesta por confirmar; las decisiones están en la sección 15 y las preguntas abiertas en la 16.
 
 ---
 
@@ -22,7 +22,7 @@ Usuarios: Andrés, Mari y algunos conocidos que crean sus propios hogares. **Sol
 - Ver de un vistazo qué está vencido, qué toca pronto y a quién le toca.
 - Marcar como hecha con un toque.
 - Ver el estado en widgets de iPhone (Scriptable).
-- Recibir recordatorios por **Telegram**.
+- Recibir recordatorios por **notificaciones push** (PWA instalada) y por **Telegram**.
 - Ver estadísticas de tareas por responsable y un resumen general de pendientes del hogar.
 
 ### 1.2 Fuera de alcance
@@ -30,7 +30,7 @@ Usuarios: Andrés, Mari y algunos conocidos que crean sus propios hogares. **Sol
 - Subtareas / checklists.
 - Montos, costos, adjuntos o recibos.
 - Gamificación (puntos, rachas, premios).
-- Notificaciones push web y por email (solo Telegram; el email se usa únicamente para autenticación).
+- Notificaciones por email (el email se usa únicamente para autenticación).
 - Widget de pantalla de bloqueo y completar tareas desde el widget.
 - App nativa.
 
@@ -203,7 +203,11 @@ El **color de la tarjeta lo elige el usuario** (por tarea o heredado de la lista
   - Desglose por lista.
 - Super admin: totales globales (usuarios, hogares, tareas activas, completados por día).
 
-### 4.9 Notificaciones (Telegram)
+### 4.9 Notificaciones (push y Telegram)
+
+**Push (PWA):** cada persona activa las notificaciones en cada dispositivo desde Ajustes (en iPhone, solo con Lukas instalada, iOS 16.4+). El aviso por tarea llega a la hora de vencimiento al responsable, o a todos si es "Cualquiera": título con emoji y nombre, cuerpo "Toca ahora (19:00) · le toca a Andrés", y al tocarlo abre el detalle de la tarea. Una sola vez por ocurrencia y canal (posponer genera otra ocurrencia). No llegan en vacaciones ni para tareas pausadas. Preferencias por canal en `notification_prefs` (`push`, `telegram`). El envío lo hace `/api/cron/notifications`, que pg_cron llama cada minuto (ver `docs/DEPLOY.md`). **[SUPUESTO]** El resumen diario sigue solo por Telegram.
+
+**Telegram:**
 
 **Vinculación:** Ajustes → "Conectar Telegram" → abre `https://t.me/<LukasBot>?start=<código de un solo uso>` → el bot recibe `/start <código>` en su webhook y guarda el `chat_id` del usuario. `/stop` en el bot o "Desconectar" en la app la desvincula.
 
@@ -462,8 +466,11 @@ notification_prefs  (user_id PK, per_task bool default true, daily_digest bool d
                      digest_time time default '07:00', quiet_start, quiet_end)
 
 notification_log    (id, user_id, task_id NULL, kind ('due'|'digest'),
-                     occurrence_key text, sent_at,
-                     UNIQUE(user_id, kind, occurrence_key))
+                     channel ('telegram'|'push'), occurrence_key text, sent_at,
+                     UNIQUE(user_id, kind, occurrence_key, channel))
+
+push_subscriptions  (id, user_id, endpoint UNIQUE, p256dh, auth, user_agent,
+                     created_at, last_used_at)   -- una por dispositivo
 ```
 
 - `stats` se calcula con una RPC `household_stats(household_id, from, to)` sobre `task_events`: completadas agrupadas por `credited_to` (`done`), sin hacer agrupadas por `assignee_at_time` (`missed`/`skipped`) + conteo en vivo de pendientes desde `tasks.next_due_at`.
@@ -528,7 +535,8 @@ Rate limit: 60 req/min por token. Webhook de Telegram: `POST /api/telegram/webho
 | Telegram | Bot API vía `fetch` (sin SDK) |
 | Hosting | Vercel (plan gratuito, subdominio `*.vercel.app`) + Supabase (plan gratuito) |
 | Tests | Vitest (recurrencia, permisos), Playwright (flujos clave en viewport móvil) |
-| PWA | Manifest + íconos (192/512/maskable/Apple) + service worker propio para abrir sin conexión + guía de instalación en Ajustes (sin push) |
+| PWA | Manifest + íconos (192/512/maskable/Apple) + service worker propio (sin conexión + push) + guía de instalación en Ajustes |
+| Push | `web-push` con llaves VAPID; envío desde `/api/cron/notifications` disparado por pg_cron + pg_net cada minuto |
 
 ### 9.1 Email de autenticación sin dominio
 El SMTP por defecto de Supabase solo envía a miembros del equipo del proyecto y con límites muy bajos, así que **no sirve para invitar a conocidos**. Opciones:
@@ -663,6 +671,13 @@ Flujo propuesto: `mobile-design-system` (iOS) → tokens y catálogo → `impecc
 | 2 | Lukas | Calicó con naranja: manchas naranjas además del negro, en todas las ilustraciones y en el ícono. |
 | 3 | Pendientes de casa | Nueva lista aparte (pestaña propia) para pendientes sin fecha ni repetición. Ver 4.13. |
 | 4 | Sello de tinta | Se mantiene el estilo actual (borde 2px + sombra dura, mostaza como CTA). |
+
+### 15.5 Decisiones de la ronda 7
+
+| # | Tema | Decisión |
+|---|---|---|
+| 1 | Notificaciones | Se agregan notificaciones push de la PWA, además de Telegram. |
+| 2 | Hosting | Vercel (plan gratuito); el reloj de los avisos lo pone pg_cron de Supabase porque el cron de Vercel gratuito es diario. |
 
 ## 17. Implementación
 

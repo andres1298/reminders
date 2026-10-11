@@ -27,13 +27,13 @@ No es un calendario de eventos ni un gestor de tareas genérico: es un ciclo, co
 ## Operating Context
 
 - Uso en el celular, de pie, en la cocina o la sala; a menudo con una mano.
-- Recordatorios por Telegram con los mismos botones que la app ("✅ Hecha", "🙋 La hizo alguien más", "⏰ +1 h").
+- Recordatorios por notificaciones push de la app instalada y por Telegram (con los botones "✅ Hecha", "🙋 La hizo alguien más", "⏰ +1 h").
 - Widgets de iPhone vía Scriptable con el mismo lenguaje visual (anillos, colores).
 - Zona horaria del hogar (por defecto `America/Costa_Rica`). Español por defecto, también inglés.
 
 ## Capabilities and Constraints
 
-Ver `docs/SPEC.md` v0.7 (fuente de verdad del producto): lista aparte de Pendientes de casa sin fecha; cuatro tipos de programación (Intervalo, Días de la semana, Día del mes, Una vez) con hora; responsables Cualquiera / Fijo / Rotación; posponer, saltar, deshacer; pausar solo desde Gestionar; modo vacaciones; borrado lógico y Papelera; estadísticas por crédito y por responsable. Fuera de alcance: gamificación, subtareas, notificaciones push o email, app nativa.
+Ver `docs/SPEC.md` v0.7 (fuente de verdad del producto): lista aparte de Pendientes de casa sin fecha; cuatro tipos de programación (Intervalo, Días de la semana, Día del mes, Una vez) con hora; responsables Cualquiera / Fijo / Rotación; posponer, saltar, deshacer; pausar solo desde Gestionar; modo vacaciones; borrado lógico y Papelera; estadísticas por crédito y por responsable. Avisos por notificaciones push (PWA instalada) y Telegram. Fuera de alcance: gamificación, subtareas, notificaciones por email, app nativa.
 
 ## Brand Commitments
 

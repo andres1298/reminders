@@ -1,4 +1,4 @@
-/* Lukas · service worker (sin push: los avisos van por Telegram).
+/* Lukas · service worker: caché sin conexión y notificaciones push.
  *
  * Estrategias:
  *  - /_next/static, /icons y fuentes: cache-first (son inmutables, llevan hash).
@@ -7,7 +7,7 @@
  *  - Nada de otros orígenes (Supabase, Telegram) ni métodos distintos de GET.
  * Sube VERSION para descartar cachés viejas en el próximo despliegue.
  */
-const VERSION = "v1";
+const VERSION = "v2";
 const STATIC = `lukas-static-${VERSION}`;
 const PAGES = `lukas-pages-${VERSION}`;
 const SHELL = ["/", "/pendientes", "/gestionar", "/estadisticas", "/ajustes", "/manifest.webmanifest", "/icons/icon-192.png"];
@@ -72,4 +72,38 @@ self.addEventListener("fetch", (event) => {
   } else {
     event.respondWith(networkFirst(request));
   }
+});
+
+// --- notificaciones push -----------------------------------------------------
+// Payload: { title, body, url, tag } (ver src/lib/push/plan.ts)
+self.addEventListener("push", (event) => {
+  let data = {};
+  try {
+    data = event.data ? event.data.json() : {};
+  } catch {
+    data = { body: event.data && event.data.text() };
+  }
+  const title = data.title || "Lukas";
+  event.waitUntil(
+    self.registration.showNotification(title, {
+      body: data.body || "",
+      icon: "/icons/icon-192.png",
+      badge: "/icons/badge-96.png",
+      tag: data.tag || "lukas",
+      renotify: true,
+      data: { url: data.url || "/" },
+    }),
+  );
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  const url = new URL((event.notification.data && event.notification.data.url) || "/", self.location.origin).href;
+  event.waitUntil(
+    self.clients.matchAll({ type: "window", includeUncontrolled: true }).then((wins) => {
+      const open = wins.find((w) => w.url.startsWith(self.location.origin));
+      if (open) return open.focus().then(() => open.navigate(url));
+      return self.clients.openWindow(url);
+    }),
+  );
 });

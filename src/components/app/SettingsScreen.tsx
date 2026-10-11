@@ -5,6 +5,7 @@ import { Segmented } from "@/components/ui/Segmented";
 import { Icon } from "@/components/ui/Icon";
 import { useToast } from "@/components/ui/Toast";
 import { InstallCard } from "./pwa";
+import { PushCard } from "./PushCard";
 import { applyTheme, readThemePreference, subscribeTheme } from "@/lib/theme";
 
 export function SettingsScreen() {
@@ -17,6 +18,8 @@ export function SettingsScreen() {
       </header>
       <div className="section-header">App</div>
       <InstallCard />
+      <div style={{ height: 12 }} />
+      <PushCard />
       <div className="section-header">Apariencia</div>
       <div className="list list--inset">
         <div className="row" style={{ flexDirection: "column", alignItems: "stretch", gap: 10, padding: "14px 16px" }}>

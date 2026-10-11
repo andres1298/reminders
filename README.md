@@ -13,6 +13,7 @@ Web app mobile-first para llevar las tareas del hogar que se repiten: cada tarea
 | Completar · La hizo alguien más · Posponer · Saltar · Borrar · Deshacer | ✅ |
 | Esquema Supabase con RLS y funciones atómicas | ✅ probado en Postgres |
 | PWA: manifest, íconos (192/512/maskable/Apple), service worker sin conexión, guía para instalar | ✅ |
+| Notificaciones push: activar/probar en Ajustes, envío por cron con `web-push` | ✅ prueba · 🟡 avisos de tareas al conectar Supabase |
 | Datos | 🟡 demo en el navegador (`localStorage`) hasta conectar Supabase |
 | Auth por invitación, Gestionar completo, Estadísticas por persona, Telegram, widget, ES/EN | ⏳ siguientes fases |
 
@@ -56,7 +57,8 @@ docs/                  spec, sistema de diseño (style guide) y prototipo
 - **Instalar:** en iPhone, Safari → Compartir → *Agregar a inicio* (iOS no tiene botón de instalar; la app lo explica en Ajustes y con un aviso descartable en Inicio). En Android/Chrome aparece "Instalar" cuando el navegador lo ofrece. Requiere HTTPS (Vercel).
 - **Sin conexión:** `public/sw.js` guarda en caché los archivos estáticos (cache-first) y las páginas y datos de navegación (network-first). La app abre y navega sin red con lo último guardado y muestra "Sin conexión". Solo se registra en producción. Si cambias la estrategia de caché, sube `VERSION` en `public/sw.js`.
 - **Íconos:** `node scripts/generate-icons.mjs` los regenera desde la ilustración de Lukas (necesita Playwright).
-- **Sin push:** los avisos van por Telegram (SPEC §1.2). Cuando se conecte Supabase se activará `experimental.useOffline` para reintentar acciones al volver la red.
+- **Push:** Ajustes → Notificaciones activa la suscripción del dispositivo (iPhone: solo con la app instalada) y permite enviar una de prueba (`src/app/actions/push.ts`). Los avisos de tareas salen de `/api/cron/notifications` (`src/lib/push/plan.ts` decide a quién y cuándo; probado con Vitest), disparada por pg_cron cada minuto.
+- **Publicar:** pasos completos para Vercel, Supabase y las llaves en [`docs/DEPLOY.md`](docs/DEPLOY.md).
 
 ## Decisiones de la fase 1
 

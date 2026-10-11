@@ -48,5 +48,12 @@ await png(square, 180, resolve(root, "src/app/apple-icon.png"));
 await png(square, 192, resolve(root, "public/icons/icon-192.png"));
 await png(square, 512, resolve(root, "public/icons/icon-512.png"));
 await png(square, 512, resolve(root, "public/icons/maskable-512.png"), { pad: 0.1 });
+// badge de Android: silueta blanca sobre transparente (la huella de Lukas)
+await page.setViewportSize({ width: 96, height: 96 });
+await page.setContent(
+  '<body style="margin:0;background:transparent"><svg width="96" height="96" viewBox="0 0 24 24" fill="#fff">' +
+    '<ellipse cx="12" cy="16" rx="4.5" ry="3.8"/><circle cx="6" cy="10.5" r="2"/><circle cx="9.5" cy="6.5" r="2"/><circle cx="14.5" cy="6.5" r="2"/><circle cx="18" cy="10.5" r="2"/></svg></body>',
+);
+await page.screenshot({ path: resolve(root, "public/icons/badge-96.png"), omitBackground: true });
 await browser.close();
 console.log("íconos generados");

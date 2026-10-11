@@ -147,3 +147,27 @@ end $$;
 commit;
 
 \echo 'SQL: todas las aserciones pasaron'
+
+-- Suscripciones push: cada quien solo ve las suyas ------------------------------
+begin;
+set local role authenticated; set local request.jwt.claim.sub = :'m';
+insert into public.push_subscriptions (user_id, endpoint, p256dh, auth) values (:'m', 'https://push.example/mari', 'k', 'a');
+do $$ begin
+  begin insert into public.push_subscriptions (user_id, endpoint, p256dh, auth) values ('00000000-0000-0000-0000-0000000000a1', 'https://push.example/x', 'k', 'a');
+    raise exception 'debió fallar';
+  exception when insufficient_privilege then null; end;
+end $$;
+commit;
+begin;
+set local role authenticated; set local request.jwt.claim.sub = :'a';
+do $$ begin assert (select count(*) from public.push_subscriptions) = 0, 'Andrés no ve las suscripciones de Mari'; end $$;
+commit;
+-- el registro admite el mismo aviso por los dos canales, pero no repetido por canal
+insert into public.notification_log (user_id, kind, occurrence_key, channel) values (:'m', 'due', 'basura:1', 'push'), (:'m', 'due', 'basura:1', 'telegram');
+do $$ begin
+  begin insert into public.notification_log (user_id, kind, occurrence_key, channel) values ('00000000-0000-0000-0000-0000000000b2', 'due', 'basura:1', 'push');
+    raise exception 'debió fallar';
+  exception when unique_violation then null; end;
+end $$;
+
+\echo 'SQL push: todas las aserciones pasaron'
