@@ -16,7 +16,8 @@ Web app mobile-first para llevar las tareas del hogar que se repiten: cada tarea
 | Notificaciones push: activar/probar en Ajustes, aviso a la hora de cada tarea (cron + `web-push`) | ✅ |
 | Datos en Supabase: caché por usuario para abrir sin conexión, cambios optimistas en cola | ✅ |
 | Cuentas: correo + contraseña, registro solo por invitación de hogar, crear hogar | ✅ |
-| Gestionar completo, Estadísticas por persona, invitaciones de plataforma, selector de hogar, Telegram, widget, ES/EN | ⏳ siguientes fases |
+| Panel de super admin (crear hogares, miembros, roles, desactivar; sin acceso a tareas) | ✅ |
+| Gestionar completo, Estadísticas por persona, selector de hogar, Telegram, widget, ES/EN | ⏳ siguientes fases |
 
 ## Comandos
 

@@ -50,6 +50,7 @@ Opción A, desde el navegador: **SQL Editor → New query**, pega y ejecuta **en
 1. `supabase/migrations/20261011000000_init.sql`
 2. `supabase/migrations/20261012000000_push.sql`
 3. `supabase/migrations/20261013000000_accounts.sql` (perfil automático al crear un usuario y "Deshacer" de borrados)
+4. `supabase/migrations/20261014000000_super_admin.sql` (panel de super admin; el super admin deja de poder leer tareas de hogares ajenos)
 
 Opción B, con la CLI:
 ```bash
@@ -123,6 +124,7 @@ where id = (select id from auth.users where email = '<tu correo>');
 ```
 3. Abre la app, entra con ese correo y contraseña, y crea tu hogar. Desde **Ajustes → Hogar → Invitar a alguien** compartes un enlace con quienes viven contigo: con él crean su cuenta y entran directo a tu hogar (no se manda ningún correo).
 4. En el iPhone, la app instalada guarda su sesión aparte de Safari: entra una vez desde el ícono y activa las notificaciones en **Ajustes**.
+5. Como super admin, en **Ajustes** aparece **Panel de administración**: crear hogares para otras personas (te da un enlace para que entren como admin), quitar personas, cambiar roles y desactivar hogares. Las tareas de esos hogares no se ven desde el panel.
 
 ---
 
