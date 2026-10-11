@@ -1,7 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { classifyError, createSyncQueue, errorMessage } from "./sync";
 
-const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
+const wait = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 const settle = () => wait(30);
 
 describe("createSyncQueue", () => {

@@ -1,76 +1,92 @@
 "use client";
 /**
- * Client store for the demo phase: AppState kept in memory and persisted to
- * localStorage. The UI talks to it through the same verbs the Supabase RPCs
- * expose (complete, skip, snooze, undo…), so swapping the backend later only
- * changes this module.
+ * Almacén del cliente: la última foto del hogar que mandó Supabase, guardada
+ * en localStorage por usuario para abrir sin conexión. Las acciones aplican
+ * primero un cambio optimista (setState) y DataProvider lo manda al servidor;
+ * si falla, revertToServer vuelve a la foto.
  */
 import { useSyncExternalStore } from "react";
-import { demoState } from "./demo-seed";
 import type { AppState } from "./types";
 
-const KEY = "lukas-demo-v1";
+const LEGACY_KEY = "lukas-demo-v1";
+const cacheKey = (userId: string) => `lukas-cache-${userId}`;
 type Listener = () => void;
 
+let userId: string | null = null;
 let state: AppState | null = null;
+let server: AppState | null = null;
 const listeners = new Set<Listener>();
+const emit = () => listeners.forEach((l) => l());
 
-function load(): AppState {
+function readCache(id: string): AppState | null {
   try {
-    const raw = localStorage.getItem(KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw) as AppState;
-      if (parsed?.version === 1) return parsed;
-    }
+    const raw = localStorage.getItem(cacheKey(id));
+    const parsed = raw ? (JSON.parse(raw) as AppState) : null;
+    return parsed?.version === 1 && parsed.me === id ? parsed : null;
   } catch {
-    /* sin almacenamiento: se usa la demo en memoria */
-  }
-  return demoState();
-}
-
-function persist() {
-  try {
-    if (state) localStorage.setItem(KEY, JSON.stringify(state));
-  } catch {
-    /* ignore */
+    return null;
   }
 }
 
 export const isLoaded = () => state !== null;
 
+/** El estado actual. Las acciones solo corren con datos cargados. */
 export function getState(): AppState {
-  if (!state) state = load();
-  return state;
+  return state as AppState;
 }
 
+/** Abre la sesión de un usuario con lo último guardado en este dispositivo. */
+export function startSession(id: string) {
+  if (userId === id) return;
+  userId = id;
+  server = state = readCache(id);
+  emit();
+}
+
+/** Foto nueva del servidor: se guarda y se publica. */
+export function applyServer(next: AppState) {
+  server = state = next;
+  try {
+    if (userId) localStorage.setItem(cacheKey(userId), JSON.stringify(next));
+  } catch {
+    /* sin almacenamiento: solo en memoria */
+  }
+  emit();
+}
+
+/** Cambio optimista (no se guarda en caché hasta que llegue la foto del servidor). */
 export function setState(next: AppState) {
   state = next;
-  persist();
-  listeners.forEach((l) => l());
+  emit();
 }
 
-export function resetDemo() {
-  setState(demoState());
+export function revertToServer() {
+  state = server;
+  emit();
+}
+
+/** Cerrar sesión: borra los datos de este usuario del dispositivo. */
+export function endSession() {
+  try {
+    if (userId) localStorage.removeItem(cacheKey(userId));
+    localStorage.removeItem(LEGACY_KEY);
+  } catch {
+    /* ignore */
+  }
+  userId = state = server = null;
+  emit();
 }
 
 function subscribe(l: Listener) {
   listeners.add(l);
-  const onStorage = (e: StorageEvent) => {
-    if (e.key === KEY) {
-      state = null;
-      l();
-    }
-  };
-  window.addEventListener("storage", onStorage);
   return () => {
     listeners.delete(l);
-    window.removeEventListener("storage", onStorage);
   };
 }
 
-/** null on the server and during hydration → render the skeleton. */
+/** null en el servidor y mientras no haya datos → se muestra el esqueleto. */
 export function useAppState(): AppState | null {
-  return useSyncExternalStore(subscribe, getState, () => null);
+  return useSyncExternalStore(subscribe, () => state, () => null);
 }
 
 // --- reloj compartido (avanza cada minuto) ---------------------------------
