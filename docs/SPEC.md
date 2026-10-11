@@ -1,7 +1,7 @@
 # Lukas — Spec
 
-> **Estado:** Borrador v0.6 · **Fecha:** 2026-10-10
-> v0.6 incorpora las respuestas de las rondas 1 a 5. Lo marcado **[SUPUESTO]** es una propuesta por confirmar; las decisiones están en la sección 15 y las preguntas abiertas en la 16.
+> **Estado:** Borrador v0.7 · **Fecha:** 2026-10-11
+> v0.7 incorpora las respuestas de las rondas 1 a 6 (la 6 sale de la revisión del prototipo de diseño). Lo marcado **[SUPUESTO]** es una propuesta por confirmar; las decisiones están en la sección 15 y las preguntas abiertas en la 16.
 
 ---
 
@@ -49,6 +49,7 @@ Usuarios: Andrés, Mari y algunos conocidos que crean sus propios hogares. **Sol
 | **Borrado lógico** | El elemento se marca con `deleted_at` y desaparece de la app; nunca se elimina de la base de datos. |
 | **Responsable** | Persona a la que le toca la ocurrencia actual (fija o por rotación). |
 | **Ciclo** | Periodo entre el último completado (o inicio) y el próximo vencimiento. |
+| **Pendiente** | Algo de la casa que hay que hacer alguna vez, sin fecha ni repetición ("cambiar el bombillo del pasillo"). Vive en su propia lista, aparte de las tareas. |
 
 ---
 
@@ -261,6 +262,16 @@ Le toca a: Andrés
 - Fechas relativas y plurales con `Intl` ("toca en 1 día" / "due in 3 days").
 - Mensajes de Telegram y widget también traducidos. El contenido del usuario no se traduce.
 
+### 4.13 Pendientes de casa
+Lista aparte, en su propia pestaña **Pendientes**, para cosas que hay que hacer en algún momento pero no se repiten ni tienen fecha.
+- Captura rápida: escribir y Enter (o "+"). Opcional: responsable (Cualquiera, por defecto, o un miembro) y la marca **pronto**.
+- Emoji automático según palabras clave del texto, editable.
+- Marcar como hecho con un toque (checkbox); pasa a la sección plegable **Hechos**, con toast de "Deshacer" (5 s). Se puede desmarcar.
+- Filtros: Todos · Míos · Pronto. Orden: los marcados "pronto" primero, luego por fecha de creación.
+- Tocar un pendiente abre acciones: marcar hecho/pendiente, poner o quitar "pronto", pasar a otra persona, borrar (borrado lógico).
+- No generan avisos por Telegram ni cuentan en estadísticas de tareas. **[SUPUESTO]** el resumen diario puede mencionar los pendientes marcados "pronto".
+- Sin fecha, sin hora, sin anillo: es una checklist, no un ciclo.
+
 ### 4.12 Tema
 - Claro / Oscuro / Sistema con `next-themes`, guardado en el perfil.
 
@@ -334,7 +345,7 @@ Set inicial de SVG monocromos (se tiñen con `ink`):
 | Telegram conectado | Lukas con un sobre |
 | Carga | Brote que crece (animado) |
 
-Las ilustraciones se crean como parte del proyecto (SVG a mano, trazo de tinta, sin dependencias externas), basadas en la foto de referencia de Lukas: cara con antifaz negro, manchas canela, pecho y patas blancas, ojos verde-amarillo (el único color además de la tinta, opcional).
+Las ilustraciones se crean como parte del proyecto (SVG a mano, trazo de tinta, sin dependencias externas), basadas en la foto de referencia de Lukas: cara con antifaz negro, manchas **naranjas de calicó** (`--art-calico` #E8893A, sólidas con trama de tinta encima), pecho y patas blancas, ojos verde-amarillo.
 
 **Lukas aparece en todos lados:**
 - Ícono de la app / PWA y favicon (cara de Lukas en tinta sobre crema).
@@ -366,7 +377,7 @@ Librería: **Motion** (`motion/react`) + **View Transitions API** para navegaci�
 
 ## 6. Pantallas
 
-Navegación inferior flotante tipo pill (como la referencia): **Inicio · Gestionar · Estadísticas · Ajustes**. Botón pill mostaza "+ Nueva tarea" arriba.
+Navegación inferior flotante tipo pill (como la referencia): **Inicio · Pendientes · Gestionar · Estadísticas · Ajustes**. Botón pill mostaza "+ Nueva tarea" arriba.
 
 1. **Inicio**
    - Header: "Hola, Andrés" + avatar + selector de hogar.
@@ -375,7 +386,8 @@ Navegación inferior flotante tipo pill (como la referencia): **Inicio · Gestio
    - **Grid de 2 columnas estilo Mindr**: tarjetas chunky con el color elegido, anillo de progreso con el emoji al centro, nombre, chip de estado, avatar del responsable y botón "…".
    - Orden: vencidas → pronto → al día.
 2. **Detalle de tarea** — anillo grande, descripción, próximo vencimiento, responsable/rotación, dos botones grandes **"✅ Hecha"** (principal) y **"🙋 La hizo alguien más"** (secundario), acciones secundarias (posponer, saltar, editar, borrar), historial. Desde la tarjeta en Inicio, el botón "…" ofrece las mismas acciones.
-3. **Crear / editar tarea** (bottom sheet) — emoji grande tocable, nombre, segmented *Intervalo · Días · Día del mes · Una vez*, hora, responsable, lista, "Guardar" pill a todo el ancho.
+3. **Crear / editar tarea** (bottom sheet) — emoji grande tocable, nombre, segmented *Intervalo · Días · Día del mes · Una vez*, hora, responsable, lista, color. Botón **"Agregar"** siempre visible arriba a la derecha (no lo tapa el teclado) y "Agregar tarea" pill a todo el ancho al final; Enter en el nombre también guarda.
+3b. **Pendientes de casa** — captura rápida arriba, lista con checkbox, filtros Todos · Míos · Pronto y sección plegable Hechos (ver 4.13).
 4. **Gestionar** — listas (crear/editar/ordenar), tareas en filas compactas, pausar/reanudar, Pausadas, Terminadas, Papelera y Modo vacaciones (ver 4.3.1).
 5. **Estadísticas** — resumen general de pendientes, selector de periodo, completadas y sin hacer por responsable, desglose por lista.
 6. **Ajustes** — perfil, idioma, tema, Telegram (conectar/estado/preferencias/hora del resumen), widgets (tokens + guía Scriptable), hogar (miembros, roles, invitar, salir).
@@ -434,6 +446,10 @@ task_events         (id, task_id, household_id,
                      -- Intencionalmente SIN actor_id: no se guarda la cuenta que tocó "Hecha".
                      -- 'missed' lo inserta el cron cuando una ocurrencia vencida
                      -- queda superada por la siguiente sin completarse.
+
+household_todos     (id, household_id, text, emoji, assignee_id NULL,  -- NULL = Cualquiera
+                     soon bool default false, done_at NULL,
+                     deleted_at NULL, deleted_by NULL, created_by, created_at)
 
 api_tokens          (id, user_id, name, token_hash, last_used_at, created_at, revoked_at)
 
@@ -638,6 +654,15 @@ Flujo propuesto: `mobile-design-system` (iOS) → tokens y catálogo → `impecc
 | 1 | Modo vacaciones | Lo puede activar cualquier miembro. |
 | 2 | Pausar | Cualquier miembro, desde Gestionar. |
 | 3 | Completar en la app | Dos botones, igual que Telegram: "✅ Hecha" y "🙋 La hizo alguien más". |
+
+### 15.4 Decisiones de la ronda 6 (prototipo de diseño)
+
+| # | Tema | Decisión |
+|---|---|---|
+| 1 | Crear tarea | El botón para guardar tiene que verse siempre: "Agregar" arriba a la derecha del sheet, además del botón grande al final. |
+| 2 | Lukas | Calicó con naranja: manchas naranjas además del negro, en todas las ilustraciones y en el ícono. |
+| 3 | Pendientes de casa | Nueva lista aparte (pestaña propia) para pendientes sin fecha ni repetición. Ver 4.13. |
+| 4 | Sello de tinta | Se mantiene el estilo actual (borde 2px + sombra dura, mostaza como CTA). |
 
 ## 17. Siguiente paso
 

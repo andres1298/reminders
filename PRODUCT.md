@@ -33,12 +33,12 @@ No es un calendario de eventos ni un gestor de tareas genérico: es un ciclo, co
 
 ## Capabilities and Constraints
 
-Ver `docs/SPEC.md` v0.6 (fuente de verdad del producto): cuatro tipos de programación (Intervalo, Días de la semana, Día del mes, Una vez) con hora; responsables Cualquiera / Fijo / Rotación; posponer, saltar, deshacer; pausar solo desde Gestionar; modo vacaciones; borrado lógico y Papelera; estadísticas por crédito y por responsable. Fuera de alcance: gamificación, subtareas, notificaciones push o email, app nativa.
+Ver `docs/SPEC.md` v0.7 (fuente de verdad del producto): lista aparte de Pendientes de casa sin fecha; cuatro tipos de programación (Intervalo, Días de la semana, Día del mes, Una vez) con hora; responsables Cualquiera / Fijo / Rotación; posponer, saltar, deshacer; pausar solo desde Gestionar; modo vacaciones; borrado lógico y Papelera; estadísticas por crédito y por responsable. Fuera de alcance: gamificación, subtareas, notificaciones push o email, app nativa.
 
 ## Brand Commitments
 
-- Nombre y mascota: **Lukas**, gata calicó real (blanca con manchas negras y canela, ojos verde-amarillo). Foto de referencia: `docs/design/refs/lukas.jpg`. Aparece en todos lados: ícono, favicon, bot, estados vacíos, carga, onboarding.
-- Ilustraciones en tinta tipo grabado/sello sobre crema (`docs/design/refs/ink-illustration.png`); el único color es el verde-amarillo de los ojos de Lukas (confirmado en la ronda de diseño).
+- Nombre y mascota: **Lukas**, gata calicó real (blanca con manchas negras y naranjas, ojos verde-amarillo). Foto de referencia: `docs/design/refs/lukas.jpg`. Aparece en todos lados: ícono, favicon, bot, estados vacíos, carga, onboarding.
+- Ilustraciones en tinta tipo grabado/sello sobre crema (`docs/design/refs/ink-illustration.png`); además de la tinta, Lukas lleva sus manchas naranjas de calicó y los ojos verde-amarillo (confirmado en las rondas de diseño).
 - Paleta, tipografía (Bricolage Grotesque + DM Sans), radios y borde de tinta de 2px tipo sello fijados en `docs/SPEC.md` §5.
 - Tema base: claro crema; el oscuro es un tema de primera clase.
 - Sensación buscada: **calma doméstica**. Se ve de un vistazo qué toca, sin culpa; lo vencido se nota pero no grita.

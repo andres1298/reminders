@@ -112,7 +112,7 @@ body.inspecting main{margin-right:350px}
   <div class="grp">Estado</div>
   <a href="#badge">Badge</a>
   <div class="grp">Extensiones Lukas</div>
-  <a href="#taskcard">Tarjeta de tarea</a><a href="#ring">Anillo de progreso</a><a href="#status">Chip de estado</a><a href="#chip">Chip de filtro</a><a href="#avatar">Avatar</a><a href="#swatches">Selector de color</a><a href="#weekdays">Días de la semana</a><a href="#people">Responsable</a><a href="#emojiwell">Emoji well</a><a href="#toast">Toast</a><a href="#skeleton">Skeleton</a><a href="#empty">Estado vacío</a>
+  <a href="#taskcard">Tarjeta de tarea</a><a href="#todo">Pendientes</a><a href="#ring">Anillo de progreso</a><a href="#status">Chip de estado</a><a href="#chip">Chip de filtro</a><a href="#avatar">Avatar</a><a href="#swatches">Selector de color</a><a href="#weekdays">Días de la semana</a><a href="#people">Responsable</a><a href="#emojiwell">Emoji well</a><a href="#toast">Toast</a><a href="#skeleton">Skeleton</a><a href="#empty">Estado vacío</a>
 </nav>
 
 <main>
@@ -203,7 +203,7 @@ body.inspecting main{margin-right:350px}
   </section>
 
   <section id="art"><h2 class="sec">Ilustraciones</h2>
-    <p class="sec-desc">Lukas en tinta tipo grabado: antifaz negro, raya blanca, mancha canela en trama y ojos verde-amarillo (el único color). Son SVG a mano en <code>lukas-art.js</code>; en oscuro van sobre una placa crema para no invertir a la gata.</p>
+    <p class="sec-desc">Lukas en tinta tipo grabado, calicó: antifaz negro, raya blanca, manchas naranjas (<code>--art-calico</code>) con trama de tinta encima y ojos verde-amarillo. Son SVG a mano en <code>lukas-art.js</code>; en oscuro van sobre una placa crema para no invertir a la gata.</p>
     <div class="art-grid">
       <figure><div class="art" data-art="icon"></div><figcaption>Ícono de app y favicon<span>Cara en tinta sobre crema</span></figcaption></figure>
       <figure><div class="art" data-art="sleepingPot"></div><figcaption>Nada pendiente<span>Lukas dormida en una maceta</span></figcaption></figure>
@@ -223,10 +223,11 @@ body.inspecting main{margin-right:350px}
   </section>
 
   <section id="tabbar"><h2 class="sec">Tab bar</h2>
-    <p class="sec-desc">Pill flotante en tinta (como la referencia chunky): Inicio · Gestionar · Estadísticas · Ajustes. La pestaña activa se expande en mostaza y muestra su nombre; las demás llevan <code>aria-label</code>.</p>
+    <p class="sec-desc">Pill flotante en tinta (como la referencia chunky): Inicio · Pendientes · Gestionar · Estadísticas · Ajustes. La pestaña activa se expande en mostaza y muestra su nombre; las demás llevan <code>aria-label</code>.</p>
     <div class="stage stage--bg">
       <div class="cell" style="width:340px"><nav class="tabbar" data-insp="tabbar" aria-label="Principal">
         <a class="tabbar__item" aria-current="page" href="#tabbar"><svg class="ico"><use href="#i-home"/></svg><span class="tabbar__label">Inicio</span></a>
+        <a class="tabbar__item" href="#tabbar" aria-label="Pendientes"><svg class="ico"><use href="#i-todo"/></svg><span class="tabbar__label">Pendientes</span></a>
         <a class="tabbar__item" href="#tabbar" aria-label="Gestionar"><svg class="ico"><use href="#i-manage"/></svg><span class="tabbar__label">Gestionar</span></a>
         <a class="tabbar__item" href="#tabbar" aria-label="Estadísticas"><svg class="ico"><use href="#i-stats"/></svg><span class="tabbar__label">Estadísticas</span></a>
         <a class="tabbar__item" href="#tabbar" aria-label="Ajustes"><svg class="ico"><use href="#i-settings"/></svg><span class="tabbar__label">Ajustes</span></a>
@@ -463,6 +464,19 @@ body.inspecting main{margin-right:350px}
     <div class="stage stage--bg"><div class="grid2" id="cardDemo"></div></div>
   </section>
 
+  <section id="todo"><h2 class="sec">Pendientes de casa</h2>
+    <p class="sec-desc">Lista aparte para cosas sin fecha ni repetición ("cambiar el bombillo del pasillo"). Captura rápida arriba (escribir y Enter), filas con checkbox de 44, emoji automático por palabra clave, responsable y etiqueta "pronto". Al marcar, el check se dibuja, el texto se tacha y la fila se pliega hacia "Hechos".</p>
+    <div class="stage stage--bg stage--col" style="max-width:420px">
+      <form class="quick-add is-open" data-insp="todo" onsubmit="return false"><div class="quick-add__row"><input placeholder="Agregar un pendiente…" aria-label="Nuevo pendiente"><button class="icon-btn icon-btn--ink" aria-label="Agregar"><svg class="ico"><use href="#i-plus"/></svg></button></div>
+        <div class="quick-add__opts"><span class="chip" aria-pressed="true">🏡 Cualquiera</span><span class="chip">🌵 Andrés</span><span class="chip">🌸 Mari</span><span class="chip">Pronto</span></div></form>
+      <div class="todo-group" data-insp="todo">
+        <div class="todo"><button class="check" role="checkbox" aria-checked="false" aria-label="Marcar"><i><svg viewBox="0 0 24 24"><path d="m6 12.5 4 4 8-9"/></svg></i></button><span class="todo__emoji">💡</span><span class="todo__main"><span class="todo__text">Cambiar el bombillo del pasillo</span><span class="todo__meta">🌵 Andrés <span class="tag-soon">pronto</span></span></span></div>
+        <div class="todo"><button class="check" role="checkbox" aria-checked="false" aria-label="Marcar"><i><svg viewBox="0 0 24 24"><path d="m6 12.5 4 4 8-9"/></svg></i></button><span class="todo__emoji">🚪</span><span class="todo__main"><span class="todo__text">Arreglar la puerta del clóset</span><span class="todo__meta">🏡 Cualquiera</span></span></div>
+        <div class="todo is-done"><button class="check" role="checkbox" aria-checked="true" aria-label="Desmarcar"><i><svg viewBox="0 0 24 24"><path d="m6 12.5 4 4 8-9"/></svg></i></button><span class="todo__emoji">📦</span><span class="todo__main"><span class="todo__text">Desarmar las cajas de la mudanza</span><span class="todo__meta">🌸 Mari</span></span></div>
+      </div>
+    </div>
+  </section>
+
   <section id="ring"><h2 class="sec">Anillo de progreso</h2>
     <p class="sec-desc"><code>progreso = (ahora − inicio) / (vencimiento − inicio)</code>. Track en tinta al 15 % y progreso en tinta al 100 %, con punta redonda y arranque a las 12. Si está vencida, el anillo queda lleno y un punto coral pulsa arriba.</p>
     <div class="stage" id="ringDemo"></div>
@@ -619,6 +633,9 @@ const SPECS={
  badge:{name:'Badge',file:'components/Badge.tsx',desc:'Conteo coral (alerta) o en tinta (neutro), con aro de 2 del color del fondo. Variante punto de 10.',props:[{n:'count',t:'number?'},{n:'tone',t:"'alert'|'ink'",def:'alert'}],tokens:()=>[T('alerta','danger-fill'),T('neutro','ink')],metrics:[['alto','20'],['punto','10']]},
  taskcard:{name:'Tarjeta de tarea',file:'components/TaskCard.tsx',desc:'Tarjeta del grid de Inicio (2 columnas; 3 desde 768 px). Fondo con el color elegido (20 pasteles o sin color), texto siempre #151515, borde de tinta y sello. Contenido: arriba, avatar del responsable a la izquierda y botón "…" a la derecha (action sheet); anillo de 92 con el emoji; nombre en Bricolage 17 (máx. 2 líneas); chip de estado abajo (ancho completo disponible a 168 px). Press: baja 3 px. Al completar: el anillo se vacía, squash & stretch, hojitas y reordenamiento con FLIP. Orden: vencidas → pronto → al día.',
   props:[{n:'task',t:'{emoji,title,color,progress,status,dueLabel,assignee}'},{n:'onOpen',t:'()=>void'},{n:'onMore',t:'()=>void'}],tokens:()=>[T('fondo (ej.)','leaf'),T('texto','card-ink'),T('borde','stroke'),T('sello','stamp')],metrics:[['radio','28'],['alto mín.','224'],['padding','12 12 12 16'],['gap grid','12'],['anillo','92 / trazo 8']]},
+ todo:{name:'Pendientes de casa',file:'components/TodoList.tsx',desc:'Lista de pendientes sin fecha, aparte de las tareas recurrentes (pestaña Pendientes). QuickAdd: tarjeta sellada con input de 44 + botón tinta "+", que al enfocar despliega chips de responsable (Cualquiera/Andrés/Mari) y "Pronto"; Enter agrega. Fila: checkbox circular de 28 visibles (44 de área), emoji automático por palabra clave, texto 16/600 y meta (responsable + etiqueta mostaza "pronto"). Al marcar: el check se dibuja (stroke-dashoffset), el texto se tacha (background-size) y la fila se pliega hacia la sección "Hechos" (disclosure con grupo punteado). Toast con Deshacer. Tocar el texto abre un action sheet (hecho, pronto, pasar a, borrar).',
+  props:[{n:'items',t:'{id,text,emoji,who,soon,done}[]'},{n:'filter',t:"'all'|'mine'|'soon'",def:'all'},{n:'onAdd',t:'(text,who,soon)=>void'},{n:'onToggle',t:'(id)=>void'}],
+  tokens:()=>[T('grupo','surface'),T('borde','stroke'),T('check','ink'),T('pronto','accent'),T('texto hecho','ink-muted')],metrics:[['fila','min 60'],['check','28 visibles / 44 área'],['separador','sangría 58'],['radio grupo','22']]},
  ring:{name:'Anillo de progreso',file:'components/ProgressRing.tsx',desc:'SVG con pathLength=100: el track va en tinta al 15 % y la barra en tinta al 100 % con punta redonda, empezando a las 12 (stroke-dashoffset = 100 − p·100). Vencida: lleno + punto coral de 16 con borde de tinta que pulsa arriba. Tamaños 92 (tarjeta) y 184 (detalle). Transición de 420 ms en --ease-out; al completar anima de p a 0.',
   props:[{n:'progress',t:'0..1'},{n:'emoji',t:'string'},{n:'overdue',t:'boolean'},{n:'size',t:"'md'|'lg'",def:'md'}],tokens:()=>[T('trazo','card-ink'),T('alerta','coral')],metrics:[['tamaño','92 / 184'],['trazo','8 / 7 (de 100)'],['track','opacity .15']]},
  status:{name:'Chip de estado',file:'components/StatusChip.tsx',desc:'Comunica el estado de la tarjeta con texto. Al día: blanco 62 % con tinta. Pronto: tinta con texto mostaza y reloj. Vencida: tinta con texto coral y punto que pulsa. Hecha: tinta con texto hoja y check. Se lee sobre cualquier pastel.',

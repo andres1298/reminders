@@ -94,7 +94,7 @@
   --mat-blur:saturate(160%) blur(18px);
 
   /* -- Ilustraciones -- */
-  --art-ink:#151515; --art-paper:#FBF6DC; --art-eye:#CBD45E; --art-plate:transparent;
+  --art-ink:#151515; --art-paper:#FBF6DC; --art-eye:#CBD45E; --art-calico:#E8893A; --art-plate:transparent;
 
   /* -- Tipografía -- */
   --font-display:'Bricolage Grotesque', 'DM Sans', ui-rounded, system-ui, sans-serif;
@@ -547,6 +547,36 @@ button.row:active,a.row:active{background:var(--fill-1)}
 .emoji-well:active{transform:scale(.94)}
 .emoji-well__edit{position:absolute;right:-2px;bottom:4px;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;background:var(--ink);color:var(--bg);border:3px solid var(--bg)}
 
+/* --- Pendientes de casa: checkbox, fila y captura rápida --- */
+.check{position:relative;flex:none;width:var(--hit);height:var(--hit);display:grid;place-items:center;margin:-6px -4px -6px -10px}
+.check i{width:28px;height:28px;border-radius:50%;border:2.5px solid var(--ink);display:grid;place-items:center;background:var(--surface);
+  transition:background-color var(--dur-2) var(--ease-out), transform var(--dur-spring) var(--ease-spring)}
+.check svg{width:16px;height:16px;fill:none;stroke:var(--bg);stroke-width:3.4;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:24;stroke-dashoffset:24;transition:stroke-dashoffset var(--dur-3) var(--ease-out) 60ms}
+.check[aria-checked="true"] i{background:var(--ink)}
+.check[aria-checked="true"] svg{stroke-dashoffset:0}
+.check:active i{transform:scale(.86)}
+.todo-group{background:var(--surface);border-radius:var(--r-lg);border:var(--stroke-w) solid var(--stroke);box-shadow:var(--stamp);overflow:hidden}
+:root[data-theme="dark"] .todo-group{border-color:transparent}
+.todo{position:relative;display:flex;align-items:center;gap:var(--sp-12);min-height:60px;padding:var(--sp-8) var(--sp-12) var(--sp-8) var(--sp-16)}
+.todo+.todo::before{content:"";position:absolute;top:0;right:0;left:58px;border-top:1px solid var(--separator)}
+.todo__main{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px;text-align:left}
+.todo__text{font:600 16px/1.3 var(--font-text);background:linear-gradient(currentColor,currentColor) no-repeat 0 58% / 0% 2px;transition:background-size var(--dur-3) var(--ease-out), color var(--dur-2)}
+.todo__meta{display:flex;align-items:center;gap:6px;font:500 12.5px/1.2 var(--font-text);color:var(--ink-muted)}
+.todo__emoji{font-size:20px;line-height:1;flex:none}
+.todo.is-done .todo__text{background-size:100% 2px;color:var(--ink-muted)}
+.todo.is-done .todo__emoji{opacity:.5}
+.tag-soon{display:inline-flex;align-items:center;height:22px;padding:0 8px;border-radius:var(--r-full);background:var(--accent);color:var(--on-accent);font:700 11.5px/1 var(--font-text)}
+.quick-add{display:flex;flex-direction:column;gap:var(--sp-12);padding:var(--sp-8) var(--sp-8) var(--sp-8) var(--sp-16);border-radius:var(--r-lg);background:var(--surface);
+  border:var(--stroke-w) solid var(--stroke);box-shadow:var(--stamp)}
+:root[data-theme="dark"] .quick-add{border-color:transparent}
+.quick-add__row{display:flex;align-items:center;gap:var(--sp-8)}
+.quick-add input{flex:1;min-width:0;height:44px;border:0;background:transparent;outline:none;font:600 16px/1 var(--font-text);color:var(--ink)}
+.quick-add input::placeholder{color:var(--ink-muted);font-weight:500}
+.quick-add__opts{display:none;flex-wrap:wrap;gap:6px;padding:0 var(--sp-8) var(--sp-4) 0}
+.quick-add.is-open .quick-add__opts{display:flex}
+.quick-add__opts .chip{height:34px;padding:0 12px;font-size:13px}
+.quick-add:focus-within{box-shadow:var(--stamp), var(--focus-ring)}
+
 /* --- Toast (con "Deshacer") --- */
 .toast{display:flex;align-items:center;gap:var(--sp-12);min-height:56px;padding:var(--sp-8) var(--sp-8) var(--sp-8) var(--sp-16);border-radius:var(--r-lg);
   background:var(--ink-black);color:var(--ink-cream);box-shadow:var(--elev-2);font:600 14.5px/1.3 var(--font-text)}
@@ -602,7 +632,7 @@ body.proto{display:flex;align-items:center;justify-content:center;gap:56px;min-h
   background:color-mix(in srgb,var(--bg) 88%,var(--ink));overflow:hidden}
 .device{position:relative;flex:none;width:406px;height:860px;padding:8px;border-radius:62px;background:#151515;
   box-shadow:0 0 0 2px #3a3a38, 0 40px 80px rgb(21 21 21 / .35)}
-.app{--safe-top:50px;--safe-bottom:24px;position:relative;width:100%;height:100%;border-radius:54px;overflow:hidden;background:var(--bg);
+.app{--safe-top:50px;--safe-bottom:24px;position:relative;width:100%;height:100%;border-radius:54px;overflow:hidden;overflow:clip;background:var(--bg);
   isolation:isolate;view-transition-name:none}
 .statusbar{position:absolute;z-index:60;top:0;left:0;right:0;height:50px;display:flex;align-items:center;justify-content:space-between;
   padding:6px 30px 0 40px;font:700 16px/1 var(--font-text);color:var(--ink);pointer-events:none;font-variant-numeric:tabular-nums}
@@ -677,8 +707,26 @@ body.proto{display:flex;align-items:center;justify-content:center;gap:56px;min-h
 .rot{display:inline-flex;align-items:center;gap:8px}
 
 /* Tab bar global */
-.tabbar-wrap{position:absolute;z-index:30;left:16px;right:16px;bottom:calc(var(--safe-bottom) + 10px);transition:transform var(--dur-3) var(--ease-out), opacity var(--dur-2);view-transition-name:tabbar}
+.tabbar-wrap{position:absolute;z-index:30;left:12px;right:12px;bottom:calc(var(--safe-bottom) + 10px);transition:transform var(--dur-3) var(--ease-out), opacity var(--dur-2);view-transition-name:tabbar}
 .tabbar-wrap.is-hidden{transform:translateY(calc(100% + 40px));opacity:0;pointer-events:none}
+
+/* tab bar de 5: ítems inactivos de 44 */
+.tabbar{gap:2px;padding:8px 6px}
+.tabbar__item:not([aria-current="page"]){width:46px}
+.tabbar__item[aria-current="page"]{padding:0 14px}
+
+/* Pendientes de casa */
+.todo-wrap{display:grid;gap:14px;padding:6px var(--margin) 0}
+.todo-wrap .filters{padding:0;margin:0 calc(var(--margin) * -1);padding:0 var(--margin)}
+.todo-section{font:700 13px/1.2 var(--font-text);color:var(--ink-muted);padding:6px 4px 0;display:flex;justify-content:space-between;align-items:center}
+.todo-done summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;min-height:44px;padding:0 4px;font:700 13px/1.2 var(--font-text);color:var(--ink-muted)}
+.todo-done summary::-webkit-details-marker{display:none}
+.todo-done summary .ico{transition:transform var(--dur-3) var(--ease-out)}
+.todo-done[open] summary .ico{transform:rotate(90deg)}
+.todo-done .todo-group{box-shadow:none;border-style:dashed;border-color:var(--fill-4);background:transparent}
+.todo-empty{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;padding:8px 24px 0;color:var(--ink-muted);font:400 14.5px/1.45 var(--font-text)}
+.todo-empty .art{width:180px}
+.todo-empty b{font:800 22px/1.1 var(--font-display);color:var(--ink);letter-spacing:-.02em}
 
 /* Otras pestañas */
 .simple-head{padding:calc(var(--safe-top) + 14px) var(--margin) 8px}
@@ -842,6 +890,7 @@ html.rm .screen.enter-push,html.rm .screen.enter-pop{animation:vt-fade-in 160ms 
     filter: '<path d="M4 6h16M7 12h10M10 18h4"/>',
     sparkle: '<path d="M12 3c.8 4.6 3.4 7.2 8 8-4.6.8-7.2 3.4-8 8-.8-4.6-3.4-7.2-8-8 4.6-.8 7.2-3.4 8-8z"/>',
     drop: '<path d="M12 3.5s6.5 7 6.5 11a6.5 6.5 0 0 1-13 0c0-4 6.5-11 6.5-11z"/>',
+    todo: '<rect x="3.5" y="3.5" width="17" height="17" rx="4.5"/><path d="m8 12.2 3 3 5.2-6"/>',
     grid: '<rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/>',
   };
   const NAMES = Object.keys(ICONS);
@@ -862,12 +911,14 @@ html.rm .screen.enter-push,html.rm .screen.enter-pop{animation:vt-fade-in 160ms 
    Todo se tiñe con tokens:
      currentColor        → trazo de tinta  (pon `color: var(--ink)` en el contenedor)
      --art-paper         → relleno "papel" (blanco del pelaje, fondo de macetas)
-     --art-eye           → único color además de la tinta (ojos)
+     --art-eye           → ojos verde-amarillo
+     --art-calico        → manchas naranjas de calicó (con trama de tinta encima)
    Uso:  el.innerHTML = LukasArt.icon()   | face() | sleepingPot() | peek() | sprout() | leaf()
    ========================================================================= */
 (function () {
   const PAPER = 'var(--art-paper, #FBF6DC)';
   const EYE = 'var(--art-eye, #CBD45E)';
+  const ORANGE = 'var(--art-calico, #E8893A)';
   let uid = 0;
   const id = (p) => `${p}${++uid}`;
 
@@ -917,17 +968,32 @@ html.rm .screen.enter-push,html.rm .screen.enter-pop{animation:vt-fade-in 160ms 
 
   /* cara completa (despierta o dormida) en el sistema 0..200 */
   function headGroup({ sleeping = false } = {}) {
-    const clip = id('lk-head'), tan = id('lk-tan');
+    const clip = id('lk-head'), tan = id('lk-tan'), crown = id('lk-crown'), cheek = id('lk-cheek');
+    /* manchas calicó: hocico, mejilla izquierda y coronilla derecha (se cruza con el negro) */
     const TAN = 'M98 135 C88 129 70 129 60 141 C63 155 82 162 97 153 Z';
+    const CHEEK = 'M40 118 C52 128 64 132 76 131 C74 146 62 158 50 154 C42 146 39 132 40 118 Z';
+    const CROWN = 'M114 34 C132 22 168 38 178 74 C164 84 146 84 132 76 C120 64 112 50 114 34 Z';
     return `
     <defs>
       <clipPath id="${clip}"><path d="${HEAD}"/></clipPath>
       <clipPath id="${tan}"><path d="${TAN}"/></clipPath>
+      <clipPath id="${cheek}"><path d="${CHEEK}"/></clipPath>
+      <clipPath id="${crown}"><path d="${CROWN}"/></clipPath>
     </defs>
     <path d="${HEAD}" fill="${PAPER}"/>
     <path d="${MASK}" fill="currentColor" clip-path="url(#${clip})"/>
+    <g clip-path="url(#${clip})">
+      <path d="${CROWN}" fill="${ORANGE}"/>
+      <path d="${CHEEK}" fill="${ORANGE}"/>
+      <path d="${TAN}" fill="${ORANGE}"/>
+    </g>
+    <g clip-path="url(#${clip})">
+      ${hatch(crown, 120, 30, 186, 90, 5, .9, 1.3)}
+      ${hatch(cheek, 30, 116, 82, 160, 5, .9, 1.3)}
+      ${hatch(tan, 40, 126, 102, 164, 4.4, 1, 1.3)}
+    </g>
+    <path d="M128 70 l4 -6 M140 74 l3 -7 M152 76 l2 -7 M56 140 l-4 3 M60 148 l-4 4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
     <path d="${TUFTS}" fill="currentColor" clip-path="url(#${clip})"/>
-    ${hatch(tan, 18, 126, 102, 164, 3.6, 1, 1.5)}
     <path d="${HEAD}" fill="none" stroke="currentColor" stroke-width="5" stroke-linejoin="round"/>
     <path d="M60 46 C65 53 70 58 76 62 M64 40 l5 12 M140 46 C135 53 130 58 124 62 M136 40 l-5 12"
       fill="none" stroke="${PAPER}" stroke-width="2.2" stroke-linecap="round"/>
@@ -959,8 +1025,8 @@ html.rm .screen.enter-push,html.rm .screen.enter-pop{animation:vt-fade-in 160ms 
     },
 
     /* ícono de la app / favicon: cara en tinta sobre crema */
-    icon({ bg = '#FBF6DC', ink = '#151515', eye = '#CBD45E', radius = 44 } = {}) {
-      return `<svg viewBox="0 0 200 200" role="img" aria-label="Lukas" style="color:${ink};--art-paper:${bg};--art-eye:${eye}">
+    icon({ bg = '#FBF6DC', ink = '#151515', eye = '#CBD45E', calico = '#E8893A', radius = 44 } = {}) {
+      return `<svg viewBox="0 0 200 200" role="img" aria-label="Lukas" style="color:${ink};--art-paper:${bg};--art-eye:${eye};--art-calico:${calico}">
         <rect width="200" height="200" rx="${radius}" fill="${bg}"/>
         <g transform="translate(4 8) scale(.96)">${headGroup()}</g>
       </svg>`;
@@ -980,6 +1046,8 @@ html.rm .screen.enter-push,html.rm .screen.enter-pop{animation:vt-fade-in 160ms 
         </g>
         <path d="${bodyD}" fill="${PAPER}" stroke="currentColor" stroke-width="4" stroke-linejoin="round"/>
         <path d="M128 76 C160 70 196 86 204 114 C182 106 156 102 132 92 Z" fill="currentColor" clip-path="url(#${body})"/>
+        <path d="M100 84 C118 90 138 104 146 128 L96 132 C92 116 92 98 100 84 Z" fill="${ORANGE}" clip-path="url(#${body})"/>
+        <path d="M108 96 l8 -5 M112 108 l9 -5 M118 120 l9 -5 M104 118 l6 -4" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" clip-path="url(#${body})"/>
         <path d="M150 112 l6 -4 M164 116 l6 -3 M176 120 l5 -4 M98 104 l5 -2 M88 114 l5 -3" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
         <g transform="translate(30 30) rotate(-7 55 60) scale(.56)">${headGroup({ sleeping: true })}</g>
         <path d="M44 128 H216 a6 6 0 0 1 6 6 V148 a6 6 0 0 1 -6 6 H44 a6 6 0 0 1 -6 -6 V134 a6 6 0 0 1 6 -6 Z"
@@ -992,8 +1060,11 @@ html.rm .screen.enter-push,html.rm .screen.enter-pop{animation:vt-fade-in 160ms 
           <path d="M112 128 C112 120 140 118 144 126 C146 134 140 140 128 140 C116 140 112 136 112 128 Z" fill="${PAPER}" stroke="currentColor" stroke-width="3.4"/>
           <path d="M124 132 v6 M132 131 v7" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
         </g>
-        <path class="lk-tail" d="M204 124 C230 124 240 150 226 170 C218 180 204 176 208 164" fill="none" stroke="currentColor" stroke-width="12" stroke-linecap="round"/>
-        <path d="M222 140 l5 3 M226 154 l5 0" stroke="${PAPER}" stroke-width="1.8" stroke-linecap="round"/>
+        <g class="lk-tail">
+          <path d="M204 124 C230 124 240 150 226 170 C218 180 204 176 208 164" fill="none" stroke="currentColor" stroke-width="14" stroke-linecap="round"/>
+          <path d="M204 124 C230 124 240 150 226 170 C222 175 216 176 212 172" fill="none" stroke="${ORANGE}" stroke-width="8" stroke-linecap="round"/>
+          <path d="M224 136 l6 2 M230 150 l6 -1 M226 162 l5 3" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/>
+        </g>
         <path d="M40 218 h16 M64 218 h8 M190 218 h10 M206 218 h18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/>
         <g class="lk-z" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
           <path class="z1" d="M42 46 h12 l-12 12 h12"/>
@@ -1045,7 +1116,8 @@ html.rm .screen.enter-push,html.rm .screen.enter-pop{animation:vt-fade-in 160ms 
     <li>Marca <b>Hecha</b>: el anillo se vacía y salen hojitas.</li>
     <li>Prueba <b>La hizo alguien más</b> y <b>Deshacer</b>.</li>
     <li>Usa el "…" de una tarjeta, o filtra por <b>Hoy</b> y vacíalo.</li>
-    <li><b>Nueva tarea</b> abre la hoja de crear (arrástrala para cerrarla).</li>
+    <li><b>Nueva tarea</b> abre la hoja de crear; <b>Agregar</b> está arriba a la derecha.</li>
+    <li><b>Pendientes</b>: lista aparte de cosas de la casa sin fecha.</li>
   </ol>
   <div class="ctl"><button class="btn btn--bordered btn--sm" id="pThemeBtn">Cambiar tema</button><button class="btn btn--gray btn--sm" id="pRmBtn">Movimiento reducido: no</button></div>
   <div class="ctl"><button class="btn btn--gray btn--sm" id="pLoadBtn">Simular carga</button><button class="btn btn--gray btn--sm" id="pResetBtn">Restablecer</button></div>
@@ -1109,6 +1181,27 @@ html.rm .screen.enter-push,html.rm .screen.enter-pop{animation:vt-fade-in 160ms 
   </main>
 
   <!-- ============ GESTIONAR / ESTADÍSTICAS / AJUSTES ============ -->
+  <main class="screen" id="todo" data-tab="todo" hidden aria-label="Pendientes de casa">
+    <header class="simple-head"><h1>Pendientes de casa</h1><p class="summary" id="todoSummary"></p></header>
+    <div class="todo-wrap">
+      <form class="quick-add" id="quickAdd" autocomplete="off">
+        <div class="quick-add__row">
+          <input id="todoInput" maxlength="80" placeholder="Agregar un pendiente…" aria-label="Nuevo pendiente" enterkeyhint="done">
+          <button class="icon-btn icon-btn--ink" id="todoAddBtn" type="submit" aria-label="Agregar pendiente" disabled><svg class="ico"><use href="#i-plus"/></svg></button>
+        </div>
+        <div class="quick-add__opts" id="todoOpts" role="group" aria-label="Opciones">
+          <button type="button" class="chip" data-tw="h" aria-pressed="true">🏡 Cualquiera</button>
+          <button type="button" class="chip" data-tw="a" aria-pressed="false">🌵 Andrés</button>
+          <button type="button" class="chip" data-tw="m" aria-pressed="false">🌸 Mari</button>
+          <button type="button" class="chip" data-tsoon aria-pressed="false">Pronto</button>
+        </div>
+      </form>
+      <nav class="filters" id="todoFilters" aria-label="Filtros de pendientes"></nav>
+      <div id="todoList"></div>
+      <details class="todo-done" id="todoDone"><summary><svg class="ico ico--sm"><use href="#i-chevron-right"/></svg><span id="todoDoneLabel">Hechos</span></summary><div class="todo-group" id="todoDoneList"></div></details>
+    </div>
+    <div class="pad-tab"></div>
+  </main>
   <main class="screen" id="manage" data-tab="manage" hidden aria-label="Gestionar">
     <header class="simple-head"><h1>Gestionar</h1></header>
     <div class="soon-note"><div class="art" data-art="sprout"></div><b style="color:var(--ink)">Esta pantalla crece en la próxima ronda</b>Listas, pausar y reanudar, Terminadas, Papelera y Modo vacaciones (SPEC §4.3.1).</div>
@@ -1146,6 +1239,7 @@ html.rm .screen.enter-push,html.rm .screen.enter-pop{animation:vt-fade-in 160ms 
   <div class="tabbar-wrap" id="tabbarWrap">
     <nav class="tabbar" aria-label="Principal" id="tabbar">
       <button class="tabbar__item" data-tab="home" aria-current="page"><svg class="ico"><use href="#i-home"/></svg><span class="tabbar__label">Inicio</span></button>
+      <button class="tabbar__item" data-tab="todo" aria-label="Pendientes"><svg class="ico"><use href="#i-todo"/></svg><span class="tabbar__label">Pendientes</span><span class="badge badge--dot" id="todoDot" hidden style="position:absolute;top:8px;right:8px;border-color:var(--ink-black)"></span></button>
       <button class="tabbar__item" data-tab="manage" aria-label="Gestionar"><svg class="ico"><use href="#i-manage"/></svg><span class="tabbar__label">Gestionar</span></button>
       <button class="tabbar__item" data-tab="stats" aria-label="Estadísticas"><svg class="ico"><use href="#i-stats"/></svg><span class="tabbar__label">Estadísticas</span></button>
       <button class="tabbar__item" data-tab="settings" aria-label="Ajustes"><svg class="ico"><use href="#i-settings"/></svg><span class="tabbar__label">Ajustes</span></button>
@@ -1158,7 +1252,7 @@ html.rm .screen.enter-push,html.rm .screen.enter-pop{animation:vt-fade-in 160ms 
   <!-- ============ HOJA: CREAR / EDITAR ============ -->
   <section class="sheet" id="createSheet" role="dialog" aria-modal="true" aria-labelledby="createTitle" inert>
     <div class="sheet__grabber" data-drag></div>
-    <div class="sheet__head" data-drag><button class="btn btn--plain btn--sm" data-close>Cancelar</button><h2 class="sheet__title" id="createTitle">Nueva tarea</h2><span style="width:84px"></span></div>
+    <div class="sheet__head" data-drag><button class="btn btn--plain btn--sm" data-close>Cancelar</button><h2 class="sheet__title" id="createTitle">Nueva tarea</h2><button class="btn btn--filled btn--sm" id="saveTop" disabled style="justify-self:end">Agregar</button></div>
     <div class="sheet__body">
       <div class="well-wrap">
         <button class="emoji-well" id="emojiWell" aria-label="Elegir emoji" aria-expanded="false"><span id="wellEmoji">✨</span><span class="emoji-well__edit"><svg class="ico ico--sm"><use href="#i-edit"/></svg></span></button>
@@ -1202,7 +1296,7 @@ html.rm .screen.enter-push,html.rm .screen.enter-pop{animation:vt-fade-in 160ms 
     </div>
     <div class="sheet__foot">
       <p class="sheet-summary" id="createSummary"></p>
-      <button class="btn btn--filled btn--lg btn--block" id="saveBtn" disabled>Guardar</button>
+      <button class="btn btn--filled btn--lg btn--block" id="saveBtn" disabled>Agregar tarea</button>
     </div>
   </section>
 
@@ -1687,14 +1781,14 @@ function updateSummary() {
   const who = F.rot ? 'Rotan Andrés y Mari' : F.who === 'h' ? 'Cualquiera' : PEOPLE[F.who].name;
   const ok = F.name.trim().length > 0 && !(F.type === 'weekly' && !F.days.length);
   $('#createSummary').textContent = F.type === 'weekly' && !F.days.length ? 'Elige al menos un día.' : `${schedText(t)} · ${who}`;
-  $('#saveBtn').disabled = !ok;
+  $('#saveBtn').disabled = !ok; $('#saveTop').disabled = !ok;
 }
 function openCreate(editId) {
   const t = editId && byId(editId);
   Object.assign(F, { editing: editId || null, e: '✨', userEmoji: false, name: '', type: 'interval', every: 3, unit: 'day', anchor: 'completion', days: [2, 4], day: 3, date: '2026-10-20', time: '09:00', who: 'h', rot: false, list: 'general', color: 'none' });
   if (t) Object.assign(F, { e: t.e, userEmoji: true, name: t.title, type: t.s.type, every: t.s.every || 3, unit: t.s.unit || 'day', anchor: t.s.anchor || 'completion', days: t.s.days || [2, 4], day: t.s.day || 3, date: t.s.date || '2026-10-20', time: t.time, who: t.who.mode === 'anyone' ? 'h' : t.who.cur, rot: t.who.mode === 'rotation', list: t.list, color: t.color });
   $('#createTitle').textContent = t ? 'Editar tarea' : 'Nueva tarea';
-  $('#saveBtn').textContent = t ? 'Guardar cambios' : 'Guardar';
+  $('#saveBtn').textContent = t ? 'Guardar cambios' : 'Agregar tarea'; $('#saveTop').textContent = t ? 'Guardar' : 'Agregar';
   $('#emojiPanel').classList.remove('is-open'); $('#emojiWell').setAttribute('aria-expanded', 'false');
   renderCreate(); $('#createSheet .sheet__body').scrollTop = 0;
   showSheet($('#createSheet'));
@@ -1730,6 +1824,8 @@ $('#rotSwitch').addEventListener('change', (e) => { F.rot = e.target.checked; if
 $('#timeInput').addEventListener('input', (e) => { F.time = e.target.value || '09:00'; $('#timeOut').textContent = F.time; updateSummary(); });
 $('.time-pill').addEventListener('click', () => { try { $('#timeInput').showPicker(); } catch (e) {} });
 $('#onceDate').addEventListener('input', (e) => { F.date = e.target.value; updateSummary(); });
+$('#saveTop').addEventListener('click', () => $('#saveBtn').click());
+$('#nameInput').addEventListener('keydown', (e) => { if (e.key === 'Enter' && F.name.trim()) { e.preventDefault(); $('#saveBtn').click(); } });
 $('#saveBtn').addEventListener('click', () => {
   if (!F.name.trim()) { $('#nameInput').classList.add('is-error'); $('#nameInput').focus(); return; }
   const s = F.type === 'interval' ? { type: 'interval', every: F.every, unit: F.unit, anchor: F.anchor } : F.type === 'weekly' ? { type: 'weekly', days: [...F.days] } : F.type === 'monthly' ? { type: 'monthly', day: F.day } : { type: 'once', date: F.date };
@@ -1749,6 +1845,94 @@ $('#saveBtn').addEventListener('click', () => {
     toast(`Tarea creada · ${dueLabel(t).replace(/^en /, 'toca en ')}`, { paw: true });
   }
 });
+
+
+/* =================== pendientes de casa =================== */
+const TODO_EMOJI = [[/bombill|luz|lámpar|lampar/, '💡'], [/puert|bisagr|chap/, '🚪'], [/pint/, '🎨'], [/repis|estant|cuadro|colgar/, '🔨'], [/don|ropa/, '👕'], [/caja|mudanz/, '📦'], [/cortin/, '🪟'], [/compr|súper|super/, '🛒'], [/plant|maceta/, '🪴'], [/lukas|gat|rascador/, '🐱'], [/fug|grifo|tuber|llave/, '🔧'], [/limpi|orden/, '🧹'], [/cocin|nevera|refri/, '🍳'], [/carro|auto/, '🚗'], [/factur|banco|pag/, '🧾']];
+const todoEmoji = (t) => (TODO_EMOJI.find(([r]) => r.test(t.toLowerCase())) || [, '📝'])[1];
+const todoSeed = () => [
+  { id: 'p1', text: 'Cambiar el bombillo del pasillo', who: 'a', soon: true },
+  { id: 'p2', text: 'Arreglar la puerta del clóset', who: 'h', soon: false },
+  { id: 'p3', text: 'Colgar la repisa del baño', who: 'a', soon: false },
+  { id: 'p4', text: 'Llevar ropa a donar', who: 'm', soon: true },
+  { id: 'p5', text: 'Comprar rascador nuevo para Lukas', who: 'h', soon: false },
+  { id: 'p6', text: 'Pintar la pared de la sala', who: 'h', soon: false },
+  { id: 'p7', text: 'Desarmar las cajas de la mudanza', who: 'm', soon: false, done: true },
+  { id: 'p8', text: 'Revisar la fuga del grifo', who: 'a', soon: false, done: true },
+].map((t) => ({ ...t, e: todoEmoji(t.text) }));
+let todos = todoSeed(), todoFilter = 'all';
+const QA = { who: 'h', soon: false };
+const todoRow = (t) => `<div class="todo ${t.done ? 'is-done' : ''}" data-tid="${t.id}">
+    <button class="check" role="checkbox" aria-checked="${!!t.done}" aria-label="${t.done ? 'Desmarcar' : 'Marcar como hecho'}: ${t.text}" data-tcheck="${t.id}"><i><svg viewBox="0 0 24 24"><path d="m6 12.5 4 4 8-9"/></svg></i></button>
+    <span class="todo__emoji" aria-hidden="true">${t.e}</span>
+    <button class="todo__main" data-tmore="${t.id}"><span class="todo__text">${t.text}</span>
+      <span class="todo__meta">${t.who === 'h' ? '🏡 Cualquiera' : `${PEOPLE[t.who].e} ${PEOPLE[t.who].name}`}${t.soon && !t.done ? ' <span class="tag-soon">pronto</span>' : ''}</span></button>
+  </div>`;
+function renderTodos({ animateId } = {}) {
+  const open = todos.filter((t) => !t.done), done = todos.filter((t) => t.done);
+  let list = open;
+  if (todoFilter === 'mine') list = open.filter((t) => t.who === 'a');
+  if (todoFilter === 'soon') list = open.filter((t) => t.soon);
+  list = [...list].sort((a, b) => (b.soon - a.soon));
+  $('#todoSummary').innerHTML = open.length ? `<b>${open.length} por hacer</b>. Sin fecha: se hacen cuando se pueda.` : 'Todo hecho en casa.';
+  $('#todoFilters').innerHTML = [['all', `Todos <span class="chip__count">${open.length}</span>`], ['mine', 'Míos'], ['soon', 'Pronto']].map(([k, l]) => `<button class="chip" data-tf="${k}" aria-pressed="${todoFilter === k}">${l}</button>`).join('');
+  $('#todoList').innerHTML = list.length ? `<div class="todo-group">${list.map(todoRow).join('')}</div>`
+    : `<div class="todo-empty"><div class="art">${LukasArt.peek()}</div><b>${open.length ? 'Nada aquí' : 'Nada pendiente en casa'}</b>${open.length ? 'Prueba con «Todos».' : 'Cuando aparezca algo, anótalo arriba.'}</div>`;
+  $('#todoDoneLabel').textContent = `Hechos (${done.length})`;
+  $('#todoDone').hidden = !done.length;
+  $('#todoDoneList').innerHTML = done.map(todoRow).join('');
+  $('#todoDot').hidden = !open.some((t) => t.soon);
+  if (animateId && !reduced()) { const el = $(`#todoList [data-tid="${animateId}"]`); el && el.animate([{ opacity: 0, transform: 'translateY(-8px)' }, { opacity: 1, transform: 'none' }], { duration: 420, easing: springEase() }); }
+}
+function toggleTodo(id) {
+  const t = todos.find((x) => x.id === id); if (!t) return;
+  const row = document.querySelector(`[data-tid="${id}"]`);
+  const finish = () => { t.done = !t.done; renderTodos(); };
+  vibrate(10);
+  if (!t.done) {
+    if (row) { row.classList.add('is-done'); row.querySelector('.check').setAttribute('aria-checked', 'true'); }
+    toast(`Hecho: ${t.text}`, { action: 'Deshacer', paw: true, onAction: () => { t.done = false; renderTodos(); } });
+    if (row && !reduced()) {
+      const h = row.offsetHeight;
+      setTimeout(() => row.animate([{ height: h + 'px', opacity: 1 }, { height: '0px', opacity: 0, paddingTop: 0, paddingBottom: 0 }], { duration: 320, easing: 'cubic-bezier(.7,0,.84,0)', fill: 'forwards' }).onfinish = finish, 520);
+    } else finish();
+  } else finish();
+}
+function addTodo(text) {
+  const t = { id: 'p' + Date.now(), text, who: QA.who, soon: QA.soon, e: todoEmoji(text) };
+  todos.unshift(t); if (todoFilter !== 'all' && !((todoFilter === 'soon' && t.soon) || (todoFilter === 'mine' && t.who === 'a'))) todoFilter = 'all';
+  renderTodos({ animateId: t.id });
+}
+$('#quickAdd').addEventListener('submit', (e) => { e.preventDefault(); const v = $('#todoInput').value.trim(); if (!v) return; addTodo(v); $('#todoInput').value = ''; $('#todoAddBtn').disabled = true; $('#todoInput').focus(); });
+$('#todoInput').addEventListener('input', (e) => { $('#todoAddBtn').disabled = !e.target.value.trim(); $('#quickAdd').classList.add('is-open'); });
+$('#todoInput').addEventListener('focus', () => $('#quickAdd').classList.add('is-open'));
+$('#todoOpts').addEventListener('click', (e) => {
+  const w = e.target.closest('[data-tw]'); if (w) { QA.who = w.dataset.tw; $$('#todoOpts [data-tw]').forEach((b) => b.setAttribute('aria-pressed', b === w)); }
+  const so = e.target.closest('[data-tsoon]'); if (so) { QA.soon = !QA.soon; so.setAttribute('aria-pressed', QA.soon); }
+});
+$('#todo').addEventListener('click', (e) => {
+  const c = e.target.closest('[data-tcheck]'); if (c) return toggleTodo(c.dataset.tcheck);
+  const f = e.target.closest('[data-tf]'); if (f) { todoFilter = f.dataset.tf; renderTodos(); return; }
+  const m = e.target.closest('[data-tmore]'); if (m) return openTodoActions(m.dataset.tmore);
+});
+function openTodoActions(id) {
+  const t = todos.find((x) => x.id === id);
+  $('#actBody').innerHTML = `<div class="action-sheet__group"><div class="action-sheet__title">${t.e} ${t.text}</div>
+    <button class="action-sheet__btn" data-x="toggle">${icon('check', 'ico--md')}${t.done ? 'Marcar como pendiente' : 'Marcar como hecho'}</button>
+    ${t.done ? '' : `<button class="action-sheet__btn" data-x="soon">${icon('clock', 'ico--md')}${t.soon ? 'Quitar «pronto»' : 'Marcar como pronto'}</button>`}
+    ${t.done ? '' : ['h', 'a', 'm'].filter((k) => k !== t.who).map((k) => `<button class="action-sheet__btn" data-x="who" data-k="${k}">Pasar a ${k === 'h' ? '🏡 Cualquiera' : PEOPLE[k].e + ' ' + PEOPLE[k].name}</button>`).join('')}
+    <button class="action-sheet__btn action-sheet__btn--danger" data-x="del">${icon('trash', 'ico--md')}Borrar</button></div>
+    <div class="action-sheet__group"><button class="action-sheet__btn action-sheet__btn--cancel" data-x="cancel">Cancelar</button></div><div style="height:var(--safe-bottom)"></div>`;
+  $('#actBody').onclick = (e) => {
+    const b = e.target.closest('[data-x]'); if (!b) return; hideSheet(undefined, true);
+    if (b.dataset.x === 'toggle') return setTimeout(() => toggleTodo(id), 120);
+    if (b.dataset.x === 'soon') t.soon = !t.soon;
+    if (b.dataset.x === 'who') t.who = b.dataset.k;
+    if (b.dataset.x === 'del') { const i = todos.indexOf(t); todos.splice(i, 1); toast(`Borrado: ${t.text}`, { action: 'Deshacer', onAction: () => { todos.splice(i, 0, t); renderTodos(); } }); }
+    renderTodos();
+  };
+  showSheet($('#actSheet'));
+}
 
 /* =================== eventos globales =================== */
 document.addEventListener('click', (e) => {
@@ -1787,7 +1971,7 @@ const toHomeAnd = (fn) => { if (current !== 'home') goTab('home'); setTimeout(fn
 $('#sLoad').addEventListener('click', () => toHomeAnd(() => simulateLoad()));
 $('#pLoadBtn').addEventListener('click', () => { if (current === 'detail') closeDetail(() => simulateLoad()); else toHomeAnd(() => simulateLoad()); });
 $('#sEmpty').addEventListener('click', () => toHomeAnd(() => { tasks.forEach((t) => { const n = nextDue(t); if (t.s.type === 'once' || !n) t.finished = true; else { t.cycleStart = new Date(NOW); t.due = n; } }); filter = 'today'; renderHome(); }));
-const reset = () => { tasks = seed(); filter = 'all'; store.set('lukas-filter', 'all'); undoStack = null; if (current === 'detail') closeDetail(() => simulateLoad(500)); else toHomeAnd(() => simulateLoad(500)); };
+const reset = () => { todos = todoSeed(); renderTodos(); tasks = seed(); filter = 'all'; store.set('lukas-filter', 'all'); undoStack = null; if (current === 'detail') closeDetail(() => simulateLoad(500)); else toHomeAnd(() => simulateLoad(500)); };
 $('#sReset').addEventListener('click', reset); $('#pResetBtn').addEventListener('click', reset);
 
 /* =================== arranque =================== */
@@ -1800,7 +1984,7 @@ applyTheme(store.get('lukas-theme') || 'light');
 setRM(store.get('lukas-rm') === '1');
 setSeg($('#themeSeg'), store.get('lukas-theme') || 'light');
 $('#home').style.viewTransitionName = '';
-renderFilters(); renderSummary();
+renderFilters(); renderSummary(); renderTodos();
 simulateLoad(750);
 })();
 </script>

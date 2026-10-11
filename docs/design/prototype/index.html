@@ -19,7 +19,7 @@ body.proto{display:flex;align-items:center;justify-content:center;gap:56px;min-h
   background:color-mix(in srgb,var(--bg) 88%,var(--ink));overflow:hidden}
 .device{position:relative;flex:none;width:406px;height:860px;padding:8px;border-radius:62px;background:#151515;
   box-shadow:0 0 0 2px #3a3a38, 0 40px 80px rgb(21 21 21 / .35)}
-.app{--safe-top:50px;--safe-bottom:24px;position:relative;width:100%;height:100%;border-radius:54px;overflow:hidden;background:var(--bg);
+.app{--safe-top:50px;--safe-bottom:24px;position:relative;width:100%;height:100%;border-radius:54px;overflow:hidden;overflow:clip;background:var(--bg);
   isolation:isolate;view-transition-name:none}
 .statusbar{position:absolute;z-index:60;top:0;left:0;right:0;height:50px;display:flex;align-items:center;justify-content:space-between;
   padding:6px 30px 0 40px;font:700 16px/1 var(--font-text);color:var(--ink);pointer-events:none;font-variant-numeric:tabular-nums}
@@ -94,8 +94,26 @@ body.proto{display:flex;align-items:center;justify-content:center;gap:56px;min-h
 .rot{display:inline-flex;align-items:center;gap:8px}
 
 /* Tab bar global */
-.tabbar-wrap{position:absolute;z-index:30;left:16px;right:16px;bottom:calc(var(--safe-bottom) + 10px);transition:transform var(--dur-3) var(--ease-out), opacity var(--dur-2);view-transition-name:tabbar}
+.tabbar-wrap{position:absolute;z-index:30;left:12px;right:12px;bottom:calc(var(--safe-bottom) + 10px);transition:transform var(--dur-3) var(--ease-out), opacity var(--dur-2);view-transition-name:tabbar}
 .tabbar-wrap.is-hidden{transform:translateY(calc(100% + 40px));opacity:0;pointer-events:none}
+
+/* tab bar de 5: ítems inactivos de 44 */
+.tabbar{gap:2px;padding:8px 6px}
+.tabbar__item:not([aria-current="page"]){width:46px}
+.tabbar__item[aria-current="page"]{padding:0 14px}
+
+/* Pendientes de casa */
+.todo-wrap{display:grid;gap:14px;padding:6px var(--margin) 0}
+.todo-wrap .filters{padding:0;margin:0 calc(var(--margin) * -1);padding:0 var(--margin)}
+.todo-section{font:700 13px/1.2 var(--font-text);color:var(--ink-muted);padding:6px 4px 0;display:flex;justify-content:space-between;align-items:center}
+.todo-done summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;min-height:44px;padding:0 4px;font:700 13px/1.2 var(--font-text);color:var(--ink-muted)}
+.todo-done summary::-webkit-details-marker{display:none}
+.todo-done summary .ico{transition:transform var(--dur-3) var(--ease-out)}
+.todo-done[open] summary .ico{transform:rotate(90deg)}
+.todo-done .todo-group{box-shadow:none;border-style:dashed;border-color:var(--fill-4);background:transparent}
+.todo-empty{display:flex;flex-direction:column;align-items:center;gap:6px;text-align:center;padding:8px 24px 0;color:var(--ink-muted);font:400 14.5px/1.45 var(--font-text)}
+.todo-empty .art{width:180px}
+.todo-empty b{font:800 22px/1.1 var(--font-display);color:var(--ink);letter-spacing:-.02em}
 
 /* Otras pestañas */
 .simple-head{padding:calc(var(--safe-top) + 14px) var(--margin) 8px}
@@ -216,7 +234,8 @@ html.rm .screen.enter-push,html.rm .screen.enter-pop{animation:vt-fade-in 160ms 
     <li>Marca <b>Hecha</b>: el anillo se vacía y salen hojitas.</li>
     <li>Prueba <b>La hizo alguien más</b> y <b>Deshacer</b>.</li>
     <li>Usa el "…" de una tarjeta, o filtra por <b>Hoy</b> y vacíalo.</li>
-    <li><b>Nueva tarea</b> abre la hoja de crear (arrástrala para cerrarla).</li>
+    <li><b>Nueva tarea</b> abre la hoja de crear; <b>Agregar</b> está arriba a la derecha.</li>
+    <li><b>Pendientes</b>: lista aparte de cosas de la casa sin fecha.</li>
   </ol>
   <div class="ctl"><button class="btn btn--bordered btn--sm" id="pThemeBtn">Cambiar tema</button><button class="btn btn--gray btn--sm" id="pRmBtn">Movimiento reducido: no</button></div>
   <div class="ctl"><button class="btn btn--gray btn--sm" id="pLoadBtn">Simular carga</button><button class="btn btn--gray btn--sm" id="pResetBtn">Restablecer</button></div>
@@ -280,6 +299,27 @@ html.rm .screen.enter-push,html.rm .screen.enter-pop{animation:vt-fade-in 160ms 
   </main>
 
   <!-- ============ GESTIONAR / ESTADÍSTICAS / AJUSTES ============ -->
+  <main class="screen" id="todo" data-tab="todo" hidden aria-label="Pendientes de casa">
+    <header class="simple-head"><h1>Pendientes de casa</h1><p class="summary" id="todoSummary"></p></header>
+    <div class="todo-wrap">
+      <form class="quick-add" id="quickAdd" autocomplete="off">
+        <div class="quick-add__row">
+          <input id="todoInput" maxlength="80" placeholder="Agregar un pendiente…" aria-label="Nuevo pendiente" enterkeyhint="done">
+          <button class="icon-btn icon-btn--ink" id="todoAddBtn" type="submit" aria-label="Agregar pendiente" disabled><svg class="ico"><use href="#i-plus"/></svg></button>
+        </div>
+        <div class="quick-add__opts" id="todoOpts" role="group" aria-label="Opciones">
+          <button type="button" class="chip" data-tw="h" aria-pressed="true">🏡 Cualquiera</button>
+          <button type="button" class="chip" data-tw="a" aria-pressed="false">🌵 Andrés</button>
+          <button type="button" class="chip" data-tw="m" aria-pressed="false">🌸 Mari</button>
+          <button type="button" class="chip" data-tsoon aria-pressed="false">Pronto</button>
+        </div>
+      </form>
+      <nav class="filters" id="todoFilters" aria-label="Filtros de pendientes"></nav>
+      <div id="todoList"></div>
+      <details class="todo-done" id="todoDone"><summary><svg class="ico ico--sm"><use href="#i-chevron-right"/></svg><span id="todoDoneLabel">Hechos</span></summary><div class="todo-group" id="todoDoneList"></div></details>
+    </div>
+    <div class="pad-tab"></div>
+  </main>
   <main class="screen" id="manage" data-tab="manage" hidden aria-label="Gestionar">
     <header class="simple-head"><h1>Gestionar</h1></header>
     <div class="soon-note"><div class="art" data-art="sprout"></div><b style="color:var(--ink)">Esta pantalla crece en la próxima ronda</b>Listas, pausar y reanudar, Terminadas, Papelera y Modo vacaciones (SPEC §4.3.1).</div>
@@ -317,6 +357,7 @@ html.rm .screen.enter-push,html.rm .screen.enter-pop{animation:vt-fade-in 160ms 
   <div class="tabbar-wrap" id="tabbarWrap">
     <nav class="tabbar" aria-label="Principal" id="tabbar">
       <button class="tabbar__item" data-tab="home" aria-current="page"><svg class="ico"><use href="#i-home"/></svg><span class="tabbar__label">Inicio</span></button>
+      <button class="tabbar__item" data-tab="todo" aria-label="Pendientes"><svg class="ico"><use href="#i-todo"/></svg><span class="tabbar__label">Pendientes</span><span class="badge badge--dot" id="todoDot" hidden style="position:absolute;top:8px;right:8px;border-color:var(--ink-black)"></span></button>
       <button class="tabbar__item" data-tab="manage" aria-label="Gestionar"><svg class="ico"><use href="#i-manage"/></svg><span class="tabbar__label">Gestionar</span></button>
       <button class="tabbar__item" data-tab="stats" aria-label="Estadísticas"><svg class="ico"><use href="#i-stats"/></svg><span class="tabbar__label">Estadísticas</span></button>
       <button class="tabbar__item" data-tab="settings" aria-label="Ajustes"><svg class="ico"><use href="#i-settings"/></svg><span class="tabbar__label">Ajustes</span></button>
@@ -329,7 +370,7 @@ html.rm .screen.enter-push,html.rm .screen.enter-pop{animation:vt-fade-in 160ms 
   <!-- ============ HOJA: CREAR / EDITAR ============ -->
   <section class="sheet" id="createSheet" role="dialog" aria-modal="true" aria-labelledby="createTitle" inert>
     <div class="sheet__grabber" data-drag></div>
-    <div class="sheet__head" data-drag><button class="btn btn--plain btn--sm" data-close>Cancelar</button><h2 class="sheet__title" id="createTitle">Nueva tarea</h2><span style="width:84px"></span></div>
+    <div class="sheet__head" data-drag><button class="btn btn--plain btn--sm" data-close>Cancelar</button><h2 class="sheet__title" id="createTitle">Nueva tarea</h2><button class="btn btn--filled btn--sm" id="saveTop" disabled style="justify-self:end">Agregar</button></div>
     <div class="sheet__body">
       <div class="well-wrap">
         <button class="emoji-well" id="emojiWell" aria-label="Elegir emoji" aria-expanded="false"><span id="wellEmoji">✨</span><span class="emoji-well__edit"><svg class="ico ico--sm"><use href="#i-edit"/></svg></span></button>
@@ -373,7 +414,7 @@ html.rm .screen.enter-push,html.rm .screen.enter-pop{animation:vt-fade-in 160ms 
     </div>
     <div class="sheet__foot">
       <p class="sheet-summary" id="createSummary"></p>
-      <button class="btn btn--filled btn--lg btn--block" id="saveBtn" disabled>Guardar</button>
+      <button class="btn btn--filled btn--lg btn--block" id="saveBtn" disabled>Agregar tarea</button>
     </div>
   </section>
 
@@ -858,14 +899,14 @@ function updateSummary() {
   const who = F.rot ? 'Rotan Andrés y Mari' : F.who === 'h' ? 'Cualquiera' : PEOPLE[F.who].name;
   const ok = F.name.trim().length > 0 && !(F.type === 'weekly' && !F.days.length);
   $('#createSummary').textContent = F.type === 'weekly' && !F.days.length ? 'Elige al menos un día.' : `${schedText(t)} · ${who}`;
-  $('#saveBtn').disabled = !ok;
+  $('#saveBtn').disabled = !ok; $('#saveTop').disabled = !ok;
 }
 function openCreate(editId) {
   const t = editId && byId(editId);
   Object.assign(F, { editing: editId || null, e: '✨', userEmoji: false, name: '', type: 'interval', every: 3, unit: 'day', anchor: 'completion', days: [2, 4], day: 3, date: '2026-10-20', time: '09:00', who: 'h', rot: false, list: 'general', color: 'none' });
   if (t) Object.assign(F, { e: t.e, userEmoji: true, name: t.title, type: t.s.type, every: t.s.every || 3, unit: t.s.unit || 'day', anchor: t.s.anchor || 'completion', days: t.s.days || [2, 4], day: t.s.day || 3, date: t.s.date || '2026-10-20', time: t.time, who: t.who.mode === 'anyone' ? 'h' : t.who.cur, rot: t.who.mode === 'rotation', list: t.list, color: t.color });
   $('#createTitle').textContent = t ? 'Editar tarea' : 'Nueva tarea';
-  $('#saveBtn').textContent = t ? 'Guardar cambios' : 'Guardar';
+  $('#saveBtn').textContent = t ? 'Guardar cambios' : 'Agregar tarea'; $('#saveTop').textContent = t ? 'Guardar' : 'Agregar';
   $('#emojiPanel').classList.remove('is-open'); $('#emojiWell').setAttribute('aria-expanded', 'false');
   renderCreate(); $('#createSheet .sheet__body').scrollTop = 0;
   showSheet($('#createSheet'));
@@ -901,6 +942,8 @@ $('#rotSwitch').addEventListener('change', (e) => { F.rot = e.target.checked; if
 $('#timeInput').addEventListener('input', (e) => { F.time = e.target.value || '09:00'; $('#timeOut').textContent = F.time; updateSummary(); });
 $('.time-pill').addEventListener('click', () => { try { $('#timeInput').showPicker(); } catch (e) {} });
 $('#onceDate').addEventListener('input', (e) => { F.date = e.target.value; updateSummary(); });
+$('#saveTop').addEventListener('click', () => $('#saveBtn').click());
+$('#nameInput').addEventListener('keydown', (e) => { if (e.key === 'Enter' && F.name.trim()) { e.preventDefault(); $('#saveBtn').click(); } });
 $('#saveBtn').addEventListener('click', () => {
   if (!F.name.trim()) { $('#nameInput').classList.add('is-error'); $('#nameInput').focus(); return; }
   const s = F.type === 'interval' ? { type: 'interval', every: F.every, unit: F.unit, anchor: F.anchor } : F.type === 'weekly' ? { type: 'weekly', days: [...F.days] } : F.type === 'monthly' ? { type: 'monthly', day: F.day } : { type: 'once', date: F.date };
@@ -920,6 +963,94 @@ $('#saveBtn').addEventListener('click', () => {
     toast(`Tarea creada · ${dueLabel(t).replace(/^en /, 'toca en ')}`, { paw: true });
   }
 });
+
+
+/* =================== pendientes de casa =================== */
+const TODO_EMOJI = [[/bombill|luz|lámpar|lampar/, '💡'], [/puert|bisagr|chap/, '🚪'], [/pint/, '🎨'], [/repis|estant|cuadro|colgar/, '🔨'], [/don|ropa/, '👕'], [/caja|mudanz/, '📦'], [/cortin/, '🪟'], [/compr|súper|super/, '🛒'], [/plant|maceta/, '🪴'], [/lukas|gat|rascador/, '🐱'], [/fug|grifo|tuber|llave/, '🔧'], [/limpi|orden/, '🧹'], [/cocin|nevera|refri/, '🍳'], [/carro|auto/, '🚗'], [/factur|banco|pag/, '🧾']];
+const todoEmoji = (t) => (TODO_EMOJI.find(([r]) => r.test(t.toLowerCase())) || [, '📝'])[1];
+const todoSeed = () => [
+  { id: 'p1', text: 'Cambiar el bombillo del pasillo', who: 'a', soon: true },
+  { id: 'p2', text: 'Arreglar la puerta del clóset', who: 'h', soon: false },
+  { id: 'p3', text: 'Colgar la repisa del baño', who: 'a', soon: false },
+  { id: 'p4', text: 'Llevar ropa a donar', who: 'm', soon: true },
+  { id: 'p5', text: 'Comprar rascador nuevo para Lukas', who: 'h', soon: false },
+  { id: 'p6', text: 'Pintar la pared de la sala', who: 'h', soon: false },
+  { id: 'p7', text: 'Desarmar las cajas de la mudanza', who: 'm', soon: false, done: true },
+  { id: 'p8', text: 'Revisar la fuga del grifo', who: 'a', soon: false, done: true },
+].map((t) => ({ ...t, e: todoEmoji(t.text) }));
+let todos = todoSeed(), todoFilter = 'all';
+const QA = { who: 'h', soon: false };
+const todoRow = (t) => `<div class="todo ${t.done ? 'is-done' : ''}" data-tid="${t.id}">
+    <button class="check" role="checkbox" aria-checked="${!!t.done}" aria-label="${t.done ? 'Desmarcar' : 'Marcar como hecho'}: ${t.text}" data-tcheck="${t.id}"><i><svg viewBox="0 0 24 24"><path d="m6 12.5 4 4 8-9"/></svg></i></button>
+    <span class="todo__emoji" aria-hidden="true">${t.e}</span>
+    <button class="todo__main" data-tmore="${t.id}"><span class="todo__text">${t.text}</span>
+      <span class="todo__meta">${t.who === 'h' ? '🏡 Cualquiera' : `${PEOPLE[t.who].e} ${PEOPLE[t.who].name}`}${t.soon && !t.done ? ' <span class="tag-soon">pronto</span>' : ''}</span></button>
+  </div>`;
+function renderTodos({ animateId } = {}) {
+  const open = todos.filter((t) => !t.done), done = todos.filter((t) => t.done);
+  let list = open;
+  if (todoFilter === 'mine') list = open.filter((t) => t.who === 'a');
+  if (todoFilter === 'soon') list = open.filter((t) => t.soon);
+  list = [...list].sort((a, b) => (b.soon - a.soon));
+  $('#todoSummary').innerHTML = open.length ? `<b>${open.length} por hacer</b>. Sin fecha: se hacen cuando se pueda.` : 'Todo hecho en casa.';
+  $('#todoFilters').innerHTML = [['all', `Todos <span class="chip__count">${open.length}</span>`], ['mine', 'Míos'], ['soon', 'Pronto']].map(([k, l]) => `<button class="chip" data-tf="${k}" aria-pressed="${todoFilter === k}">${l}</button>`).join('');
+  $('#todoList').innerHTML = list.length ? `<div class="todo-group">${list.map(todoRow).join('')}</div>`
+    : `<div class="todo-empty"><div class="art">${LukasArt.peek()}</div><b>${open.length ? 'Nada aquí' : 'Nada pendiente en casa'}</b>${open.length ? 'Prueba con «Todos».' : 'Cuando aparezca algo, anótalo arriba.'}</div>`;
+  $('#todoDoneLabel').textContent = `Hechos (${done.length})`;
+  $('#todoDone').hidden = !done.length;
+  $('#todoDoneList').innerHTML = done.map(todoRow).join('');
+  $('#todoDot').hidden = !open.some((t) => t.soon);
+  if (animateId && !reduced()) { const el = $(`#todoList [data-tid="${animateId}"]`); el && el.animate([{ opacity: 0, transform: 'translateY(-8px)' }, { opacity: 1, transform: 'none' }], { duration: 420, easing: springEase() }); }
+}
+function toggleTodo(id) {
+  const t = todos.find((x) => x.id === id); if (!t) return;
+  const row = document.querySelector(`[data-tid="${id}"]`);
+  const finish = () => { t.done = !t.done; renderTodos(); };
+  vibrate(10);
+  if (!t.done) {
+    if (row) { row.classList.add('is-done'); row.querySelector('.check').setAttribute('aria-checked', 'true'); }
+    toast(`Hecho: ${t.text}`, { action: 'Deshacer', paw: true, onAction: () => { t.done = false; renderTodos(); } });
+    if (row && !reduced()) {
+      const h = row.offsetHeight;
+      setTimeout(() => row.animate([{ height: h + 'px', opacity: 1 }, { height: '0px', opacity: 0, paddingTop: 0, paddingBottom: 0 }], { duration: 320, easing: 'cubic-bezier(.7,0,.84,0)', fill: 'forwards' }).onfinish = finish, 520);
+    } else finish();
+  } else finish();
+}
+function addTodo(text) {
+  const t = { id: 'p' + Date.now(), text, who: QA.who, soon: QA.soon, e: todoEmoji(text) };
+  todos.unshift(t); if (todoFilter !== 'all' && !((todoFilter === 'soon' && t.soon) || (todoFilter === 'mine' && t.who === 'a'))) todoFilter = 'all';
+  renderTodos({ animateId: t.id });
+}
+$('#quickAdd').addEventListener('submit', (e) => { e.preventDefault(); const v = $('#todoInput').value.trim(); if (!v) return; addTodo(v); $('#todoInput').value = ''; $('#todoAddBtn').disabled = true; $('#todoInput').focus(); });
+$('#todoInput').addEventListener('input', (e) => { $('#todoAddBtn').disabled = !e.target.value.trim(); $('#quickAdd').classList.add('is-open'); });
+$('#todoInput').addEventListener('focus', () => $('#quickAdd').classList.add('is-open'));
+$('#todoOpts').addEventListener('click', (e) => {
+  const w = e.target.closest('[data-tw]'); if (w) { QA.who = w.dataset.tw; $$('#todoOpts [data-tw]').forEach((b) => b.setAttribute('aria-pressed', b === w)); }
+  const so = e.target.closest('[data-tsoon]'); if (so) { QA.soon = !QA.soon; so.setAttribute('aria-pressed', QA.soon); }
+});
+$('#todo').addEventListener('click', (e) => {
+  const c = e.target.closest('[data-tcheck]'); if (c) return toggleTodo(c.dataset.tcheck);
+  const f = e.target.closest('[data-tf]'); if (f) { todoFilter = f.dataset.tf; renderTodos(); return; }
+  const m = e.target.closest('[data-tmore]'); if (m) return openTodoActions(m.dataset.tmore);
+});
+function openTodoActions(id) {
+  const t = todos.find((x) => x.id === id);
+  $('#actBody').innerHTML = `<div class="action-sheet__group"><div class="action-sheet__title">${t.e} ${t.text}</div>
+    <button class="action-sheet__btn" data-x="toggle">${icon('check', 'ico--md')}${t.done ? 'Marcar como pendiente' : 'Marcar como hecho'}</button>
+    ${t.done ? '' : `<button class="action-sheet__btn" data-x="soon">${icon('clock', 'ico--md')}${t.soon ? 'Quitar «pronto»' : 'Marcar como pronto'}</button>`}
+    ${t.done ? '' : ['h', 'a', 'm'].filter((k) => k !== t.who).map((k) => `<button class="action-sheet__btn" data-x="who" data-k="${k}">Pasar a ${k === 'h' ? '🏡 Cualquiera' : PEOPLE[k].e + ' ' + PEOPLE[k].name}</button>`).join('')}
+    <button class="action-sheet__btn action-sheet__btn--danger" data-x="del">${icon('trash', 'ico--md')}Borrar</button></div>
+    <div class="action-sheet__group"><button class="action-sheet__btn action-sheet__btn--cancel" data-x="cancel">Cancelar</button></div><div style="height:var(--safe-bottom)"></div>`;
+  $('#actBody').onclick = (e) => {
+    const b = e.target.closest('[data-x]'); if (!b) return; hideSheet(undefined, true);
+    if (b.dataset.x === 'toggle') return setTimeout(() => toggleTodo(id), 120);
+    if (b.dataset.x === 'soon') t.soon = !t.soon;
+    if (b.dataset.x === 'who') t.who = b.dataset.k;
+    if (b.dataset.x === 'del') { const i = todos.indexOf(t); todos.splice(i, 1); toast(`Borrado: ${t.text}`, { action: 'Deshacer', onAction: () => { todos.splice(i, 0, t); renderTodos(); } }); }
+    renderTodos();
+  };
+  showSheet($('#actSheet'));
+}
 
 /* =================== eventos globales =================== */
 document.addEventListener('click', (e) => {
@@ -958,7 +1089,7 @@ const toHomeAnd = (fn) => { if (current !== 'home') goTab('home'); setTimeout(fn
 $('#sLoad').addEventListener('click', () => toHomeAnd(() => simulateLoad()));
 $('#pLoadBtn').addEventListener('click', () => { if (current === 'detail') closeDetail(() => simulateLoad()); else toHomeAnd(() => simulateLoad()); });
 $('#sEmpty').addEventListener('click', () => toHomeAnd(() => { tasks.forEach((t) => { const n = nextDue(t); if (t.s.type === 'once' || !n) t.finished = true; else { t.cycleStart = new Date(NOW); t.due = n; } }); filter = 'today'; renderHome(); }));
-const reset = () => { tasks = seed(); filter = 'all'; store.set('lukas-filter', 'all'); undoStack = null; if (current === 'detail') closeDetail(() => simulateLoad(500)); else toHomeAnd(() => simulateLoad(500)); };
+const reset = () => { todos = todoSeed(); renderTodos(); tasks = seed(); filter = 'all'; store.set('lukas-filter', 'all'); undoStack = null; if (current === 'detail') closeDetail(() => simulateLoad(500)); else toHomeAnd(() => simulateLoad(500)); };
 $('#sReset').addEventListener('click', reset); $('#pResetBtn').addEventListener('click', reset);
 
 /* =================== arranque =================== */
@@ -971,7 +1102,7 @@ applyTheme(store.get('lukas-theme') || 'light');
 setRM(store.get('lukas-rm') === '1');
 setSeg($('#themeSeg'), store.get('lukas-theme') || 'light');
 $('#home').style.viewTransitionName = '';
-renderFilters(); renderSummary();
+renderFilters(); renderSummary(); renderTodos();
 simulateLoad(750);
 })();
 </script>

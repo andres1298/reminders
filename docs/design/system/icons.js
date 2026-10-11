@@ -55,6 +55,7 @@
     filter: '<path d="M4 6h16M7 12h10M10 18h4"/>',
     sparkle: '<path d="M12 3c.8 4.6 3.4 7.2 8 8-4.6.8-7.2 3.4-8 8-.8-4.6-3.4-7.2-8-8 4.6-.8 7.2-3.4 8-8z"/>',
     drop: '<path d="M12 3.5s6.5 7 6.5 11a6.5 6.5 0 0 1-13 0c0-4 6.5-11 6.5-11z"/>',
+    todo: '<rect x="3.5" y="3.5" width="17" height="17" rx="4.5"/><path d="m8 12.2 3 3 5.2-6"/>',
     grid: '<rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/>',
   };
   const NAMES = Object.keys(ICONS);

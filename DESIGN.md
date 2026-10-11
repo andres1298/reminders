@@ -16,6 +16,7 @@ colors:
   danger: "#9E3B1F"
   danger-fill: "#EE8F6E"
   art-eye: "#CBD45E"
+  art-calico: "#E8893A"
   leaf: "#C5D98A"
   sage: "#B7CDB0"
   mint: "#BFE3CF"
@@ -318,7 +319,8 @@ Papel crema, tinta casi negra y un jardín de 20 pasteles herbales; un único ac
 
 ### Tertiary
 - **Paleta de macetas** (leaf, sage, mint, moss, olive, mustard, butter, calico, sand, clay, coral, peach, rose, berry, sky, lake, periwinkle, lilac, stone, paper, más "sin color" = surface): el fondo de cada tarjeta de tarea, del hero del detalle y de los swatches del selector. Stone es el valor por defecto. Moss rellena el switch encendido; leaf es el texto del chip "hecha" sobre tinta. Los colores de sistema HIG se mapean a esta paleta (red = coral, green = leaf, blue = periwinkle, etc.).
-- **Verde Ojo de Lukas** (art-eye): el único color de las ilustraciones además de la tinta.
+- **Verde Ojo de Lukas** (art-eye #CBD45E): los ojos.
+- **Naranja Calicó** (art-calico #E8893A): las manchas naranjas de Lukas (coronilla, mejilla, hocico, lomo, cola), sólidas y con trama de tinta encima. Solo en ilustraciones.
 
 ### Neutral
 - **Crema Papel** (cream): fondo de la app (`--bg`), de los sheets y papel de las ilustraciones.
@@ -423,16 +425,19 @@ Píldoras chunky que se hunden al tocar.
 - **Selección:** segmented con thumb de tinta que se desliza con el resorte; switch de 56x34px que se llena de moss; stepper en píldora trigo con botones circulares blancos; selector de días con círculos de 44px (seleccionado = tinta); swatches de 44px con borde de tinta, check que se dibuja y anillo doble al seleccionar.
 
 ### Navigation
-- **Tab bar:** píldora flotante en tinta (oscuro #2A2A28 con filo crema al 8 %), 64px de alto y 8px de padding. Los ítems inactivos son círculos de 48px con ícono crema al 72 %; el activo se estira (flex-grow con el resorte), se rellena de mostaza y muestra su label en 700 14px.
+- **Tab bar:** cinco destinos (Inicio · Pendientes · Gestionar · Estadísticas · Ajustes); píldora flotante en tinta (oscuro #2A2A28 con filo crema al 8 %), 64px de alto y 8px de padding. Los ítems inactivos son círculos de 48px con ícono crema al 72 %; el activo se estira (flex-grow con el resorte), se rellena de mostaza y muestra su label en 700 14px.
 - **Navbar:** estándar de 52px con material translúcido y título 700 17px centrado; grande transparente con large title alineado a la izquierda.
-- **Sheets:** fondo crema, radio 32px arriba, grabber de 40x5px, cabecera en tres columnas con título 700 17px, entra desde abajo con el resorte y se puede arrastrar; pie fijo con separador.
+- **Sheets:** fondo crema, radio 32px arriba, grabber de 40x5px, cabecera en tres columnas (Cancelar · título 700 17px · acción principal en píldora mostaza pequeña, siempre visible aunque el teclado tape el pie), entra desde abajo con el resorte y se puede arrastrar; pie fijo con separador.
 - **Toast:** tinta con texto crema (invertido en oscuro), radio 22px, 56px de alto; acción "Deshacer" en píldora mostaza y una huella de Lukas que aparece con el resorte.
+
+### Pendientes de casa
+Checklist aparte, sin anillo ni fecha. Captura rápida en una tarjeta sellada (input de 44 + botón "+" en tinta) que al enfocar muestra chips de responsable y "Pronto". Las filas van en un grupo blanco sellado con radio 22: checkbox circular de 28px (área de 44) que se rellena de tinta y dibuja el check, emoji automático, texto 600 16px y una meta con el responsable y la etiqueta mostaza "pronto". Al marcar, el texto se tacha con una línea de 2px, la fila se pliega y pasa a "Hechos" (grupo punteado, sin sello).
 
 ### Anillo de progreso
 El corazón del producto. Círculo SVG que empieza a las 12, track de tinta al 15 % y progreso en tinta al 100 % con punta redonda; trazo de 8 (7 en el grande). Tamaños 92px (tarjeta) y 184px (hero), con el emoji de la tarea al centro al 36 % del tamaño. Si está vencida, un punto coral de 16px con borde de tinta late sobre las 12. El progreso transiciona en 420ms ease-out; al completar, el anillo se vacía en 640ms ease-in-out y salen hojitas. En 0 el trazo se oculta para no dejar un punto huérfano.
 
 ### Ilustraciones de Lukas
-SVG dibujados a mano (sin dependencias), en tinta (`currentColor`) sobre papel crema (`--art-paper`), con los ojos en verde (art-eye) como único color. Motivos: ícono, cara, Lukas dormida en maceta, Lukas asomándose, brote y hoja. En oscuro se apoyan sobre una placa crema (paper) con radio 28px y 12px de padding. Animaciones lentas y en bucle: zetas que suben (3.2s), cola que se mece (4s), brote que crece y hojas que brotan con el resorte (2.4s); con movimiento reducido quedan quietas en su estado final.
+SVG dibujados a mano (sin dependencias), en tinta (`currentColor`) sobre papel crema (`--art-paper`), con los ojos en verde (art-eye) y las manchas de calicó en naranja (art-calico) como únicos colores. Motivos: ícono, cara, Lukas dormida en maceta, Lukas asomándose, brote y hoja. En oscuro se apoyan sobre una placa crema (paper) con radio 28px y 12px de padding. Animaciones lentas y en bucle: zetas que suben (3.2s), cola que se mece (4s), brote que crece y hojas que brotan con el resorte (2.4s); con movimiento reducido quedan quietas en su estado final.
 
 ### Íconos
 Sprite SVG propio estilo Phosphor bold: 24px (18, 20 y 28 en variantes), trazo 2.25 con puntas y uniones redondas, en currentColor. Los emoji son contenido (tareas, avatares, botones de Telegram), nunca íconos de UI.
