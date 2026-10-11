@@ -522,7 +522,7 @@ Rate limit: 60 req/min por token. Webhook de Telegram: `POST /api/telegram/webho
 | Datos | Supabase (Postgres, Auth, RLS, pg_cron) + `@supabase/ssr` |
 | Validación | Zod |
 | i18n | next-intl |
-| Tema | next-themes |
+| Tema | Script en línea en `<head>` que pone `data-theme` antes de pintar (guía de Next 16; reemplaza a next-themes) |
 | Fechas | date-fns + `@date-fns/tz` |
 | Emoji | `frimousse` (picker liviano) |
 | Telegram | Bot API vía `fetch` (sin SDK) |
@@ -664,6 +664,12 @@ Flujo propuesto: `mobile-design-system` (iOS) → tokens y catálogo → `impecc
 | 3 | Pendientes de casa | Nueva lista aparte (pestaña propia) para pendientes sin fecha ni repetición. Ver 4.13. |
 | 4 | Sello de tinta | Se mantiene el estilo actual (borde 2px + sombra dura, mostaza como CTA). |
 
-## 17. Siguiente paso
+## 17. Implementación
+
+**Fase 1 (en curso):** Next.js 16 + Tailwind v4, sistema de diseño, recurrencia probada, Inicio / Detalle / Crear / Pendientes con datos de demo en el navegador, y esquema de Supabase con RLS y funciones atómicas probadas en Postgres. Ver `README.md`.
+
+**Fase 2:** conectar Supabase (auth por invitación, datos reales, Server Actions), Gestionar completo (pausar, Papelera, vacaciones) y estadísticas por persona. **Fase 3:** Telegram, widget de Scriptable, ES/EN.
+
+## 18. Siguiente paso (histórico)
 
 El spec queda listo para pasar a diseño: generar el sistema de diseño (tokens + catálogo de componentes) y un prototipo de Inicio, detalle y crear tarea para validarlo antes de programar.
