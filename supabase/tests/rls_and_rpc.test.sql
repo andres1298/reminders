@@ -6,7 +6,10 @@
 \set x '00000000-0000-0000-0000-0000000000c3'
 
 insert into auth.users (id, email) values (:'a', 'andres@example.com'), (:'m', 'mari@example.com'), (:'x', 'otra@example.com');
-insert into public.profiles (id, display_name, avatar_emoji) values (:'a', 'Andrés', '🌵'), (:'m', 'Mari', '🌸'), (:'x', 'Otra', '🦊');
+-- el perfil lo crea el trigger de auth.users; aquí solo se le pone nombre y emoji
+update public.profiles set display_name = 'Andrés', avatar_emoji = '🌵' where id = :'a';
+update public.profiles set display_name = 'Mari', avatar_emoji = '🌸' where id = :'m';
+update public.profiles set display_name = 'Otra', avatar_emoji = '🦊' where id = :'x';
 
 create temp table ids (k text primary key, v uuid);
 grant all on ids to authenticated;
@@ -98,8 +101,10 @@ set local role authenticated; set local request.jwt.claim.sub = :'m';
 do $$ begin
   perform public.delete_task((select v from ids where k = 'basura'));
   assert (select count(*) from public.tasks) = 0, 'borrada desaparece para el miembro';
-  begin perform public.restore_task((select v from ids where k = 'basura')); raise exception 'debió fallar';
-  exception when others then assert sqlerrm = 'forbidden', 'miembro no restaura: ' || sqlerrm; end;
+  -- "Deshacer": quien la borró la puede restaurar aunque no sea admin
+  perform public.restore_task((select v from ids where k = 'basura'));
+  assert (select count(*) from public.tasks) = 1, 'quien la borró la restaura';
+  perform public.delete_task((select v from ids where k = 'basura'));
 end $$;
 commit;
 
@@ -171,3 +176,53 @@ do $$ begin
 end $$;
 
 \echo 'SQL push: todas las aserciones pasaron'
+
+-- Cuentas (20261013000000_accounts.sql) ----------------------------------------
+insert into auth.users (id, email, raw_user_meta_data) values
+  ('00000000-0000-0000-0000-0000000000d4', 'nuevo@example.com', '{"display_name":"Nuevo"}'),
+  ('00000000-0000-0000-0000-0000000000e5', 'sinnombre.largo@example.com', null);
+do $$ begin
+  assert (select display_name from public.profiles where id = '00000000-0000-0000-0000-0000000000d4') = 'Nuevo', 'perfil con el nombre del registro';
+  assert (select display_name from public.profiles where id = '00000000-0000-0000-0000-0000000000e5') = 'sinnombre.largo', 'perfil con la parte local del correo';
+end $$;
+
+-- Un miembro no restaura lo que borró otra persona
+begin;
+set local role authenticated; set local request.jwt.claim.sub = :'a';
+insert into public.tasks (household_id, emoji, title, schedule_type, schedule, created_by)
+  select v, '🧽', 'Lavar trastes', 'interval', '{"every":1,"unit":"day"}', :'a' from ids where k = 'casa'
+  returning id as trastes \gset
+insert into ids values ('trastes', :'trastes');
+select public.delete_task(:'trastes');
+commit;
+begin;
+set local role authenticated; set local request.jwt.claim.sub = :'m';
+do $$ begin
+  begin perform public.restore_task((select v from ids where k = 'trastes')); raise exception 'debió fallar';
+  exception when others then assert sqlerrm = 'forbidden', 'miembro no restaura lo de otro: ' || sqlerrm; end;
+end $$;
+commit;
+
+-- Pendientes: borrar y restaurar (solo miembros)
+begin;
+set local role authenticated; set local request.jwt.claim.sub = :'m';
+insert into public.household_todos (household_id, text, created_by)
+  select v, 'Colgar la repisa', :'m' from ids where k = 'casa'
+  returning id as repisa \gset
+insert into ids values ('repisa', :'repisa');
+select public.delete_todo(:'repisa');
+commit;
+begin;
+set local role authenticated; set local request.jwt.claim.sub = :'x';
+do $$ begin
+  begin perform public.restore_todo((select v from ids where k = 'repisa')); raise exception 'debió fallar';
+  exception when others then assert sqlerrm = 'forbidden', 'otro hogar no restaura: ' || sqlerrm; end;
+end $$;
+commit;
+begin;
+set local role authenticated; set local request.jwt.claim.sub = :'m';
+select public.restore_todo(:'repisa');
+do $$ begin assert (select deleted_at from public.household_todos where id = (select v from ids where k = 'repisa')) is null, 'pendiente restaurado'; end $$;
+commit;
+
+\echo 'SQL cuentas: todas las aserciones pasaron'

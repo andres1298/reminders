@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # Corre las migraciones y las pruebas SQL contra un Postgres temporal.
 # Uso: bash supabase/tests/run.sh   (necesita los binarios de PostgreSQL 15+)
+# Sin PostgreSQL local (Windows), con Docker desde la raíz del repo:
+#   docker run --rm -v "$PWD:/w" -w /w postgres:16 bash -c "PG_BIN=/usr/lib/postgresql/16/bin bash supabase/tests/run.sh"
 set -euo pipefail
 here="$(cd "$(dirname "$0")" && pwd)"
 bin="$(ls -d /usr/lib/postgresql/*/bin 2>/dev/null | sort -V | tail -1)"
