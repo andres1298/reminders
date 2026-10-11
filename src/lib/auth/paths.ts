@@ -8,3 +8,8 @@ export function isPublicPath(pathname: string): boolean {
   // archivos (sw.js, manifest, íconos): el último segmento tiene extensión
   return /\.[a-z0-9]+$/i.test(pathname.split("/").pop() ?? "");
 }
+
+/** Pantallas sin la barra de pestañas (sin sesión o sin hogar todavía). */
+export function isBareScreen(pathname: string): boolean {
+  return PUBLIC.includes(pathname) || pathname.startsWith("/invitacion/") || pathname === "/bienvenida";
+}

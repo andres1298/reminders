@@ -1,6 +1,7 @@
 "use client";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { isBareScreen } from "@/lib/auth/paths";
 import { useAppState } from "@/lib/store";
 import { Icon, type IconName } from "@/components/ui/Icon";
 
@@ -16,6 +17,7 @@ const TABS: { href: string; label: string; icon: IconName }[] = [
 export function TabBar() {
   const pathname = usePathname();
   const state = useAppState();
+  if (isBareScreen(pathname)) return null;
   const hidden = pathname.startsWith("/t/");
   const soonTodos = state?.todos.some((t) => t.soon && !t.doneAt && !t.deletedAt);
   return (

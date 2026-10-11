@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isPublicPath } from "./paths";
+import { isBareScreen, isPublicPath } from "./paths";
 
 describe("isPublicPath", () => {
   it.each([
@@ -16,4 +16,11 @@ describe("isPublicPath", () => {
   ])("%s es pública", (p) => expect(isPublicPath(p)).toBe(true));
 
   it.each(["/", "/t/123", "/ajustes", "/bienvenida", "/entrarx"])("%s pide sesión", (p) => expect(isPublicPath(p)).toBe(false));
+});
+
+describe("isBareScreen", () => {
+  it.each(["/entrar", "/recuperar", "/nueva-contrasena", "/invitacion/abc", "/bienvenida"])("%s va sin tab bar", (p) =>
+    expect(isBareScreen(p)).toBe(true),
+  );
+  it.each(["/", "/ajustes", "/t/1", "/sw.js"])("%s lleva tab bar", (p) => expect(isBareScreen(p)).toBe(false));
 });

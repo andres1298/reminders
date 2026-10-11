@@ -175,3 +175,12 @@ html.vt-theme::view-transition-new(root){animation:vt-reveal 520ms var(--ease-in
   ::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important}
   .card-in{animation:vt-fade 160ms linear both}
 }
+
+/* --- Entrar, recuperar, invitación y bienvenida --- */
+.auth-screen{display:flex;flex-direction:column;align-items:center;gap:var(--sp-12);padding:calc(var(--safe-top) + 40px) var(--margin) calc(var(--safe-bottom) + 32px);text-align:center}
+.auth-screen__art{width:120px}
+.auth-screen__title{font:800 30px/1.05 var(--font-display);letter-spacing:-.025em;text-wrap:balance}
+.auth-screen__sub{color:var(--ink-muted);text-wrap:pretty;max-width:32ch}
+.auth-screen__card{width:100%;margin-top:var(--sp-8);text-align:left}
+.auth-form{display:flex;flex-direction:column;gap:var(--sp-16);align-items:stretch}
+.auth-form .btn--plain{align-self:center}
