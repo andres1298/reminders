@@ -61,3 +61,17 @@ export function createSyncQueue(opts: { onError: (e: SyncError) => void; onIdle:
     busy: () => running || jobs.length > 0,
   };
 }
+
+/**
+ * Decide si una foto del servidor se puede aplicar: no si empezó antes de un
+ * cambio local, ni si ya empezó otra foto más nueva.
+ */
+export function createRefreshGate() {
+  let mutations = 0;
+  let latest = 0;
+  return {
+    start: () => ({ seq: ++latest, mutations }),
+    mutated: () => void mutations++,
+    canApply: (t: { seq: number; mutations: number }) => t.seq === latest && t.mutations === mutations,
+  };
+}

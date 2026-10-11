@@ -21,6 +21,7 @@ export function HouseholdCard() {
   const toast = useToast();
   const [pending, setPending] = useState<Pending[]>([]);
   const [busy, setBusy] = useState(false);
+  const [link, setLink] = useState<string | null>(null);
   const me = state?.members.find((m) => m.id === state.me);
   const isAdmin = me?.role === "admin";
   const householdId = state?.household.id;
@@ -51,17 +52,24 @@ export function HouseholdCard() {
     setBusy(false);
     if (!r.ok) return toast(r.message);
     void loadPending();
-    const text = `Únete a ${state?.household.emoji} ${state?.household.name} en Lukas`;
+    // se muestra el enlace: compartir necesita un toque nuevo (iOS no deja hacerlo después de esperar al servidor)
+    setLink(r.url);
+  }
+
+  async function share(url: string) {
     try {
-      if (navigator.share) return await navigator.share({ title: "Lukas", text, url: r.url });
-    } catch {
-      return; // la persona cerró el menú de compartir
+      await navigator.share({ title: "Lukas", text: `Únete a ${state?.household.emoji} ${state?.household.name} en Lukas`, url });
+    } catch (e) {
+      if ((e as Error).name !== "AbortError") void copy(url);
     }
+  }
+
+  async function copy(url: string) {
     try {
-      await navigator.clipboard.writeText(r.url);
+      await navigator.clipboard.writeText(url);
       toast("Enlace copiado. Vence en 7 días.", { paw: true });
     } catch {
-      toast(r.url);
+      toast("No se pudo copiar: mantén presionado el enlace para copiarlo.");
     }
   }
 
@@ -95,6 +103,25 @@ export function HouseholdCard() {
           </button>
         )}
       </div>
+      {link && (
+        <div className="list list--inset invite-link">
+          <div className="row" style={{ flexDirection: "column", alignItems: "stretch", gap: 10, padding: "14px 16px" }}>
+            <span className="row__title">Enlace listo</span>
+            <span className="row__sub invite-link__url">{link}</span>
+            <span style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
+              {typeof navigator !== "undefined" && "share" in navigator && (
+                <button className="btn btn--filled btn--sm" onClick={() => share(link)}>
+                  <Icon name="share" size="sm" />Compartir
+                </button>
+              )}
+              <button className="btn btn--bordered btn--sm" onClick={() => copy(link)}>
+                <Icon name="copy" size="sm" />Copiar
+              </button>
+              <button className="btn btn--plain btn--sm" onClick={() => setLink(null)}>Listo</button>
+            </span>
+          </div>
+        </div>
+      )}
       {isAdmin && pending.length > 0 && (
         <>
           <div className="section-header">Invitaciones pendientes</div>

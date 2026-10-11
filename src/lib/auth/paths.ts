@@ -13,3 +13,14 @@ export function isPublicPath(pathname: string): boolean {
 export function isBareScreen(pathname: string): boolean {
   return PUBLIC.includes(pathname) || pathname.startsWith("/invitacion/") || pathname === "/bienvenida";
 }
+
+/** Destino después de entrar: solo rutas de este mismo sitio (evita redirecciones abiertas con ?next=). */
+export function safeNext(next: string | null, origin: string): string {
+  if (!next) return "/";
+  try {
+    const url = new URL(next, origin);
+    return url.origin === origin ? url.pathname + url.search : "/";
+  } catch {
+    return "/";
+  }
+}

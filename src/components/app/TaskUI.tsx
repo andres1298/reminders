@@ -132,12 +132,13 @@ export function TaskUIProvider({ children }: { children: ReactNode }) {
       const commit = () => {
         pending.current.delete(id);
         // recalcula sobre el estado actual (pudo cambiar en el intervalo)
+        // la ocurrencia que la persona vio al tocar: si una foto nueva trajo otra
+        // (alguien la completó en otro teléfono), es "ya estaba hecha"
+        const expected = task.nextDueAt!;
         try {
-          let expected = "";
           let nextDue: Date | null = null;
           sync.run(
             (latest) => {
-              expected = latest.tasks.find((x) => x.id === id)?.nextDueAt ?? "";
               const r = completeTask(latest, id, now, { expectedDue: expected, creditTo });
               nextDue = r.nextDue;
               return r.state;
@@ -145,8 +146,8 @@ export function TaskUIProvider({ children }: { children: ReactNode }) {
             // p_credited_to null = el responsable (o Hogar): solo se manda si alguien eligió
             (db) => rpcComplete(db, id, expected, (nextDue as Date | null)?.toISOString() ?? null, creditTo ?? null),
           );
-        } catch {
-          /* ya no aplica */
+        } catch (e) {
+          if (e instanceof AlreadyDoneError) toast("Ya estaba hecha 🐾");
         }
         const next = new Map(flash);
         next.delete(id);

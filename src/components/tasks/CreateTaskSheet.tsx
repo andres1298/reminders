@@ -147,9 +147,10 @@ function CreateTaskForm({ editId, onOpenChange, onSaved }: { editId?: string; on
     };
     const now = new Date();
     if (editId) {
+      const before = getState().tasks.find((t) => t.id === editId)!;
       sync.run(
-        (s) => updateTask(s, editId, { ...input, startsOn: s.tasks.find((t) => t.id === editId)!.startsOn }, now),
-        (db, s) => saveTask(db, s.tasks.find((t) => t.id === editId)!, s.household.id, s.me, false),
+        (s) => updateTask(s, editId, { ...input, startsOn: before.startsOn }, now),
+        (db, s) => saveTask(db, s.tasks.find((t) => t.id === editId)!, s.household.id, s.me, before),
       );
       onSaved("Cambios guardados");
     } else {
@@ -160,7 +161,7 @@ function CreateTaskForm({ editId, onOpenChange, onSaved }: { editId?: string; on
           created = r.task;
           return r.state;
         },
-        (db, s) => saveTask(db, created!, s.household.id, s.me, true),
+        (db, s) => saveTask(db, created!, s.household.id, s.me, null),
       );
       const task = created as Task | undefined;
       if (task) onSaved(`Tarea creada · ${dueLabel(new Date(task.nextDueAt!), now, state.household.timeZone).replace(/^en /, "toca en ")}`);

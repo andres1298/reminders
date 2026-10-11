@@ -77,6 +77,9 @@ Después de agregarlas: **Redeploy** en Vercel.
 3. **Correos (SMTP)**: el SMTP de Supabase solo manda a miembros del equipo del proyecto, así que no sirve para invitar (SPEC §9.1). Para usar Gmail:
    1. En tu cuenta de Google activa la verificación en dos pasos → **Contraseñas de aplicaciones** → crea una para "Lukas".
    2. **Authentication → Emails → SMTP Settings**: host `smtp.gmail.com`, puerto `465`, usuario = tu Gmail, contraseña = la de aplicación, remitente "Lukas".
+4. **Authentication → Emails → Templates → Reset Password**: cambia el enlace por
+   `{{ .SiteURL }}/nueva-contrasena?token_hash={{ .TokenHash }}&type=recovery`.
+   Así el enlace funciona aunque se abra en otro navegador que el que lo pidió (en iPhone, la app instalada y Safari no comparten cookies).
 
 ### 3.5 Avisos automáticos cada minuto (pg_cron → Vercel)
 El cron de Vercel en el plan gratuito corre solo una vez al día, así que el reloj lo pone Supabase:

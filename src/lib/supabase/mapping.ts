@@ -176,3 +176,12 @@ export function buildState(input: SnapshotRows): AppState {
     todos: input.todos.map(todoFromRow),
   };
 }
+
+/** Columnas que cambiaron entre dos versiones de una fila (jsonb comparado por valor). */
+export function changedColumns<T extends object>(before: T, after: T): Partial<T> {
+  const out: Partial<T> = {};
+  for (const k of Object.keys(after) as (keyof T)[]) {
+    if (JSON.stringify(before[k]) !== JSON.stringify(after[k])) out[k] = after[k];
+  }
+  return out;
+}

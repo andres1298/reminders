@@ -6,6 +6,7 @@
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useState, type FormEvent, type ReactNode } from "react";
+import { safeNext } from "@/lib/auth/paths";
 import { supabaseBrowser } from "@/lib/supabase/browser";
 import { LukasArt } from "@/components/lukas/LukasArt";
 
@@ -20,11 +21,6 @@ export function AuthScreen({ title, sub, children }: { title: string; sub?: Reac
       <div className="card auth-screen__card">{children}</div>
     </main>
   );
-}
-
-/** Solo rutas internas: evita que ?next= mande a otro sitio. */
-function safeNext(next: string | null) {
-  return next && next.startsWith("/") && !next.startsWith("//") ? next : "/";
 }
 
 export function SignInForm() {
@@ -45,7 +41,7 @@ export function SignInForm() {
       return;
     }
     // recarga completa: así el proxy ya ve la cookie de sesión
-    location.replace(safeNext(params.get("next")));
+    location.replace(safeNext(params.get("next"), location.origin));
   }
 
   return (
@@ -117,7 +113,12 @@ export function NewPasswordForm() {
     e.preventDefault();
     if (password.length < MIN_PASSWORD) return setError(`Usa al menos ${MIN_PASSWORD} caracteres`);
     setBusy(true);
-    const { error } = await supabaseBrowser().auth.updateUser({ password });
+    const auth = supabaseBrowser().auth;
+    // el enlace del correo trae token_hash (plantilla en docs/DEPLOY.md §3.4): funciona aunque se abra
+    // en otro navegador que el que pidió el cambio (en iPhone, la app instalada vs. Safari)
+    const tokenHash = new URLSearchParams(location.search).get("token_hash");
+    const verified = tokenHash ? await auth.verifyOtp({ type: "recovery", token_hash: tokenHash }) : { error: null };
+    const { error } = verified.error ? verified : await auth.updateUser({ password });
     if (error) {
       setError("El enlace venció. Pide otro desde «¿Olvidaste tu contraseña?»");
       setBusy(false);

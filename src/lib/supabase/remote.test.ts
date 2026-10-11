@@ -65,10 +65,17 @@ describe("remote", () => {
     ]);
   });
 
-  it("saveTask al editar actualiza la tarea y reemplaza la rotación", async () => {
+  it("saveTask al editar manda solo lo que cambió y reemplaza la rotación si cambió", async () => {
     const { db, calls } = fakeDb();
-    await saveTask(db, task, "h1", "u1", false);
+    const before: Task = { ...task, title: "Basura", assignment: { mode: "fixed", userId: "u1" } };
+    await saveTask(db, task, "h1", "u1", before);
     expect(calls[0][0]).toBe("tasks.update");
+    const sent = calls[0][1] as Record<string, unknown>;
+    expect(sent.title).toBe("Sacar la basura");
+    expect(sent.assignment_mode).toBe("rotation");
+    // el vencimiento no cambió: no se manda (no pisa lo que completó otro teléfono)
+    expect(sent).not.toHaveProperty("next_due_at");
+    expect(sent).not.toHaveProperty("cycle_started_at");
     expect(calls[1]).toEqual(["tasks.update.eq", "id", "t1"]);
     expect(calls[2]).toEqual(["task_rotation.delete"]);
     expect(calls[3]).toEqual(["task_rotation.delete.eq", "task_id", "t1"]);
@@ -83,8 +90,14 @@ describe("remote", () => {
 
   it("saveTask nueva inserta y no toca la rotación si no rota", async () => {
     const { db, calls } = fakeDb();
-    await saveTask(db, { ...task, assignment: { mode: "anyone" } }, "h1", "u1", true);
+    await saveTask(db, { ...task, assignment: { mode: "anyone" } }, "h1", "u1", null);
     expect(calls.map((c) => c[0])).toEqual(["tasks.insert"]);
+  });
+
+  it("saveTask sin cambios no llama a Supabase", async () => {
+    const { db, calls } = fakeDb();
+    await saveTask(db, task, "h1", "u1", task);
+    expect(calls).toEqual([]);
   });
 
   it("lanza el error de Supabase", async () => {

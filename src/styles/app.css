@@ -187,3 +187,5 @@ html.vt-theme::view-transition-new(root){animation:vt-reveal 520ms var(--ease-in
 .welcome-emojis{display:flex;flex-wrap:wrap;gap:var(--sp-8)}
 .welcome-emojis .chip{font-size:22px}
 fieldset.field{border:0;margin:0;padding:0;min-width:0}
+.invite-link{margin-top:var(--sp-12)}
+.invite-link__url{word-break:break-all;user-select:all}

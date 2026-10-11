@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { isBareScreen, isPublicPath } from "./paths";
+import { isBareScreen, isPublicPath, safeNext } from "./paths";
 
 describe("isPublicPath", () => {
   it.each([
@@ -23,4 +23,17 @@ describe("isBareScreen", () => {
     expect(isBareScreen(p)).toBe(true),
   );
   it.each(["/", "/ajustes", "/t/1", "/sw.js"])("%s lleva tab bar", (p) => expect(isBareScreen(p)).toBe(false));
+});
+
+describe("safeNext", () => {
+  const origin = "https://lukas.example";
+  it.each([
+    ["/invitacion/abc", "/invitacion/abc"],
+    ["/t/1?x=2", "/t/1?x=2"],
+    [null, "/"],
+    ["//evil.com", "/"],
+    ["/\\evil.com", "/"],
+    ["/\t/evil.com", "/"],
+    ["https://evil.com", "/"],
+  ])("%s → %s", (next, want) => expect(safeNext(next, origin)).toBe(want));
 });

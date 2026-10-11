@@ -5,7 +5,7 @@
  */
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Task, Todo } from "../types";
-import { rotationRows, taskToRow, todoToRow } from "./mapping";
+import { changedColumns, rotationRows, taskToRow, todoToRow } from "./mapping";
 
 async function ok(p: PromiseLike<{ error: unknown }>) {
   const { error } = await p;
@@ -26,19 +26,27 @@ export const rpcDeleteTask = (db: SupabaseClient, id: string) => ok(db.rpc("dele
 
 export const rpcRestoreTask = (db: SupabaseClient, id: string) => ok(db.rpc("restore_task", { p_task: id }));
 
-/** Crear o editar una tarea, con su rotación. */
-export async function saveTask(db: SupabaseClient, task: Task, householdId: string, userId: string, isNew: boolean) {
+/**
+ * Crear (`before` null) o editar una tarea, con su rotación. Al editar solo se
+ * mandan las columnas que cambiaron: así no se pisa un vencimiento o un turno
+ * que otro teléfono acaba de avanzar.
+ */
+export async function saveTask(db: SupabaseClient, task: Task, householdId: string, userId: string, before: Task | null) {
   const row = taskToRow(task, householdId, userId);
-  if (isNew) {
-    await ok(db.from("tasks").insert(row));
-  } else {
-    const { created_by: _keep, ...changes } = row;
-    void _keep;
-    await ok(db.from("tasks").update({ ...changes, updated_at: new Date().toISOString() }).eq("id", task.id));
-    await ok(db.from("task_rotation").delete().eq("task_id", task.id));
-  }
   const rotation = rotationRows(task.id, task.assignment);
-  if (rotation.length) await ok(db.from("task_rotation").insert(rotation));
+  if (!before) {
+    await ok(db.from("tasks").insert(row));
+    if (rotation.length) await ok(db.from("task_rotation").insert(rotation));
+    return;
+  }
+  const changes = changedColumns(taskToRow(before, householdId, userId), row);
+  if (Object.keys(changes).length) {
+    await ok(db.from("tasks").update({ ...changes, updated_at: new Date().toISOString() }).eq("id", task.id));
+  }
+  if (JSON.stringify(rotationRows(task.id, before.assignment)) !== JSON.stringify(rotation)) {
+    await ok(db.from("task_rotation").delete().eq("task_id", task.id));
+    if (rotation.length) await ok(db.from("task_rotation").insert(rotation));
+  }
 }
 
 export const insertTodo = (db: SupabaseClient, todo: Todo, householdId: string, userId: string) =>

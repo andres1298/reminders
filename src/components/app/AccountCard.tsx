@@ -32,11 +32,16 @@ export function AccountCard() {
   async function signOut() {
     try {
       const sub = await navigator.serviceWorker?.getRegistration().then((r) => r?.pushManager.getSubscription());
-      if (sub) await deletePushSubscription(sub.endpoint);
+      if (sub) {
+        await deletePushSubscription(sub.endpoint);
+        // aunque falle el borrado, el endpoint muere y el cron lo limpia ("gone")
+        await sub.unsubscribe();
+      }
     } catch {
       /* sin service worker: nada que borrar */
     }
-    await sync.db.auth.signOut();
+    // solo este dispositivo: los demás siguen con su sesión
+    await sync.db.auth.signOut({ scope: "local" });
     endSession();
     location.replace("/entrar");
   }

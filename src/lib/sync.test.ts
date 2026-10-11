@@ -1,5 +1,5 @@
 import { describe, expect, it, vi } from "vitest";
-import { classifyError, createSyncQueue, errorMessage } from "./sync";
+import { classifyError, createRefreshGate, createSyncQueue, errorMessage } from "./sync";
 
 const wait = (ms: number) => new Promise<void>((r) => setTimeout(r, ms));
 const settle = () => wait(30);
@@ -71,5 +71,26 @@ describe("errorMessage", () => {
     expect(errorMessage("offline")).toBe("Sin conexión: no se guardó");
     expect(errorMessage("unknown")).toBe("No se pudo guardar. Intenta otra vez");
     expect(errorMessage("auth")).toBe("");
+  });
+});
+
+describe("createRefreshGate", () => {
+  it("descarta una foto que empezó antes de un cambio", () => {
+    const g = createRefreshGate();
+    const ticket = g.start();
+    g.mutated();
+    expect(g.canApply(ticket)).toBe(false);
+  });
+  it("descarta una foto vieja que llega después de una más nueva", () => {
+    const g = createRefreshGate();
+    const old = g.start();
+    const fresh = g.start();
+    expect(g.canApply(fresh)).toBe(true);
+    expect(g.canApply(old)).toBe(false);
+  });
+  it("aplica la última foto sin cambios en medio", () => {
+    const g = createRefreshGate();
+    g.mutated();
+    expect(g.canApply(g.start())).toBe(true);
   });
 });
