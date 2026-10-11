@@ -19,7 +19,7 @@ describe("isPublicPath", () => {
 });
 
 describe("isBareScreen", () => {
-  it.each(["/entrar", "/recuperar", "/nueva-contrasena", "/invitacion/abc", "/bienvenida"])("%s va sin tab bar", (p) =>
+  it.each(["/entrar", "/recuperar", "/nueva-contrasena", "/invitacion/abc", "/bienvenida", "/admin"])("%s va sin tab bar", (p) =>
     expect(isBareScreen(p)).toBe(true),
   );
   it.each(["/", "/ajustes", "/t/1", "/sw.js"])("%s lleva tab bar", (p) => expect(isBareScreen(p)).toBe(false));

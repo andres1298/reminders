@@ -11,7 +11,7 @@ export function isPublicPath(pathname: string): boolean {
 
 /** Pantallas sin la barra de pestañas (sin sesión o sin hogar todavía). */
 export function isBareScreen(pathname: string): boolean {
-  return PUBLIC.includes(pathname) || pathname.startsWith("/invitacion/") || pathname === "/bienvenida";
+  return PUBLIC.includes(pathname) || pathname.startsWith("/invitacion/") || pathname === "/bienvenida" || pathname === "/admin";
 }
 
 /** Destino después de entrar: solo rutas de este mismo sitio (evita redirecciones abiertas con ?next=). */
