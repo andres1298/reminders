@@ -2,7 +2,7 @@
 
 Web app mobile-first para llevar las tareas del hogar que se repiten: cada tarea es una tarjeta con un anillo que se llena hasta que toca hacerla otra vez. Spec en [`docs/SPEC.md`](docs/SPEC.md); diseño en [`DESIGN.md`](DESIGN.md) y [`docs/design/`](docs/design/).
 
-## Estado: fase 1
+## Estado: fase 2a
 
 | Pieza | Estado |
 |---|---|
@@ -13,9 +13,10 @@ Web app mobile-first para llevar las tareas del hogar que se repiten: cada tarea
 | Completar · La hizo alguien más · Posponer · Saltar · Borrar · Deshacer | ✅ |
 | Esquema Supabase con RLS y funciones atómicas | ✅ probado en Postgres |
 | PWA: manifest, íconos (192/512/maskable/Apple), service worker sin conexión, guía para instalar | ✅ |
-| Notificaciones push: activar/probar en Ajustes, envío por cron con `web-push` | ✅ prueba · 🟡 avisos de tareas al conectar Supabase |
-| Datos | 🟡 demo en el navegador (`localStorage`) hasta conectar Supabase |
-| Auth por invitación, Gestionar completo, Estadísticas por persona, Telegram, widget, ES/EN | ⏳ siguientes fases |
+| Notificaciones push: activar/probar en Ajustes, aviso a la hora de cada tarea (cron + `web-push`) | ✅ |
+| Datos en Supabase: caché por usuario para abrir sin conexión, cambios optimistas en cola | ✅ |
+| Cuentas: correo + contraseña, registro solo por invitación de hogar, crear hogar | ✅ |
+| Gestionar completo, Estadísticas por persona, invitaciones de plataforma, selector de hogar, Telegram, widget, ES/EN | ⏳ siguientes fases |
 
 ## Comandos
 
@@ -27,6 +28,8 @@ npm run typecheck    # next typegen + tsc
 npm run lint
 npm run build
 bash supabase/tests/run.sh   # migraciones + pruebas de RLS/funciones en un Postgres temporal
+# en Windows, con Docker:
+# docker run --rm -v "$PWD:/w" -w /w postgres:16 bash -c "PG_BIN=/usr/lib/postgresql/16/bin bash supabase/tests/run.sh"
 ```
 
 ## Estructura
@@ -44,7 +47,10 @@ src/
     schedule.ts        recurrencia (TZ del hogar, no acumula, día 31 → último día…)
     status.ts          progreso del anillo, estado y etiquetas
     tasks.ts           operaciones puras (crédito, rotación, deshacer)
-    store.ts           almacén del cliente (demo) — se reemplaza por Supabase
+    store.ts           almacén del cliente: última foto del hogar (caché por usuario)
+    sync.ts            cola en serie hacia Supabase y mensajes de error
+    supabase/          clientes, foto del hogar (snapshot), filas ⇄ AppState (mapping), verbos (remote)
+  proxy.ts             renueva la sesión y manda a /entrar sin sesión
   styles/              lukas.css (tokens + componentes), app.css (pantallas y transiciones)
 supabase/
   migrations/          esquema, RLS y funciones (complete_task, skip, snooze, undo…)
@@ -65,4 +71,4 @@ docs/                  spec, sistema de diseño (style guide) y prototipo
 - **La recurrencia vive en TypeScript.** Las funciones SQL reciben el próximo vencimiento ya calculado y hacen el cambio atómicamente: bloquean la fila, verifican la ocurrencia esperada (para responder "ya estaba hecha"), rotan el turno y guardan el estado previo para "Deshacer".
 - **Tema sin next-themes.** Un script en línea en `<head>` aplica `data-theme` antes de pintar, como recomienda la guía de Next 16 (evita el destello sin volver dinámico el layout).
 - **Transiciones.** Se usa `<ViewTransition>` de React 19.3 con `transitionTypes` en `Link`: la tarjeta crece hasta el detalle, y la navegación desliza (push/pop) o funde (pestañas).
-- **Datos de demo.** Hasta conectar Supabase, todo se guarda en `localStorage` del navegador. La UI usa los mismos verbos que las funciones SQL, así que el cambio de backend queda en `src/lib/store.ts`.
+- **Datos (fase 2a).** El navegador lee la "foto" del hogar con la sesión del usuario (RLS) y la guarda en `localStorage` (`lukas-cache-<userId>`). Cada acción se aplica primero en pantalla con las funciones puras de `tasks.ts` y luego va a Supabase por una cola en serie (`DataProvider` + `sync.ts`); si falla, vuelve a la última foto. Se refresca al abrir, al volver a la app y cada minuto. Diseño: `docs/superpowers/specs/2026-10-11-fase2-supabase-design.md`.

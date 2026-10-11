@@ -49,6 +49,7 @@ Guarda los tres valores; van como variables de entorno en Vercel:
 Opción A, desde el navegador: **SQL Editor → New query**, pega y ejecuta **en este orden**:
 1. `supabase/migrations/20261011000000_init.sql`
 2. `supabase/migrations/20261012000000_push.sql`
+3. `supabase/migrations/20261013000000_accounts.sql` (perfil automático al crear un usuario y "Deshacer" de borrados)
 
 Opción B, con la CLI:
 ```bash
@@ -108,12 +109,17 @@ select status_code, content from net._http_response order by created desc limit 
 
 Ese llamado cada minuto también cuenta como actividad, lo que evita que Supabase pause el proyecto gratuito por inactividad (SPEC §14).
 
-### 3.6 Super admin
-Cuando exista tu usuario (fase 2):
+### 3.6 Tu cuenta y super admin
+El registro es solo por invitación, así que la primera cuenta se crea a mano:
+
+1. **Authentication → Users → Add user → Create new user**: tu correo y una contraseña, con **Auto Confirm User** marcado. El perfil se crea solo.
+2. Márcate como super admin:
 ```sql
 update public.profiles set is_super_admin = true
 where id = (select id from auth.users where email = '<tu correo>');
 ```
+3. Abre la app, entra con ese correo y contraseña, y crea tu hogar. Desde **Ajustes → Hogar → Invitar a alguien** compartes un enlace con quienes viven contigo: con él crean su cuenta y entran directo a tu hogar (no se manda ningún correo).
+4. En el iPhone, la app instalada guarda su sesión aparte de Safari: entra una vez desde el ícono y activa las notificaciones en **Ajustes**.
 
 ---
 
@@ -123,4 +129,4 @@ where id = (select id from auth.users where email = '<tu correo>');
 |---|---|
 | Hecho 1 + 2 | Activar en el iPhone y recibir la de **prueba**. Las tareas siguen guardadas en el teléfono. |
 | Hecho 3 | El cron corre cada minuto y responde `{"sent":0}`. |
-| Fase 2 (siguiente) | Login por invitación, tareas compartidas en Supabase y la suscripción de cada dispositivo guardada en tu cuenta: **llega un aviso a la hora de cada tarea** al responsable (o a todo el hogar si es "Cualquiera"). |
+| Hecho 3.6 (fase 2a) | Login por invitación, tareas compartidas en Supabase y la suscripción de cada dispositivo guardada en tu cuenta: **llega un aviso a la hora de cada tarea** al responsable (o a todo el hogar si es "Cualquiera"). |

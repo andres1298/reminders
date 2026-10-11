@@ -683,7 +683,7 @@ Flujo propuesto: `mobile-design-system` (iOS) → tokens y catálogo → `impecc
 
 **Fase 1 (en curso):** Next.js 16 + Tailwind v4, sistema de diseño, recurrencia probada, Inicio / Detalle / Crear / Pendientes con datos de demo en el navegador, y esquema de Supabase con RLS y funciones atómicas probadas en Postgres. Ver `README.md`.
 
-**Fase 2:** conectar Supabase (auth por invitación, datos reales, Server Actions), Gestionar completo (pausar, Papelera, vacaciones) y estadísticas por persona. **Fase 3:** Telegram, widget de Scriptable, ES/EN.
+**Fase 2a (hecha):** cuentas con correo + contraseña, invitaciones de hogar por enlace, datos en Supabase y avisos push por tarea (`docs/superpowers/specs/2026-10-11-fase2-supabase-design.md`). **Fase 2b:** Gestionar completo (pausar, Papelera, vacaciones), estadísticas por persona, invitaciones de plataforma y selector de hogar. **Fase 3:** Telegram, widget de Scriptable, ES/EN.
 
 ## 18. Siguiente paso (histórico)
 
