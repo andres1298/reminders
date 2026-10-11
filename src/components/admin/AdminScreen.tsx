@@ -70,8 +70,7 @@ export function AdminScreen() {
     setPanel(null);
     setDraft(newHouseholdDraft(""));
     await load();
-    const created = parseOverview((await sync.db.rpc("admin_overview")).data).at(-1);
-    setLink({ householdId: created?.id ?? "", url: r.url });
+    setLink({ householdId: r.householdId, url: r.url });
   }
 
   async function newLink(h: AdminHousehold) {

@@ -10,7 +10,7 @@ import { adminErrorMessage } from "@/lib/admin";
 import { hashInviteToken, newInviteToken } from "@/lib/invite-token";
 import { supabaseServer } from "@/lib/supabase/server";
 
-type LinkResult = { ok: true; url: string } | { ok: false; message: string };
+type LinkResult = { ok: true; url: string; householdId: string } | { ok: false; message: string };
 
 async function adminLink(householdId: string): Promise<LinkResult> {
   const db = await supabaseServer();
@@ -18,7 +18,7 @@ async function adminLink(householdId: string): Promise<LinkResult> {
   const { error } = await db.rpc("admin_create_invitation", { p_household: householdId, p_token_hash: hashInviteToken(token) });
   if (error) return { ok: false, message: adminErrorMessage(error) };
   const h = await headers();
-  return { ok: true, url: `${h.get("origin") ?? `https://${h.get("host")}`}/invitacion/${token}` };
+  return { ok: true, householdId, url: `${h.get("origin") ?? `https://${h.get("host")}`}/invitacion/${token}` };
 }
 
 const NewHousehold = z.object({
