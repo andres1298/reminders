@@ -13,6 +13,7 @@ export interface Member {
   id: string;
   name: string;
   emoji: string;
+  role?: "admin" | "member";
 }
 
 export interface Household {
