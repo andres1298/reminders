@@ -36,7 +36,8 @@ export function HouseholdCard() {
       .gt("expires_at", new Date().toISOString())
       .order("created_at", { ascending: false });
     setPending((data as Pending[] | null) ?? []);
-  }, [householdId, isAdmin, sync.db]);
+    // sync.db se lee aquí adentro: el cliente solo existe en el navegador
+  }, [householdId, isAdmin, sync]);
 
   useEffect(() => {
     // eslint-disable-next-line react-hooks/set-state-in-effect -- carga inicial desde Supabase
