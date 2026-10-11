@@ -133,8 +133,10 @@ body:has(.offline-pill) .app-col{padding-top:44px}
 
 /* Instalada (pantalla completa): sin rebote de scroll ni zoom por doble toque */
 html{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+/* el contenido no se arrastra hacia los lados (rebote horizontal de iOS) */
+html,body{overscroll-behavior-x:none;overflow-x:clip}
 @media (display-mode: standalone){
-  html,body{overscroll-behavior-y:none}
+  html,body{overscroll-behavior:none}
   body{-webkit-user-select:none;user-select:none}
   input,textarea,[contenteditable]{-webkit-user-select:text;user-select:text}
 }
@@ -161,8 +163,6 @@ html{touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 ::view-transition-new(.nav-forward){--slide-offset:60px;animation:210ms ease-out 150ms both vt-fade,400ms var(--ease-out) both vt-slide}
 ::view-transition-old(.nav-back){--slide-offset:60px;animation:150ms ease-in both vt-fade reverse,400ms var(--ease-out) both vt-slide reverse}
 ::view-transition-new(.nav-back){--slide-offset:-60px;animation:210ms ease-out 150ms both vt-fade,400ms var(--ease-out) both vt-slide}
-::view-transition-old(.tab-fade){animation:140ms ease-out both vt-fade reverse}
-::view-transition-new(.tab-fade){animation:200ms ease-out both vt-fade}
 @keyframes vt-fade{from{opacity:0}to{opacity:1}}
 @keyframes vt-slide{from{translate:var(--slide-offset)}to{translate:0}}
 ::view-transition-old(root),::view-transition-new(root){animation:none}

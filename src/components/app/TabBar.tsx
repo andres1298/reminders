@@ -32,7 +32,6 @@ export function TabBar() {
               className="tabbar__item"
               aria-current={current ? "page" : undefined}
               aria-label={t.label}
-              transitionTypes={["tab"]}
             >
               <Icon name={t.icon} />
               <span className="tabbar__label">{t.label}</span>
