@@ -28,7 +28,7 @@ Que Lukas guarde tareas y pendientes en Supabase en lugar del teléfono, con log
   - `/entrar`: correo, contraseña, **Entrar**, "¿Olvidaste tu contraseña?". Sin "Crear cuenta". Acepta `?next=` para volver a una invitación.
   - `/recuperar`: `resetPasswordForEmail` con `redirectTo` a `/nueva-contrasena` (correo vía Gmail SMTP ya configurado).
   - `/nueva-contrasena`: `updateUser({ password })` y a Inicio.
-  - `/bienvenida`: si el usuario no pertenece a ningún hogar. Nombre, emoji y zona horaria (`America/Costa_Rica` por defecto) → RPC `create_household` → crea una lista inicial ("Casa", 🏠) → Inicio.
+  - `/bienvenida`: si el usuario no pertenece a ningún hogar. Nombre, emoji y zona horaria (`America/Costa_Rica` por defecto) → RPC `create_household` → crea la lista inicial "General" 📌 (posición 0; la app la usa como lista por defecto y no la muestra como filtro) → Inicio.
 - Perfil: trigger `on auth.users insert` crea `profiles` con `display_name` = `raw_user_meta_data->>'display_name'` o la parte local del correo (recortada a 40).
 - Ajustes → sección **Cuenta**: nombre y emoji editables (`update profiles`), **Cerrar sesión** (borra `lukas-cache-<userId>`).
 - Con varios hogares se abre el primero por `joined_at`.
@@ -51,8 +51,8 @@ Que Lukas guarde tareas y pendientes en Supabase en lugar del teléfono, con log
 ## 3. Datos y sincronización
 
 - `src/lib/supabase/mapping.ts` (puro, probado): filas ⇄ tipos de `src/lib/types.ts`.
-  - `schedule_type` + `schedule` jsonb + `anchor` ⇄ `Schedule` (`interval` lleva `anchor`; jsonb en snake_case: `{every,unit}`, `{weekdays,every_weeks}`, `{day,every_months}`, `{date}`).
-  - `due_time` `HH:mm:ss` ⇄ `"HH:mm"`; `color` NULL ⇄ `"none"`; `list_id` NULL → primera lista.
+  - `schedule_type` + `schedule` jsonb + `anchor` ⇄ `Schedule` (`interval` lleva `anchor` en su columna; el jsonb es el `Schedule` de TS sin `type` ni `anchor`, en camelCase como en las pruebas SQL: `{every,unit}`, `{weekdays,everyWeeks}`, `{day,everyMonths}`, `{date}`).
+  - `due_time` `HH:mm:ss` ⇄ `"HH:mm"`; `color` NULL ⇄ `"none"`; `list_id` NULL → primera lista; `description` NULL ⇄ `""`; `chosen` = `credited_to` distinto de `assignee_at_time`.
   - `assignment_mode` + `current_assignee_id` + `task_rotation` ⇄ `Assignment`.
   - `task_events` (`done`/`skipped`/`snoozed`, últimos 20 por tarea) → `history`, con `prev` desde `prev_*` y `undone` desde `undone_at`. La etiqueta de posponer se deriva de `snoozed_until`.
 - `src/lib/supabase/snapshot.ts`: `loadSnapshot(client, userId)` → `AppState` (hogar, miembros + perfiles, listas, tareas, rotaciones, eventos, pendientes). Filtra `deleted_at is null` explícitamente: las políticas dejan a los admins leer lo borrado (Papelera).
@@ -72,12 +72,14 @@ Que Lukas guarde tareas y pendientes en Supabase en lugar del teléfono, con log
 - Ids nuevos con `crypto.randomUUID()` (reemplaza `newId` para tareas y pendientes).
 - Refresco: al montar, en `visibilitychange` a visible, cada minuto (reloj compartido) y cuando la cola se vacía. Con la cola ocupada, la foto entrante se descarta.
 - Sin conexión: la acción se revierte (se vuelve a la última foto del servidor) y toast "Sin conexión: no se guardó".
-- Push: `PushCard` guarda la suscripción en `push_subscriptions` (upsert por `endpoint`, con `user_id`) al activar y la borra al desactivar.
+- Push: `PushCard` guarda la suscripción con un Server Action (`savePushSubscription`: usuario de la sesión + upsert por `endpoint` con la service key, para que un teléfono que cambia de cuenta la reasigne) y la borra al desactivar y al cerrar sesión (`deletePushSubscription`).
+- `public/sw.js`: no guardar en caché respuestas redirigidas (si no, `/` quedaría guardado como `/entrar`); subir `VERSION`.
 - Limpieza: `demo-seed.ts` solo para pruebas; fuera "Restablecer demo" y la llave `lukas-demo-v1`.
 
 ### Migración nueva `supabase/migrations/20261013000000_accounts.sql`
 - Trigger `handle_new_user` en `auth.users` → `profiles`.
 - `restore_todo(p_todo uuid)` (SECURITY DEFINER, valida membresía), con `grant execute` a `authenticated`.
+- `restore_task` también lo puede usar quien la borró (`deleted_by = auth.uid()` y miembro), para que "Deshacer" funcione a un miembro que no es admin.
 - Sin cambios de políticas: `accept_invitation` es SECURITY DEFINER, la página de invitación lee con la service key y `invitations_insert/update` ya exigen admin.
 
 ## 4. Errores
