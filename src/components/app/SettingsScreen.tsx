@@ -3,6 +3,8 @@ import { useSyncExternalStore } from "react";
 import { Segmented } from "@/components/ui/Segmented";
 import { InstallCard } from "./pwa";
 import { PushCard } from "./PushCard";
+import { AccountCard } from "./AccountCard";
+import { HouseholdCard } from "./HouseholdCard";
 import { applyTheme, readThemePreference, subscribeTheme } from "@/lib/theme";
 
 export function SettingsScreen() {
@@ -12,6 +14,10 @@ export function SettingsScreen() {
       <header className="simple-head">
         <h1>Ajustes</h1>
       </header>
+      <div className="section-header">Cuenta</div>
+      <AccountCard />
+      <div className="section-header">Hogar</div>
+      <HouseholdCard />
       <div className="section-header">App</div>
       <InstallCard />
       <div style={{ height: 12 }} />
