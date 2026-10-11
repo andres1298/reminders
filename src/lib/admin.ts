@@ -5,8 +5,10 @@ export interface AdminMember {
   name: string;
   emoji: string;
   role: "admin" | "member";
-  /** cuántas tareas tiene asignadas (fijas o en rotación); nunca cuáles */
-  tasks: number;
+  /** tareas fijas asignadas (lo que "Quitar del hogar" borra o reasigna); nunca cuáles */
+  fixed: number;
+  /** rotaciones en las que participa (al quitarla solo sale del turno) */
+  rotations: number;
 }
 
 export interface AdminHousehold {
@@ -23,7 +25,8 @@ interface RawMember {
   name: string;
   emoji: string;
   role: "admin" | "member";
-  tasks: number;
+  fixed: number;
+  rotations: number;
 }
 
 export function parseOverview(raw: unknown): AdminHousehold[] {
@@ -39,7 +42,8 @@ export function parseOverview(raw: unknown): AdminHousehold[] {
       name: m.name,
       emoji: m.emoji,
       role: m.role,
-      tasks: Number(m.tasks) || 0,
+      fixed: Number(m.fixed) || 0,
+      rotations: Number(m.rotations) || 0,
     })),
   }));
 }

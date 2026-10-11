@@ -191,4 +191,74 @@ set local role authenticated; set local request.jwt.claim.sub = :'z';
 do $$ begin assert (select count(*) from public.households where id = (select v from ids where k = 'mama')) = 1, 'reactivado: z lo ve'; end $$;
 commit;
 
+-- Un admin normal no usa ninguna función admin_* ---------------------------------------------
+begin;
+set local role authenticated; set local request.jwt.claim.sub = :'a';
+do $$
+declare hh uuid := (select v from ids where k = 'mama'); casa uuid := (select v from ids where k = 'casa');
+begin
+  begin perform public.admin_overview(); raise exception 'x'; exception when others then assert sqlerrm = 'forbidden', 'overview: ' || sqlerrm; end;
+  begin perform public.admin_create_household('x', '🏡', 'America/Costa_Rica'); raise exception 'x'; exception when others then assert sqlerrm = 'forbidden', 'create: ' || sqlerrm; end;
+  begin perform public.admin_create_invitation(casa, 'hash-a-x'); raise exception 'x'; exception when others then assert sqlerrm = 'forbidden', 'invitation: ' || sqlerrm; end;
+  begin perform public.admin_set_role(casa, '00000000-0000-0000-0000-0000000000b2', 'admin'); raise exception 'x'; exception when others then assert sqlerrm = 'forbidden', 'role: ' || sqlerrm; end;
+  begin perform public.admin_remove_member(casa, '00000000-0000-0000-0000-0000000000b2', 'anyone'); raise exception 'x'; exception when others then assert sqlerrm = 'forbidden', 'remove: ' || sqlerrm; end;
+  begin perform public.admin_set_household_disabled(hh, true); raise exception 'x'; exception when others then assert sqlerrm = 'forbidden', 'disable: ' || sqlerrm; end;
+end $$;
+commit;
+
+-- El super admin no puede entrar a un hogar ajeno con su propio enlace -----------------------
+begin;
+set local role authenticated; set local request.jwt.claim.sub = :'s';
+select public.admin_create_invitation(v, 'hash-s-self') from ids where k = 'mama';
+do $$ begin
+  begin perform public.accept_invitation('hash-s-self'); raise exception 'debió fallar';
+  exception when others then assert sqlerrm = 'invalid_invitation', 'super no se une con su enlace: ' || sqlerrm; end;
+  assert (select count(*) from public.tasks) = 0, 'sigue sin leer tareas';
+end $$;
+commit;
+
+-- Rotación de 3: quitar a quien está en medio y a quien tiene el turno al final --------------
+insert into auth.users (id, email) values ('00000000-0000-0000-0000-0000000000a9', 'w@example.com');
+insert into public.household_members (household_id, user_id) select v, u::uuid from ids,
+  (values ('00000000-0000-0000-0000-0000000000a7'), ('00000000-0000-0000-0000-0000000000a9')) t(u) where k = 'mama';
+insert into public.tasks (id, household_id, emoji, title, schedule_type, schedule, assignment_mode, current_assignee_id, created_by)
+  select t.id::uuid, v, '🗑️', 'Rota tres', 'interval', '{"every":1,"unit":"day"}', 'rotation', t.who::uuid, '00000000-0000-0000-0000-0000000000a8'
+  from ids, (values ('00000000-0000-0000-0000-00000000e003', '00000000-0000-0000-0000-0000000000a8'),
+                    ('00000000-0000-0000-0000-00000000e004', '00000000-0000-0000-0000-0000000000a9')) t(id, who) where k = 'mama';
+-- e003: [z0, y1, w2] turno z; e004: [z0, y1, w2] turno w
+insert into public.task_rotation (task_id, user_id, position) select t, u::uuid, p from
+  (values ('00000000-0000-0000-0000-00000000e003'::uuid), ('00000000-0000-0000-0000-00000000e004'::uuid)) tt(t),
+  (values ('00000000-0000-0000-0000-0000000000a8', 0), ('00000000-0000-0000-0000-0000000000a7', 1), ('00000000-0000-0000-0000-0000000000a9', 2)) uu(u, p);
+begin;
+set local role authenticated; set local request.jwt.claim.sub = :'s';
+select public.admin_remove_member(v, :'y', 'anyone') from ids where k = 'mama';
+commit;
+do $$ begin
+  assert (select array_agg(user_id::text || ':' || position order by position) from public.task_rotation where task_id = '00000000-0000-0000-0000-00000000e003')
+    = array['00000000-0000-0000-0000-0000000000a8:0', '00000000-0000-0000-0000-0000000000a9:1'], 'sin hueco al quitar a quien está en medio';
+  assert (select current_assignee_id from public.tasks where id = '00000000-0000-0000-0000-00000000e003') = '00000000-0000-0000-0000-0000000000a8', 'el turno no cambia';
+end $$;
+begin;
+set local role authenticated; set local request.jwt.claim.sub = :'s';
+select public.admin_remove_member(v, '00000000-0000-0000-0000-0000000000a9', 'anyone') from ids where k = 'mama';
+commit;
+do $$ begin
+  assert (select current_assignee_id from public.tasks where id = '00000000-0000-0000-0000-00000000e004') = '00000000-0000-0000-0000-0000000000a8', 'el turno vuelve al inicio';
+  assert (select array_agg(user_id::text || ':' || position) from public.task_rotation where task_id = '00000000-0000-0000-0000-00000000e004')
+    = array['00000000-0000-0000-0000-0000000000a8:0'], 'queda [z0]';
+end $$;
+
+-- El panel separa tareas fijas y rotaciones ---------------------------------------------------
+begin;
+set local role authenticated; set local request.jwt.claim.sub = :'s';
+do $$
+declare mem jsonb;
+begin
+  select m into mem from jsonb_array_elements(public.admin_overview()) h, jsonb_array_elements(h -> 'members') m
+    where h ->> 'name' = 'Casa de mamá' and m ->> 'user_id' = '00000000-0000-0000-0000-0000000000a8';
+  assert (mem ->> 'rotations')::int = 3, 'z está en 3 rotaciones (e001, e003, e004): ' || mem::text;
+  assert (mem ->> 'fixed')::int = 2, 'z tiene 2 fijas: ' || mem::text;
+end $$;
+commit;
+
 \echo 'SQL super admin: todas las aserciones pasaron'

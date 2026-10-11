@@ -24,7 +24,9 @@ type Panel =
   | { kind: "disable"; household: AdminHousehold }
   | null;
 
-const tasksLabel = (n: number) => (n === 1 ? "1 tarea" : `${n} tareas`);
+const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
+const memberLoad = (m: AdminMember) =>
+  [m.fixed && plural(m.fixed, "tarea", "tareas"), m.rotations && plural(m.rotations, "rotación", "rotaciones")].filter(Boolean).join(" · ") || "Sin tareas";
 
 export function AdminScreen() {
   const sync = useSync();
@@ -64,10 +66,15 @@ export function AdminScreen() {
   async function create(e: FormEvent) {
     e.preventDefault();
     setBusy(true);
-    const r = await adminCreateHousehold(draft);
-    setBusy(false);
-    if (!r.ok) return toast(r.message);
+    const r = await adminCreateHousehold(draft).finally(() => setBusy(false));
+    if (!r.ok && !r.householdId) return toast(r.message);
+    // el hogar ya existe aunque falle el enlace: no reintentar desde la hoja (crearía otro)
     setPanel(null);
+    if (!r.ok) {
+      setDraft(newHouseholdDraft(""));
+      await load();
+      return toast("Hogar creado, pero no se pudo crear el enlace. Usa «Nuevo enlace de admin».");
+    }
     setDraft(newHouseholdDraft(""));
     await load();
     setLink({ householdId: r.householdId, url: r.url });
@@ -75,8 +82,7 @@ export function AdminScreen() {
 
   async function newLink(h: AdminHousehold) {
     setBusy(true);
-    const r = await adminNewAdminLink(h.id);
-    setBusy(false);
+    const r = await adminNewAdminLink(h.id).finally(() => setBusy(false));
     if (!r.ok) return toast(r.message);
     setLink({ householdId: h.id, url: r.url });
   }
@@ -126,7 +132,7 @@ export function AdminScreen() {
                 <span className="row__lead"><Avatar emoji={m.emoji} /></span>
                 <span className="row__main">
                   <span className="row__title">{m.name}</span>
-                  <span className="row__sub">{m.role === "admin" ? "Admin" : "Miembro"} · {tasksLabel(m.tasks)}</span>
+                  <span className="row__sub">{m.role === "admin" ? "Admin" : "Miembro"} · {memberLoad(m)}</span>
                 </span>
                 <Icon name="more-h" className="row__chev" />
               </button>
@@ -199,7 +205,12 @@ export function AdminScreen() {
         {panel?.kind === "remove" && (
           <div className="action-sheet">
             <div className="action-sheet__group">
-              {panel.pick.member.tasks === 0 ? (
+              {panel.pick.member.rotations > 0 && (
+                <div className="action-sheet__title">
+                  Sale de {plural(panel.pick.member.rotations, "rotación", "rotaciones")}: el turno pasa a quien sigue.
+                </div>
+              )}
+              {panel.pick.member.fixed === 0 ? (
                 <>
                   <div className="action-sheet__title">¿Quitar a {panel.pick.member.name} de {panel.pick.household.name}?</div>
                   <button className="action-sheet__btn action-sheet__btn--danger" disabled={busy} onClick={() => remove(panel.pick, "anyone")}>
@@ -209,7 +220,7 @@ export function AdminScreen() {
               ) : (
                 <>
                   <div className="action-sheet__title">
-                    {panel.pick.member.name} tiene {tasksLabel(panel.pick.member.tasks)} asignada{panel.pick.member.tasks === 1 ? "" : "s"}. ¿Qué pasa con ellas?
+                    {panel.pick.member.name} tiene {plural(panel.pick.member.fixed, "tarea asignada", "tareas asignadas")}. ¿Qué pasa con {panel.pick.member.fixed === 1 ? "ella" : "ellas"}?
                   </div>
                   {panel.pick.household.members
                     .filter((m) => m.userId !== panel.pick.member.userId)

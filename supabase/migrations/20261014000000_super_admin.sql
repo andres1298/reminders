@@ -33,6 +33,29 @@ begin
   update public.tasks set deleted_at = null, deleted_by = null, updated_at = now() where id = p_task;
 end $$;
 
+/**
+ * Aceptar una invitación. Nadie acepta una invitación que creó: así el super
+ * admin no puede usar un enlace de admin para entrar a un hogar ajeno y leerlo.
+ */
+create or replace function public.accept_invitation(p_token_hash text)
+returns uuid language plpgsql security definer set search_path = '' as $$
+declare inv public.invitations;
+begin
+  if auth.uid() is null then raise exception 'not_authenticated' using errcode = '28000'; end if;
+  select * into inv from public.invitations where token_hash = p_token_hash for update;
+  if not found or inv.revoked_at is not null or inv.accepted_at is not null or inv.expires_at < now()
+     or inv.invited_by = auth.uid() then
+    raise exception 'invalid_invitation' using errcode = 'P0001';
+  end if;
+  update public.invitations set accepted_by = auth.uid(), accepted_at = now() where id = inv.id;
+  if inv.kind = 'household' then
+    insert into public.household_members (household_id, user_id, role)
+      values (inv.household_id, auth.uid(), coalesce(inv.role, 'member'))
+      on conflict (household_id, user_id) do nothing;
+  end if;
+  return inv.household_id;
+end $$;
+
 -- Panel -------------------------------------------------------------------------
 create function public._require_super_admin() returns void
 language plpgsql stable security definer set search_path = '' as $$
@@ -53,11 +76,15 @@ begin
       'members', coalesce((
         select jsonb_agg(jsonb_build_object(
           'user_id', m.user_id, 'name', p.display_name, 'emoji', p.avatar_emoji, 'role', m.role,
-          'tasks', (
+          -- fijas: lo que "Quitar del hogar" borra o reasigna; rotaciones: de las que solo sale
+          'fixed', (
             select count(*) from public.tasks t
             where t.household_id = h.id and t.deleted_at is null and t.completed_at is null
-              and ((t.assignment_mode = 'fixed' and t.current_assignee_id = m.user_id)
-                or exists (select 1 from public.task_rotation r where r.task_id = t.id and r.user_id = m.user_id))
+              and t.assignment_mode = 'fixed' and t.current_assignee_id = m.user_id
+          ),
+          'rotations', (
+            select count(*) from public.tasks t join public.task_rotation r on r.task_id = t.id and r.user_id = m.user_id
+            where t.household_id = h.id and t.deleted_at is null and t.completed_at is null
           )
         ) order by m.joined_at)
         from public.household_members m join public.profiles p on p.id = m.user_id

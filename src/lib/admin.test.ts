@@ -11,7 +11,7 @@ describe("parseOverview", () => {
           emoji: "🏡",
           timezone: "America/Costa_Rica",
           disabled: false,
-          members: [{ user_id: "u", name: "Ana", emoji: "🌸", role: "admin", tasks: 2 }],
+          members: [{ user_id: "u", name: "Ana", emoji: "🌸", role: "admin", fixed: 2, rotations: 1 }],
         },
       ]),
     ).toEqual([
@@ -21,7 +21,7 @@ describe("parseOverview", () => {
         emoji: "🏡",
         timezone: "America/Costa_Rica",
         disabled: false,
-        members: [{ userId: "u", name: "Ana", emoji: "🌸", role: "admin", tasks: 2 }],
+        members: [{ userId: "u", name: "Ana", emoji: "🌸", role: "admin", fixed: 2, rotations: 1 }],
       },
     ]);
   });
