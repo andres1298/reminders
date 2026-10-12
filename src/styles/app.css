@@ -142,7 +142,8 @@ html,body{overscroll-behavior-x:none;overflow-x:clip}
 }
 
 /* Pendientes */
-.todo-wrap{display:grid;gap:14px;padding:6px var(--margin) 0}
+/* minmax(0,1fr): la columna no crece con el ancho intrínseco de un campo (sacaba el contenido de la pantalla) */
+.todo-wrap{display:grid;grid-template-columns:minmax(0,1fr);gap:14px;padding:6px var(--margin) 0}
 .todo-wrap .filters{margin:0 calc(var(--margin) * -1);padding:0 var(--margin)}
 .todo-done summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:8px;min-height:44px;padding:0 4px;font:700 13px/1.2 var(--font-text);color:var(--ink-muted)}
 .todo-done summary::-webkit-details-marker{display:none}
@@ -193,10 +194,24 @@ fieldset.field{border:0;margin:0;padding:0;min-width:0}
 .admin-head>.btn--plain{margin-left:calc(-1 * var(--sp-12))}
 .admin-badge{margin-left:var(--sp-8);padding:2px 8px;border-radius:var(--r-full);background:var(--fill-3);font:600 12px/1.4 var(--font-text);text-transform:none;letter-spacing:0}
 /* --- Súper --- */
-.grocery-suggest{display:flex;flex-wrap:wrap;gap:var(--sp-8);padding:0 0 var(--sp-4)}
-.quick-add .grocery-opt{flex:0 0 112px;min-width:0;height:40px;padding:0 var(--sp-12);border-radius:var(--r-full);border:var(--stroke-w) solid var(--fill-3);background:var(--surface-2);font:500 16px/1 var(--font-text);color:var(--ink)}
-.quick-add .grocery-opt--wide{flex:1 1 140px}
-.quick-add .grocery-opt:focus{outline:none;border-color:var(--ink)}
+/* sugerencias en una sola fila que se desliza: no alargan el formulario */
+.grocery-suggest{display:flex;gap:var(--sp-8);overflow-x:auto;scrollbar-width:none;margin:0 calc(var(--sp-8) * -1) 0 0;padding:0 var(--sp-8) var(--sp-4) 0}
+.grocery-suggest::-webkit-scrollbar{display:none}
+.grocery-suggest .chip{flex:none}
+/* opciones del campo Agregar: categoría y cantidad en una fila del mismo alto; la nota debajo, en varias líneas */
+.quick-add.is-open .grocery-opts{flex-direction:column;align-items:stretch;gap:var(--sp-8)}
+.grocery-opts__row{display:grid;grid-template-columns:auto minmax(0,1fr);gap:var(--sp-8)}
+.quick-add__opts .grocery-opts__cat{height:40px;font-size:14px;padding:0 var(--sp-12) 0 var(--sp-16);gap:var(--sp-4)}
+.quick-add__opts .grocery-opts__cat .ico{opacity:.6}
+.quick-add .grocery-field{flex:1;min-width:0;height:40px;padding:0 var(--sp-16);border-radius:var(--r-full);
+  border:var(--stroke-w) solid transparent;background:var(--surface-2);color:var(--ink);font:500 16px/1.3 var(--font-text);
+  transition:border-color var(--dur-2), background-color var(--dur-2)}
+.quick-add .grocery-field--note{display:block;width:100%;height:auto;min-height:64px;padding:10px var(--sp-16);border-radius:var(--r-md);resize:none;line-height:22px}
+.quick-add .grocery-field::placeholder{color:var(--ink-muted);font-weight:500}
+/* el campo principal no dibuja anillo propio: ya lo hace el contenedor redondeado (.quick-add:focus-within) */
+.quick-add__row input:focus-visible{box-shadow:none}
+/* el foco se marca con el borde del propio campo (sigue su forma), no con un anillo aparte */
+.quick-add .grocery-field:focus,.quick-add .grocery-field:focus-visible{outline:none;box-shadow:none;border-color:var(--ink);background:var(--surface)}
 .grocery-finish{position:sticky;bottom:calc(var(--tabbar-h) + var(--safe-bottom) + 18px);padding:var(--sp-16) var(--margin) 0;z-index:5}
 .grocery-history__add{background:none;border:0;text-align:left;padding:0;flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
 .grocery-history__add:disabled{opacity:.6}

@@ -65,9 +65,9 @@ describe("searchHistory", () => {
     const items = [item("Café con leche", { timesBought: 9 }), item("Leche de coco", { timesBought: 1 }), item("Leche", { timesBought: 5 })];
     expect(searchHistory(items, "LECHÉ").map((i) => i.name)).toEqual(["Leche", "Leche de coco", "Café con leche"]);
   });
-  it("máximo 6", () => {
+  it("pocas sugerencias: máximo 3", () => {
     const items = Array.from({ length: 8 }, (_, i) => item(`Queso ${i}`));
-    expect(searchHistory(items, "queso")).toHaveLength(6);
+    expect(searchHistory(items, "queso")).toHaveLength(3);
   });
   it("sin texto, nada", () => {
     expect(searchHistory([item("Leche")], "  ")).toEqual([]);

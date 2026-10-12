@@ -62,7 +62,8 @@ export function suggestCategory(name: string): GroceryCategory {
   return KEYWORDS.find(([, kws]) => kws.some((kw) => matches(key, words, kw)))?.[0] ?? "other";
 }
 
-const SUGGESTIONS = 6;
+/** Pocas: que no tapen la lista mientras se escribe. */
+const SUGGESTIONS = 3;
 
 /** Sugerencias del historial mientras se escribe: primero las que empiezan igual, luego lo más comprado. */
 export function searchHistory(items: GroceryItem[], query: string): GroceryItem[] {
