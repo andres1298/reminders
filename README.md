@@ -74,3 +74,6 @@ docs/                  spec, sistema de diseño (style guide) y prototipo
 - **Tema sin next-themes.** Un script en línea en `<head>` aplica `data-theme` antes de pintar, como recomienda la guía de Next 16 (evita el destello sin volver dinámico el layout).
 - **Transiciones.** Se usa `<ViewTransition>` de React 19.3 con `transitionTypes` en `Link`: la tarjeta crece hasta el detalle, y la navegación desliza (push/pop) o funde (pestañas).
 - **Datos (fase 2a).** El navegador lee la "foto" del hogar con la sesión del usuario (RLS) y la guarda en `localStorage` (`lukas-cache-<userId>`). Cada acción se aplica primero en pantalla con las funciones puras de `tasks.ts` y luego va a Supabase por una cola en serie (`DataProvider` + `sync.ts`); si falla, vuelve a la última foto. Se refresca al abrir, al volver a la app y cada minuto. Diseño: `docs/superpowers/specs/2026-10-11-fase2-supabase-design.md`.
+
+## Alertas anticipadas
+Crear/editar tareas y capturar pendientes permite elegir alertas fijas según la fecha y hora disponible. Los pendientes pueden tener fecha opcional. Aplicar la migración `advance_alerts` antes de publicar esta versión; utiliza el cron y las suscripciones push existentes.

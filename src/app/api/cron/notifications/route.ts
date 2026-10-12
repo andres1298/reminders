@@ -2,8 +2,9 @@
  * Avisos por tarea vía push. Lo llama pg_cron cada minuto (ver docs/DEPLOY.md)
  * con `Authorization: Bearer $CRON_SECRET`.
  */
+import { MAX_ALERT_MS } from "@/lib/alerts";
 import { timingSafeEqual } from "node:crypto";
-import { CATCH_UP_MS, planDueNotifications, type PrefsRow } from "@/lib/push/plan";
+import { CATCH_UP_MS, planDueNotifications, type DueTaskRow, type PrefsRow } from "@/lib/push/plan";
 import { pushConfigured, sendPush } from "@/lib/push/webpush";
 import { supabaseAdmin } from "@/lib/supabase/admin";
 
@@ -23,16 +24,26 @@ export async function GET(request: Request) {
   const from = new Date(+now - CATCH_UP_MS).toISOString();
   const { data: tasks, error } = await db
     .from("tasks")
-    .select("id, household_id, emoji, title, next_due_at, assignment_mode, current_assignee_id")
+    .select("id, household_id, emoji, title, next_due_at, assignment_mode, current_assignee_id, alert_minutes, cycle_started_at")
     .is("deleted_at", null)
     .is("paused_at", null)
     .is("completed_at", null)
     .gte("next_due_at", from)
-    .lte("next_due_at", now.toISOString());
+    .lte("next_due_at", new Date(+now + MAX_ALERT_MS).toISOString());
   if (error) return Response.json({ error: error.message }, { status: 500 });
-  if (!tasks?.length) return Response.json({ sent: 0 });
+  const { data: todos, error: todoError } = await db.from("household_todos")
+    .select("id, household_id, emoji, text, due_at, assignee_id, alert_minutes, created_at")
+    .is("deleted_at", null).is("done_at", null).not("alert_minutes", "is", null)
+    .gte("due_at", now.toISOString()).lte("due_at", new Date(+now + MAX_ALERT_MS).toISOString());
+  if (todoError) return Response.json({ error: todoError.message }, { status: 500 });
+  const candidates: DueTaskRow[] = [...(tasks ?? []), ...(todos ?? []).map((t) => ({
+    id: t.id, household_id: t.household_id, emoji: t.emoji, title: t.text, next_due_at: t.due_at,
+    assignment_mode: t.assignee_id ? "fixed" as const : "anyone" as const, current_assignee_id: t.assignee_id,
+    alert_minutes: t.alert_minutes, source: "todo" as const, cycle_started_at: t.created_at,
+  }))];
+  if (!candidates.length) return Response.json({ sent: 0 });
 
-  const householdIds = [...new Set(tasks.map((t) => t.household_id))];
+  const householdIds = [...new Set(candidates.map((t) => t.household_id))];
   const [households, members] = await Promise.all([
     db.from("households").select("id, timezone, vacation_from, vacation_until").in("id", householdIds).is("deleted_at", null).is("disabled_at", null),
     db.from("household_members").select("household_id, user_id, profiles!inner(display_name, disabled_at)").in("household_id", householdIds),
@@ -50,8 +61,11 @@ export async function GET(request: Request) {
     db.from("notification_log").select("user_id, occurrence_key").eq("kind", "due").eq("channel", "push").in("user_id", userIds).gte("sent_at", from),
   ]);
 
+  const readError = households.error ?? members.error ?? subs.error ?? prefs.error ?? log.error;
+  if (readError) return Response.json({ error: readError.message }, { status: 500 });
+
   const deliveries = planDueNotifications({
-    tasks,
+    tasks: candidates,
     households: households.data ?? [],
     members: memberRows,
     subscriptions: subs.data ?? [],
@@ -72,7 +86,7 @@ export async function GET(request: Request) {
   if (delivered.length) {
     const rows = [...new Map(delivered.map((r) => [`${r.d.userId}|${r.d.occurrenceKey}`, r.d])).values()].map((d) => ({
       user_id: d.userId,
-      task_id: d.payload.url.split("/").pop(),
+      task_id: d.taskId,
       kind: "due",
       channel: "push",
       occurrence_key: d.occurrenceKey,

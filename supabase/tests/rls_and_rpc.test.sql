@@ -226,3 +226,21 @@ do $$ begin assert (select deleted_at from public.household_todos where id = (se
 commit;
 
 \echo 'SQL cuentas: todas las aserciones pasaron'
+
+-- Alertas: anticipos fijos, fecha requerida y acceso del hogar existente.
+begin;
+set local role authenticated; set local request.jwt.claim.sub = :'a';
+update public.household_todos set due_at = '2026-12-20T15:00:00Z', alert_minutes = 60
+where id = (select v from ids where k = 'repisa');
+do $$ begin
+  assert (select alert_minutes from public.household_todos where id = (select v from ids where k = 'repisa')) = 60, 'guarda la alerta';
+  begin
+    update public.household_todos set alert_minutes = 45 where id = (select v from ids where k = 'repisa');
+    raise exception 'aceptó anticipo libre';
+  exception when check_violation then null; end;
+  begin
+    update public.household_todos set due_at = null where id = (select v from ids where k = 'repisa');
+    raise exception 'aceptó alerta sin fecha';
+  exception when check_violation then null; end;
+end $$;
+rollback;

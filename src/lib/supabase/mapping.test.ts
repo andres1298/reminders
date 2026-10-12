@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import type { Schedule } from "../schedule";
-import { buildState, scheduleFromRow, scheduleToRow, snoozeLabel, taskFromRow, taskToRow } from "./mapping";
+import { buildState, scheduleFromRow, scheduleToRow, snoozeLabel, taskFromRow, taskToRow, todoFromRow, todoToRow } from "./mapping";
 import type { EventRow, TaskRow } from "./rows";
 
 const baseTask: TaskRow = {
@@ -168,5 +168,17 @@ describe("isSuperAdmin", () => {
   it("llega a AppState", () => {
     expect(buildState({ ...rows, isSuperAdmin: true }).isSuperAdmin).toBe(true);
     expect(buildState(rows).isSuperAdmin).toBe(false);
+  });
+});
+
+describe("persistencia de alertas", () => {
+  it("conserva el anticipo de las tareas al cargar y guardar", () => {
+    const t = taskFromRow({ ...baseTask, alert_minutes: 120 }, [], [], "general");
+    expect(t.alertMinutes).toBe(120);
+    expect(taskToRow(t, "h1", "u1").alert_minutes).toBe(120);
+  });
+  it("conserva fecha y anticipo de un pendiente", () => {
+    const t = { id: "todo", text: "Vacuna", emoji: "🐱", soon: false, assigneeId: null, doneAt: null, deletedAt: null, createdAt: "2026-10-12T18:00:00Z", dueAt: "2026-10-20T15:00:00Z", alertMinutes: 1440 };
+    expect(todoFromRow({ ...todoToRow(t, "h1", "u1"), deleted_at: null })).toEqual(t);
   });
 });

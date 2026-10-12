@@ -55,7 +55,7 @@ export const insertTodo = (db: SupabaseClient, todo: Todo, householdId: string, 
 export const patchTodo = (
   db: SupabaseClient,
   id: string,
-  patch: { done_at?: string | null; soon?: boolean; assignee_id?: string | null; text?: string },
+  patch: { done_at?: string | null; soon?: boolean; assignee_id?: string | null; text?: string; due_at?: string | null; alert_minutes?: number | null },
 ) => ok(db.from("household_todos").update(patch).eq("id", id));
 
 export const rpcDeleteTodo = (db: SupabaseClient, id: string) => ok(db.rpc("delete_todo", { p_todo: id }));
