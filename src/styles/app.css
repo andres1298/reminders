@@ -160,9 +160,14 @@ html,body{overscroll-behavior-x:none;overflow-x:clip}
 /* =========================================================================
    View Transitions (React <ViewTransition> + <Link transitionTypes>)
    ========================================================================= */
-::view-transition-group(.morph){animation-duration:460ms;animation-timing-function:cubic-bezier(.2,.9,.25,1)}
-::view-transition-image-pair(.morph){animation-name:via-blur}
-@keyframes via-blur{30%{filter:blur(2px)}}
+/* La tarjeta se captura aparte de la página: debe quedar encima de ambas
+   capturas de navegación, también al volver a Inicio. Sin un orden explícito,
+   la página opaca puede taparla hasta que desaparezca su captura (400ms).
+   Evitar blur sobre la captura mantiene el emoji nítido y evita una capa
+   filtrada adicional durante el cambio de tamaño en WebKit. */
+::view-transition-group(.morph){z-index:2;animation-duration:460ms;animation-timing-function:cubic-bezier(.2,.9,.25,1)}
+::view-transition-group(.nav-forward),::view-transition-group(.nav-back){z-index:1}
+::view-transition-group(tabbar){z-index:3}
 ::view-transition-old(.nav-forward){--slide-offset:-60px;animation:150ms ease-in both vt-fade reverse,400ms var(--ease-out) both vt-slide reverse}
 ::view-transition-new(.nav-forward){--slide-offset:60px;animation:200ms ease-out both vt-fade,400ms var(--ease-out) both vt-slide}
 ::view-transition-old(.nav-back){--slide-offset:60px;animation:150ms ease-in both vt-fade reverse,400ms var(--ease-out) both vt-slide reverse}
