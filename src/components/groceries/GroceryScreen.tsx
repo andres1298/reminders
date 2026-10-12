@@ -14,6 +14,7 @@ import {
   listGroups,
   nameKey,
   removeFromHistory,
+  restoreToHistory,
   searchHistory,
   suggestCategory,
   toggleChecked,
@@ -119,8 +120,15 @@ export function GroceryScreen() {
     sync.run((s) => removeFromHistory(s, i.id), (db) => rpcSetGroceryDeleted(db, i.id, true));
     toast(`Borrado del historial: ${i.name}`, {
       action: "Deshacer",
-      // vuelve con la siguiente foto: la fila borrada ya no está en el estado local
-      onAction: () => void rpcSetGroceryDeleted(sync.db, i.id, false).then(() => sync.refresh(), () => toast("No se pudo deshacer. Intenta otra vez")),
+      // por la cola (va después del borrado) y vuelve tal como estaba, también a la lista
+      onAction: () =>
+        sync.run(
+          (s) => restoreToHistory(s, i),
+          async (db) => {
+            await rpcSetGroceryDeleted(db, i.id, false);
+            if (i.onList) await patchGrocery(db, i.id, { on_list: true, quantity: i.quantity, note: i.note, checked_at: i.checkedAt });
+          },
+        ),
     });
   }
 

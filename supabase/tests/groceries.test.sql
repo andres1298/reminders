@@ -29,10 +29,14 @@ do $$ begin assert (select count(*) from public.grocery_items) = 1, 'Andrés la 
 begin;
 set local role authenticated; set local request.jwt.claim.sub = :'a';
 do $$ begin
+  -- ya está en la lista: no se pierde lo que otra persona anotó
+  update public.grocery_items set checked_at = now() where id = '00000000-0000-0000-0000-0000000000d1';
   assert public.add_grocery('00000000-0000-0000-0000-0000000000d2', (select v from ids where k = 'casa'), 'LECHE', 'leche', 'dairy', null, null)
-    = '00000000-0000-0000-0000-0000000000d1', 'mismo artículo';
+    = '00000000-0000-0000-0000-0000000000d2', 'mismo artículo, id del cliente';
   assert (select count(*) from public.grocery_items) = 1, 'sin duplicado';
-  assert (select quantity from public.grocery_items) is null, 'cantidad nueva';
+  assert (select quantity from public.grocery_items) = '2', 'conserva la cantidad';
+  assert (select checked_at from public.grocery_items) is not null, 'conserva el tachado';
+  update public.grocery_items set checked_at = null;
 end $$;
 commit;
 
@@ -50,30 +54,30 @@ commit;
 begin;
 set local role authenticated; set local request.jwt.claim.sub = :'m';
 select public.add_grocery(:'g3', v, 'Pan', 'pan', 'bakery', null, null) from ids where k = 'casa';
-update public.grocery_items set checked_at = now() where id = :'g1';
+update public.grocery_items set checked_at = now() where id = :'g2';
 do $$ begin
   assert public.finish_shopping((select v from ids where k = 'casa')) = 1, 'una comprada';
 end $$;
 commit;
 do $$ begin
-  assert (select on_list from public.grocery_items where id = '00000000-0000-0000-0000-0000000000d1') = false, 'leche sale de la lista';
-  assert (select times_bought from public.grocery_items where id = '00000000-0000-0000-0000-0000000000d1') = 1, 'cuenta la compra';
-  assert (select last_bought_at from public.grocery_items where id = '00000000-0000-0000-0000-0000000000d1') is not null, 'fecha de compra';
+  assert (select on_list from public.grocery_items where id = '00000000-0000-0000-0000-0000000000d2') = false, 'leche sale de la lista';
+  assert (select times_bought from public.grocery_items where id = '00000000-0000-0000-0000-0000000000d2') = 1, 'cuenta la compra';
+  assert (select last_bought_at from public.grocery_items where id = '00000000-0000-0000-0000-0000000000d2') is not null, 'fecha de compra';
   assert (select on_list from public.grocery_items where id = '00000000-0000-0000-0000-0000000000d3') = true, 'pan sigue en la lista';
 end $$;
 
 -- Borrar del historial y deshacer (miembro no admin) -----------------------------------------
 begin;
 set local role authenticated; set local request.jwt.claim.sub = :'m';
-select public.set_grocery_deleted(:'g1', true);
-do $$ begin assert not exists (select 1 from public.grocery_items where id = '00000000-0000-0000-0000-0000000000d1'), 'Mari ya no la ve'; end $$;
-select public.set_grocery_deleted(:'g1', false);
-do $$ begin assert exists (select 1 from public.grocery_items where id = '00000000-0000-0000-0000-0000000000d1'), 'vuelve con Deshacer'; end $$;
+select public.set_grocery_deleted(:'g2', true);
+do $$ begin assert not exists (select 1 from public.grocery_items where id = '00000000-0000-0000-0000-0000000000d2'), 'Mari ya no la ve'; end $$;
+select public.set_grocery_deleted(:'g2', false);
+do $$ begin assert exists (select 1 from public.grocery_items where id = '00000000-0000-0000-0000-0000000000d2'), 'vuelve con Deshacer'; end $$;
 commit;
 begin;
 set local role authenticated; set local request.jwt.claim.sub = :'x';
 do $$ begin
-  begin perform public.set_grocery_deleted('00000000-0000-0000-0000-0000000000d1', true); raise exception 'debió fallar';
+  begin perform public.set_grocery_deleted('00000000-0000-0000-0000-0000000000d2', true); raise exception 'debió fallar';
   exception when others then assert sqlerrm = 'forbidden', 'otro hogar no borra: ' || sqlerrm; end;
 end $$;
 commit;
@@ -81,12 +85,14 @@ commit;
 -- Un artículo borrado reaparece al escribirlo de nuevo ---------------------------------------
 begin;
 set local role authenticated; set local request.jwt.claim.sub = :'m';
-select public.set_grocery_deleted(:'g1', true);
+select public.set_grocery_deleted(:'g2', true);
 do $$ begin
+  -- reaparece la misma fila, ahora con el id que generó el teléfono (así sus siguientes acciones la encuentran)
   assert public.add_grocery('00000000-0000-0000-0000-0000000000d4', (select v from ids where k = 'casa'), 'Leché', 'leche', 'dairy', null, null)
-    = '00000000-0000-0000-0000-0000000000d1', 'reaparece el mismo';
-  assert (select deleted_at from public.grocery_items where id = '00000000-0000-0000-0000-0000000000d1') is null, 'ya no está borrado';
-  assert (select times_bought from public.grocery_items where id = '00000000-0000-0000-0000-0000000000d1') = 1, 'conserva el historial';
+    = '00000000-0000-0000-0000-0000000000d4', 'toma el id del cliente';
+  assert (select count(*) from public.grocery_items where name_key = 'leche') = 1, 'sin duplicado';
+  assert (select deleted_at from public.grocery_items where id = '00000000-0000-0000-0000-0000000000d4') is null, 'ya no está borrado';
+  assert (select times_bought from public.grocery_items where id = '00000000-0000-0000-0000-0000000000d4') = 1, 'conserva el historial';
 end $$;
 commit;
 

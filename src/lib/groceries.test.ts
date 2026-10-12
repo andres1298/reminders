@@ -4,6 +4,7 @@ import {
   CATEGORIES,
   addGrocery,
   finishShopping,
+  restoreToHistory,
   historyGroups,
   listGroups,
   nameKey,
@@ -46,6 +47,16 @@ describe("suggestCategory", () => {
     ["Papel higiénico", "hygiene"],
     ["Arena para gato", "pets"],
     ["Pilas", "other"],
+    ["Aguacate", "produce"],
+    ["Gatorade", "drinks"],
+    ["Salsa de tomate", "pantry"],
+    ["Pasta de tomate", "pantry"],
+    ["Consomé de pollo", "pantry"],
+    ["Sopa de pollo", "pantry"],
+    ["Croquetas de pollo", "meat"],
+    ["Croquetas para perro", "pets"],
+    ["Galletas de mantequilla", "bakery"],
+    ["Pañales", "hygiene"],
   ])("%s → %s", (name, cat) => expect(suggestCategory(name)).toBe(cat));
 });
 
@@ -108,6 +119,19 @@ describe("verbos", () => {
     expect(added.id).not.toBe("Leche");
     expect(state.groceries).toHaveLength(2);
     expect(added).toMatchObject({ name: "Pan", nameKey: "pan", onList: true });
+  });
+
+  it("agregar algo que ya está en la lista no pierde su cantidad, nota ni tachado", () => {
+    const s = { ...demoState(now), groceries: [item("Leche", { onList: true, quantity: "2", note: "deslactosada", checkedAt: "x" })] };
+    const { state } = addGrocery(s, { name: "leche", category: "dairy" }, now);
+    expect(state.groceries[0]).toMatchObject({ onList: true, quantity: "2", note: "deslactosada", checkedAt: "x" });
+  });
+
+  it("deshacer el borrado del historial lo devuelve tal como estaba", () => {
+    const leche = item("Leche", { onList: true, quantity: "2" });
+    const s = { ...demoState(now), groceries: [] };
+    expect(restoreToHistory(s, leche).groceries).toEqual([leche]);
+    expect(restoreToHistory({ ...s, groceries: [leche] }, leche).groceries).toHaveLength(1);
   });
 
   it("terminar compra solo saca lo tachado", () => {

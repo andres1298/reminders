@@ -78,11 +78,16 @@ export const rpcAddGrocery = (db: SupabaseClient, item: GroceryItem, householdId
     }),
   );
 
-export const patchGrocery = (
+export async function patchGrocery(
   db: SupabaseClient,
   id: string,
   patch: { on_list?: boolean; quantity?: string | null; note?: string | null; category?: string; checked_at?: string | null },
-) => ok(db.from("grocery_items").update(patch).eq("id", id));
+): Promise<void> {
+  const { data, error } = await db.from("grocery_items").update(patch).eq("id", id).select("id");
+  if (error) throw error;
+  // 0 filas = ya no existe (borrado en otro teléfono): que se note y se recargue, no perderlo en silencio
+  if (!data?.length) throw { message: "not_found" };
+}
 
 export const rpcFinishShopping = (db: SupabaseClient, householdId: string) => ok(db.rpc("finish_shopping", { p_household: householdId }));
 

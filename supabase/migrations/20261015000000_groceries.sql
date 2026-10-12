@@ -36,7 +36,10 @@ create policy groceries_update on public.grocery_items for update to authenticat
   using (public.is_member(household_id) and deleted_at is null)
   with check (public.is_member(household_id) and deleted_at is null);
 
-/** Agregar a la lista: crea el artículo o, si ya existe (aunque esté borrado), lo trae de vuelta. */
+/**
+ * Agregar a la lista: crea el artículo o, si ya existe (aunque esté borrado), lo trae de vuelta
+ * con el id que generó el teléfono. Nada referencia grocery_items, así que cambiar el id es seguro.
+ */
 create function public.add_grocery(
   p_id uuid, p_household uuid, p_name text, p_name_key text, p_category text, p_quantity text, p_note text
 ) returns uuid language plpgsql security definer set search_path = '' as $$
@@ -46,8 +49,14 @@ begin
   insert into public.grocery_items (id, household_id, name, name_key, category, on_list, quantity, note, created_by)
     values (p_id, p_household, p_name, p_name_key, p_category, true, nullif(p_quantity, ''), nullif(p_note, ''), auth.uid())
   on conflict (household_id, name_key) do update set
-    name = excluded.name, category = excluded.category, on_list = true, checked_at = null,
-    quantity = excluded.quantity, note = excluded.note, deleted_at = null, deleted_by = null
+    -- el id del teléfono gana: así sus acciones siguientes (tachar, nota…) encuentran la fila
+    id = excluded.id,
+    name = excluded.name, category = excluded.category, on_list = true,
+    -- si ya estaba en la lista, no se pierde lo que otra persona anotó ni lo ya tachado
+    checked_at = case when grocery_items.on_list and grocery_items.deleted_at is null then grocery_items.checked_at end,
+    quantity = coalesce(excluded.quantity, case when grocery_items.on_list and grocery_items.deleted_at is null then grocery_items.quantity end),
+    note = coalesce(excluded.note, case when grocery_items.on_list and grocery_items.deleted_at is null then grocery_items.note end),
+    deleted_at = null, deleted_by = null
   returning id into v_id;
   return v_id;
 end $$;

@@ -31,8 +31,13 @@ export function nameKey(name: string): string {
 // Palabras clave por categoría (en el orden en que se revisan: lo más específico primero).
 // Una frase con espacio se busca tal cual; una palabra, al inicio de alguna palabra del nombre.
 const KEYWORDS: [GroceryCategory, string[]][] = [
-  ["pets", ["arena para gato", "arena de gato", "croqueta", "alimento para gato", "alimento para perro", "comida de gato", "comida de perro", "mascota", "gato", "perro"]],
-  ["hygiene", ["papel higienico", "pasta dental", "hilo dental", "cepillo de dientes", "jabon de bano", "jabon de manos", "toallas sanitarias", "champu", "shampoo", "acondicionador", "desodorante", "rastrillo", "afeitar"]],
+  // frases que se confunden con otra categoría ("salsa de tomate" no es verdura, "sopa de pollo" no es carne)
+  ["pantry", ["salsa de tomate", "pasta de tomate", "pure de tomate", "consome", "sopa de", "caldo de"]],
+  ["bakery", ["galleta"]],
+  ["produce", ["aguacate"]],
+  ["drinks", ["gatorade"]],
+  ["pets", ["arena para gato", "arena de gato", "croquetas para", "croquetas de perro", "croquetas de gato", "alimento para gato", "alimento para perro", "comida de gato", "comida de perro", "mascota", "gato", "perro"]],
+  ["hygiene", ["panal", "papel higienico", "pasta dental", "hilo dental", "cepillo de dientes", "jabon de bano", "jabon de manos", "toallas sanitarias", "champu", "shampoo", "acondicionador", "desodorante", "rastrillo", "afeitar"]],
   ["cleaning", ["papel toalla", "jabon de platos", "jabon para platos", "jabon en polvo", "bolsas de basura", "cloro", "detergente", "lavaplatos", "esponja", "desinfectante", "suavizante", "limpiador", "escoba", "trapeador"]],
   ["frozen", ["helado", "congelad", "hielo", "nugget"]],
   ["dairy", ["leche", "queso", "yogur", "mantequilla", "natilla", "crema dulce", "huevo"]],
@@ -43,10 +48,12 @@ const KEYWORDS: [GroceryCategory, string[]][] = [
   ["pantry", ["arroz", "frijol", "pasta", "espagueti", "aceite", "azucar", "sal", "cafe", "atun", "salsa", "harina", "avena", "cereal", "sopa", "mayonesa", "ketchup", "especia", "consome"]],
 ];
 
+// Palabras que solo cuentan completas (o en plural): "agua" no es "aguacate", "gato" no es "Gatorade".
+const WHOLE_WORDS = new Set(["agua", "gato", "perro", "pan", "sal", "res"]);
+
 function matches(key: string, words: string[], kw: string): boolean {
   if (kw.includes(" ")) return key.includes(kw);
-  // palabras cortas ("pan", "sal", "res") solo completas o en plural; las largas, como prefijo
-  return words.some((w) => (kw.length <= 3 ? w === kw || w === kw + "s" || w === kw + "es" : w.startsWith(kw)));
+  return words.some((w) => (WHOLE_WORDS.has(kw) ? w === kw || w === kw + "s" || w === kw + "es" : w.startsWith(kw)));
 }
 
 export function suggestCategory(name: string): GroceryCategory {
@@ -113,10 +120,16 @@ export function addGrocery(state: AppState, input: GroceryInput, now: Date): { s
   const name = input.name.trim().slice(0, 60);
   if (!name) throw new Error("empty_grocery");
   const key = nameKey(name);
-  const fields = { name, category: input.category, onList: true, checkedAt: null, quantity: input.quantity?.trim().slice(0, 20) || null, note: input.note?.trim().slice(0, 80) || null };
+  const quantity = input.quantity?.trim().slice(0, 20) || null;
+  const note = input.note?.trim().slice(0, 80) || null;
+  const fields = { name, category: input.category, onList: true, checkedAt: null, quantity, note };
   const existing = state.groceries.find((g) => g.nameKey === key);
   if (existing) {
-    const item = { ...existing, ...fields };
+    // si ya estaba en la lista, no se pierde lo que otra persona anotó ni lo ya tachado (igual que add_grocery)
+    const keep = existing.onList
+      ? { checkedAt: existing.checkedAt, quantity: quantity ?? existing.quantity, note: note ?? existing.note }
+      : {};
+    const item = { ...existing, ...fields, ...keep };
     return { state: replace(state, item), item };
   }
   const item: GroceryItem = { id: crypto.randomUUID(), nameKey: key, timesBought: 0, lastBoughtAt: null, ...fields };
@@ -138,6 +151,11 @@ export function updateGrocery(
   const g = state.groceries.find((x) => x.id === id);
   if (!g) throw new Error("not_found");
   return replace(state, { ...g, ...patch, ...(patch.onList === false ? { checkedAt: null } : {}) });
+}
+
+/** "Deshacer" de borrar del historial: vuelve tal como estaba (incluso en la lista). */
+export function restoreToHistory(state: AppState, item: GroceryItem): AppState {
+  return state.groceries.some((g) => g.id === item.id) ? state : { ...state, groceries: [...state.groceries, item] };
 }
 
 export function removeFromHistory(state: AppState, id: string): AppState {
