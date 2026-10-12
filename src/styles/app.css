@@ -91,8 +91,9 @@ body{min-height:100dvh}
 .days31 button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
 .days31 .last{grid-column:span 4;font-size:13px}
 .lists{display:flex;flex-wrap:wrap;gap:8px}
-.time-pill{position:relative;cursor:pointer}
-.time-pill input{position:absolute;inset:0;opacity:0;width:100%;cursor:pointer}
+/* el input nativo va invisible encima; iOS le da un ancho mínimo propio, así que se recorta a la píldora */
+.time-pill{position:relative;overflow:hidden;cursor:pointer}
+.time-pill input{position:absolute;inset:0;width:100%;height:100%;min-width:0;opacity:0;-webkit-appearance:none;appearance:none;cursor:pointer}
 .sheet-summary{font:500 13px/1.35 var(--font-text);color:var(--ink-muted);text-align:center;margin-bottom:10px;min-height:1.35em}
 .who-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;padding:8px var(--margin) 0}
 .who-grid .person{padding:18px 8px;font-size:15px}
@@ -164,7 +165,10 @@ html,body{overscroll-behavior-x:none;overflow-x:clip}
 ::view-transition-new(.nav-back){--slide-offset:-60px;animation:210ms ease-out 150ms both vt-fade,400ms var(--ease-out) both vt-slide}
 @keyframes vt-fade{from{opacity:0}to{opacity:1}}
 @keyframes vt-slide{from{translate:var(--slide-offset)}to{translate:0}}
-::view-transition-old(root),::view-transition-new(root){animation:none}
+/* Con cacheComponents la pantalla anterior queda oculta (no sale), así que va en la captura de root.
+   Sin animación y con el plus-lighter del navegador se veían las dos encimadas hasta que terminaba el morph:
+   mezcla normal para que la nueva (opaca) tape a la vieja desde el primer cuadro. */
+::view-transition-old(root),::view-transition-new(root){animation:none;mix-blend-mode:normal}
 html.vt-theme::view-transition-new(root){animation:vt-reveal 520ms var(--ease-in-out) both}
 @keyframes vt-reveal{from{clip-path:circle(0 at var(--rx,50%) var(--ry,50%))}to{clip-path:circle(150% at var(--rx,50%) var(--ry,50%))}}
 .card-in{animation:card-in 420ms var(--ease-out) both;animation-delay:calc(var(--n,0) * var(--stagger))}
