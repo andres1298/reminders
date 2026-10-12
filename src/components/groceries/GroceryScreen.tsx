@@ -36,7 +36,9 @@ type View = "list" | "history";
 /** La nota crece con el texto: de 2 a 5 líneas, luego hace scroll. */
 function growTextarea(el: HTMLTextAreaElement) {
   el.style.height = "auto";
-  el.style.height = `${Math.min(el.scrollHeight, 5 * 22 + 20)}px`;
+  // border-box: el alto incluye el borde, scrollHeight no
+  const border = el.offsetHeight - el.clientHeight;
+  el.style.height = `${Math.min(el.scrollHeight, 5 * 22 + 20) + border}px`;
 }
 type Panel = { kind: "item"; id: string } | { kind: "edit"; id: string } | { kind: "category"; id: string | null } | null;
 
