@@ -17,6 +17,7 @@ Web app mobile-first para llevar las tareas del hogar que se repiten: cada tarea
 | Datos en Supabase: caché por usuario para abrir sin conexión, cambios optimistas en cola | ✅ |
 | Cuentas: correo + contraseña, registro solo por invitación de hogar, crear hogar | ✅ |
 | Panel de super admin (crear hogares, miembros, roles, desactivar; sin acceso a tareas) | ✅ |
+| Lista de compras compartida con historial por categorías (pestaña Súper) | ✅ |
 | Gestionar completo, Estadísticas por persona, selector de hogar, Telegram, widget, ES/EN | ⏳ siguientes fases |
 
 ## Comandos

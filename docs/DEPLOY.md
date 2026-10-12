@@ -51,6 +51,7 @@ Opción A, desde el navegador: **SQL Editor → New query**, pega y ejecuta **en
 2. `supabase/migrations/20261012000000_push.sql`
 3. `supabase/migrations/20261013000000_accounts.sql` (perfil automático al crear un usuario y "Deshacer" de borrados)
 4. `supabase/migrations/20261014000000_super_admin.sql` (panel de super admin; el super admin deja de poder leer tareas de hogares ajenos)
+5. `supabase/migrations/20261015000000_groceries.sql` (lista de compras: pestaña Súper). Mientras no se corra, la app funciona igual y Súper aparece vacía.
 
 Opción B, con la CLI:
 ```bash
