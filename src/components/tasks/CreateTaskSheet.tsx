@@ -300,7 +300,7 @@ function CreateTaskForm({ editId, onOpenChange, onSaved }: { editId?: string; on
           )}
         </div>
 
-        <div className="sheet-section">
+        <div className="sheet-section sheet-rows">
           {f.kind !== "once" && (
             <div className="sheet-row">
               <span className="lbl">Empieza</span>
