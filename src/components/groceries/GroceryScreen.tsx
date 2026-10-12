@@ -3,7 +3,7 @@
  * Súper: la lista de compras del hogar y el historial del que se arma.
  * Tocar en la lista tacha; "Terminar compra" saca lo tachado y lo cuenta.
  */
-import { useMemo, useState, type FormEvent } from "react";
+import { useLayoutEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { vibrate } from "@/lib/fx";
 import {
   CATEGORIES,
@@ -32,6 +32,14 @@ import { Sheet } from "@/components/ui/Sheet";
 import { useToast } from "@/components/ui/Toast";
 
 type View = "list" | "history";
+
+/** La nota crece con el texto: de 2 a 5 líneas, luego hace scroll. */
+function growTextarea(el: HTMLTextAreaElement) {
+  el.style.height = "auto";
+  // border-box: el alto incluye el borde, scrollHeight no
+  const border = el.offsetHeight - el.clientHeight;
+  el.style.height = `${Math.min(el.scrollHeight, 5 * 22 + 20) + border}px`;
+}
 type Panel = { kind: "item"; id: string } | { kind: "edit"; id: string } | { kind: "category"; id: string | null } | null;
 
 export function GroceryScreen() {
@@ -47,6 +55,12 @@ export function GroceryScreen() {
   const [panel, setPanel] = useState<Panel>(null);
   const [editQty, setEditQty] = useState("");
   const [editNote, setEditNote] = useState("");
+  const noteRef = useRef<HTMLTextAreaElement>(null);
+
+  // la nota crece con el texto (y se encoge al vaciarse después de agregar)
+  useLayoutEffect(() => {
+    if (noteRef.current) growTextarea(noteRef.current);
+  }, [note, optsOpen]);
 
   const items = useMemo(() => state?.groceries ?? [], [state]);
   const groups = useMemo(() => listGroups(items), [items]);
@@ -193,12 +207,24 @@ export function GroceryScreen() {
               ))}
             </div>
           )}
-          <div className="quick-add__opts" role="group" aria-label="Opciones">
-            <button type="button" className="chip" onClick={() => setPanel({ kind: "category", id: null })} aria-label="Cambiar categoría">
-              {categoryInfo(category).emoji} {categoryInfo(category).name}
-            </button>
-            <input className="grocery-opt" value={quantity} maxLength={20} placeholder="Cantidad" aria-label="Cantidad" onChange={(e) => setQuantity(e.target.value)} />
-            <input className="grocery-opt grocery-opt--wide" value={note} maxLength={80} placeholder="Nota" aria-label="Nota" onChange={(e) => setNote(e.target.value)} />
+          <div className="quick-add__opts grocery-opts" role="group" aria-label="Opciones">
+            <div className="grocery-opts__row">
+              <button type="button" className="chip grocery-opts__cat" onClick={() => setPanel({ kind: "category", id: null })} aria-label={`Categoría: ${categoryInfo(category).name}. Cambiar`}>
+                {categoryInfo(category).emoji} {categoryInfo(category).name}
+                <Icon name="chevron-down" size="sm" />
+              </button>
+              <input className="grocery-field" value={quantity} maxLength={20} placeholder="Cantidad" aria-label="Cantidad" enterKeyHint="next" onChange={(e) => setQuantity(e.target.value)} />
+            </div>
+            <textarea
+              className="grocery-field grocery-field--note"
+              value={note}
+              maxLength={80}
+              rows={2}
+              placeholder="Nota (opcional): marca, tamaño, dónde está…"
+              aria-label="Nota"
+              ref={noteRef}
+              onChange={(e) => setNote(e.target.value)}
+            />
           </div>
         </form>
 
@@ -341,7 +367,14 @@ export function GroceryScreen() {
               </label>
               <label className="field">
                 <span className="field__label">Nota</span>
-                <input className="input" maxLength={80} placeholder="La marca sin lactosa…" value={editNote} onChange={(e) => setEditNote(e.target.value)} />
+                <textarea
+                  className="textarea"
+                  rows={3}
+                  maxLength={80}
+                  placeholder="La marca sin lactosa…"
+                  value={editNote}
+                  onChange={(e) => setEditNote(e.target.value)}
+                />
               </label>
             </div>
           </form>
