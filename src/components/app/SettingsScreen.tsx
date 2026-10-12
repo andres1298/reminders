@@ -37,6 +37,17 @@ export function SettingsScreen() {
           </div>
         </>
       )}
+      <div style={{ height: 12 }} />
+      <div className="list list--inset">
+        <Link className="row row--lead" href="/estadisticas">
+          <span className="row__lead"><Icon name="stats" size="md" /></span>
+          <span className="row__main">
+            <span className="row__title">Estadísticas</span>
+            <span className="row__sub">Quién hizo qué en el hogar</span>
+          </span>
+          <Icon name="chevron-right" className="row__chev" />
+        </Link>
+      </div>
       <div className="section-header">App</div>
       <InstallCard />
       <div style={{ height: 12 }} />
