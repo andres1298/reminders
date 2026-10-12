@@ -23,8 +23,6 @@ body{min-height:100dvh}
 .task-card .icon-btn,.task-card .avatar{position:relative;z-index:2}
 .task-card:has(.task-card__open:active){transform:translateY(var(--stamp-lift));box-shadow:var(--stamp-pressed)}
 .task-card.is-flash .ring__bar,.hero.is-flash .ring__bar{transition:stroke-dashoffset 640ms var(--ease-in-out), opacity 120ms linear 560ms}
-.end-note{display:flex;flex-direction:column;align-items:center;gap:6px;padding:28px var(--margin) 0;color:var(--ink-muted);font:500 13.5px/1.3 var(--font-text)}
-.end-note .art{width:170px}
 .skel-card{display:flex;flex-direction:column;align-items:flex-start;gap:12px;min-height:216px;padding:44px 16px 16px;border-radius:var(--r-card);background:var(--fill-1)}
 .skel-card .skeleton--circle{width:84px;height:84px;align-self:center;margin-bottom:6px}
 .skel-card .skeleton--line{height:16px}

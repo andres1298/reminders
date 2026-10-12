@@ -114,30 +114,22 @@ export function HomeScreen() {
           )}
         </div>
       ) : (
-        <>
-          <div className="grid-cards">
-            <AnimatePresence initial={false} mode="popLayout">
-              {tasks.map((v, i) => (
-                <motion.div
-                  key={v.task.id}
-                  layout
-                  initial={{ opacity: 0, scale: 0.85 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.86, transition: { duration: 0.22 } }}
-                  transition={{ type: "spring", stiffness: 400, damping: 35 }}
-                >
-                  <TaskCard view={v} flashFrom={flash.get(v.task.id)} onMore={() => ui.openActions(v.task.id)} index={i} animateIn={animateIn} />
-                </motion.div>
-              ))}
-            </AnimatePresence>
-          </div>
-          {s && !s.overdue && !s.today && (
-            <div className="end-note">
-              <LukasArt name="peek" />
-              Eso es todo por ahora.
-            </div>
-          )}
-        </>
+        <div className="grid-cards">
+          <AnimatePresence initial={false} mode="popLayout">
+            {tasks.map((v, i) => (
+              <motion.div
+                key={v.task.id}
+                layout
+                initial={{ opacity: 0, scale: 0.85 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.86, transition: { duration: 0.22 } }}
+                transition={{ type: "spring", stiffness: 400, damping: 35 }}
+              >
+                <TaskCard view={v} flashFrom={flash.get(v.task.id)} onMore={() => ui.openActions(v.task.id)} index={i} animateIn={animateIn} />
+              </motion.div>
+            ))}
+          </AnimatePresence>
+        </div>
       )}
       <div className="pad-tab" />
     </main>
