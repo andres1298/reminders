@@ -51,6 +51,8 @@ interface Form {
   everyWeeks: number;
   day: number | "last";
   date: string;
+  /** YYYY-MM-DD: primer día en que puede tocar (no aplica a "Una vez"). */
+  startsOn: string;
   time: string;
   who: string; // "anyone" | member id
   rotation: boolean;
@@ -63,11 +65,21 @@ function todayIn(tz: string) {
   return `${t.getFullYear()}-${String(t.getMonth() + 1).padStart(2, "0")}-${String(t.getDate()).padStart(2, "0")}`;
 }
 
+const MONTHS = ["ene", "feb", "mar", "abr", "may", "jun", "jul", "ago", "sep", "oct", "nov", "dic"];
+
+/** "hoy" · "2 nov" · "2 nov 2027" */
+function startLabel(ymd: string, today: string) {
+  if (ymd === today) return "hoy";
+  const [y, m, d] = ymd.split("-").map(Number);
+  return `${d} ${MONTHS[m - 1]}${y !== Number(today.slice(0, 4)) ? ` ${y}` : ""}`;
+}
+
 function initialForm(editId?: string): Form {
   const s = getState();
   const base: Form = {
     emoji: "✨", userEmoji: false, title: "", description: "", kind: "interval", every: 3, unit: "day", anchor: "completion",
-    weekdays: [2, 4], everyWeeks: 1, day: 3, date: todayIn(s.household.timeZone), time: "09:00", who: "anyone", rotation: false,
+    weekdays: [2, 4], everyWeeks: 1, day: 3, date: todayIn(s.household.timeZone),
+    startsOn: todayIn(s.household.timeZone), time: "09:00", who: "anyone", rotation: false,
     listId: s.lists[0]?.id ?? "", color: "none",
   };
   const t = editId ? s.tasks.find((x) => x.id === editId) : undefined;
@@ -80,6 +92,7 @@ function initialForm(editId?: string): Form {
     ...(sc.type === "weekly" ? { weekdays: sc.weekdays, everyWeeks: sc.everyWeeks } : {}),
     ...(sc.type === "monthly" ? { day: sc.day } : {}),
     ...(sc.type === "once" ? { date: sc.date } : {}),
+    startsOn: t.startsOn,
     time: t.dueTime,
     who: t.assignment.mode === "anyone" ? "anyone" : t.assignment.mode === "fixed" ? t.assignment.userId : t.assignment.current,
     rotation: t.assignment.mode === "rotation",
@@ -116,6 +129,7 @@ function CreateTaskForm({ editId, onOpenChange, onSaved }: { editId?: string; on
   const set = <K extends keyof Form>(k: K, v: Form[K]) => setF((x) => ({ ...x, [k]: v }));
 
   const schedule = toSchedule(f);
+  const today = todayIn(state.household.timeZone);
   const valid = f.title.trim().length > 0 && !(f.kind === "weekly" && f.weekdays.length === 0);
   const whoText = f.rotation
     ? `Rotan ${state.members.map((m) => m.name).join(" y ")}`
@@ -143,13 +157,13 @@ function CreateTaskForm({ editId, onOpenChange, onSaved }: { editId?: string; on
       : f.who === "anyone" ? { mode: "anyone" } : { mode: "fixed", userId: f.who };
     const input: TaskInput = {
       emoji: f.emoji, title: f.title.trim(), description: f.description.trim(), listId: f.listId, color: f.color,
-      schedule, dueTime: f.time, startsOn: todayIn(state.household.timeZone), assignment,
+      schedule, dueTime: f.time, startsOn: f.kind === "once" ? today : f.startsOn, assignment,
     };
     const now = new Date();
     if (editId) {
       const before = getState().tasks.find((t) => t.id === editId)!;
       sync.run(
-        (s) => updateTask(s, editId, { ...input, startsOn: before.startsOn }, now),
+        (s) => updateTask(s, editId, f.kind === "once" ? { ...input, startsOn: before.startsOn } : input, now),
         (db, s) => saveTask(db, s.tasks.find((t) => t.id === editId)!, s.household.id, s.me, before),
       );
       onSaved("Cambios guardados");
@@ -284,6 +298,17 @@ function CreateTaskForm({ editId, onOpenChange, onSaved }: { editId?: string; on
               <input type="date" className="input" value={f.date} onChange={(e) => set("date", e.target.value)} aria-label="Fecha" />
             </div>
           )}
+          {f.kind !== "once" && (
+            <div className="sheet-row">
+              <span className="lbl">Empieza</span>
+              <label className="time-pill">
+                <Icon name="calendar" size="md" />
+                <span>{startLabel(f.startsOn, today)}</span>
+                <input type="date" value={f.startsOn} aria-label="Fecha de inicio" onChange={(e) => set("startsOn", e.target.value || today)}
+                  onClick={(e) => { try { e.currentTarget.showPicker(); } catch { /* sin picker */ } }} />
+              </label>
+            </div>
+          )}
         </div>
 
         <div className="sheet-section sheet-row">
@@ -352,7 +377,7 @@ function CreateTaskForm({ editId, onOpenChange, onSaved }: { editId?: string; on
 
       <div className="sheet__foot">
         <p className="sheet-summary">
-          {f.kind === "weekly" && f.weekdays.length === 0 ? "Elige al menos un día." : `${scheduleText(schedule, f.time)} · ${whoText}`}
+          {f.kind === "weekly" && f.weekdays.length === 0 ? "Elige al menos un día." : `${scheduleText(schedule, f.time)}${f.kind !== "once" && f.startsOn > today ? ` · desde el ${startLabel(f.startsOn, today)}` : ""} · ${whoText}`}
         </p>
         <button className="btn btn--filled btn--lg btn--block" disabled={!valid} onClick={save}>
           {editId ? "Guardar cambios" : "Agregar tarea"}

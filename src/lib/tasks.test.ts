@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { demoState } from "./demo-seed";
-import { AlreadyDoneError, addTodo, completeTask, createTask, skipTask, undoLast } from "./tasks";
+import { AlreadyDoneError, addTodo, completeTask, createTask, skipTask, undoLast, updateTask, type TaskInput } from "./tasks";
 import { currentAssignee } from "./types";
 
 const now = new Date("2026-10-10T23:40:00Z"); // sáb 10 oct, 17:40 en Costa Rica
@@ -69,6 +69,26 @@ describe("crear", () => {
       now,
     );
     expect(task.nextDueAt).toBe("2026-10-13T15:00:00.000Z"); // martes 9:00 en Costa Rica
+  });
+
+  const helecho: TaskInput = {
+    emoji: "🌱", title: "Regar el helecho", description: "", listId: "plantas", color: "sky",
+    schedule: { type: "interval", every: 2, unit: "week", anchor: "schedule" }, dueTime: "09:00", startsOn: "2026-11-02",
+    assignment: { mode: "anyone" },
+  };
+
+  it("con fecha de inicio futura, la primera vez es ese día y luego cada intervalo", () => {
+    const { state, task } = createTask(demoState(now), helecho, now);
+    expect(task.nextDueAt).toBe("2026-11-02T15:00:00.000Z"); // lun 2 nov, 9:00 en Costa Rica
+    const { nextDue } = completeTask(state, task.id, new Date("2026-11-02T16:00:00Z"));
+    expect(nextDue?.toISOString()).toBe("2026-11-16T15:00:00.000Z");
+  });
+
+  it("cambiar la fecha de inicio al editar recalcula el vencimiento", () => {
+    const { state, task } = createTask(demoState(now), { ...helecho, startsOn: "2026-10-10" }, now);
+    expect(task.nextDueAt).toBe("2026-10-24T15:00:00.000Z");
+    const edited = updateTask(state, task.id, helecho, now);
+    expect(edited.tasks.find((t) => t.id === task.id)!.nextDueAt).toBe("2026-11-02T15:00:00.000Z");
   });
 });
 

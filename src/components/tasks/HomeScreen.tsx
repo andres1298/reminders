@@ -130,10 +130,12 @@ export function HomeScreen() {
               ))}
             </AnimatePresence>
           </div>
-          <div className="end-note">
-            <LukasArt name="peek" />
-            Eso es todo por ahora.
-          </div>
+          {s && !s.overdue && !s.today && (
+            <div className="end-note">
+              <LukasArt name="peek" />
+              Eso es todo por ahora.
+            </div>
+          )}
         </>
       )}
       <div className="pad-tab" />
