@@ -298,6 +298,9 @@ function CreateTaskForm({ editId, onOpenChange, onSaved }: { editId?: string; on
               <input type="date" className="input" value={f.date} onChange={(e) => set("date", e.target.value)} aria-label="Fecha" />
             </div>
           )}
+        </div>
+
+        <div className="sheet-section">
           {f.kind !== "once" && (
             <div className="sheet-row">
               <span className="lbl">Empieza</span>
@@ -309,16 +312,15 @@ function CreateTaskForm({ editId, onOpenChange, onSaved }: { editId?: string; on
               </label>
             </div>
           )}
-        </div>
-
-        <div className="sheet-section sheet-row">
-          <span className="lbl">Hora</span>
-          <label className="time-pill">
-            <Icon name="clock" size="md" />
-            <span>{f.time}</span>
-            <input type="time" value={f.time} aria-label="Hora" onChange={(e) => set("time", e.target.value || "09:00")}
-              onClick={(e) => { try { e.currentTarget.showPicker(); } catch { /* sin picker */ } }} />
-          </label>
+          <div className="sheet-row">
+            <span className="lbl">Hora</span>
+            <label className="time-pill">
+              <Icon name="clock" size="md" />
+              <span>{f.time}</span>
+              <input type="time" value={f.time} aria-label="Hora" onChange={(e) => set("time", e.target.value || "09:00")}
+                onClick={(e) => { try { e.currentTarget.showPicker(); } catch { /* sin picker */ } }} />
+            </label>
+          </div>
         </div>
 
         <div className="sheet-section">

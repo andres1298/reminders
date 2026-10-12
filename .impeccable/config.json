@@ -1,0 +1,20 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "bounce-easing",
+        "value": "var(--ease-spring)",
+        "createdAt": "2026-10-12T02:55:10.567Z",
+        "reason": "Claude: token del sistema de diseño (lukas.css, prototipo en docs/design), overshoot máx 1.002 y se apaga con reduced motion"
+      },
+      {
+        "rule": "bounce-easing",
+        "value": "var(--dur-spring)",
+        "createdAt": "2026-10-12T02:55:10.852Z",
+        "reason": "Claude: duración del mismo token spring del sistema de diseño (lukas.css)"
+      }
+    ]
+  }
+}
