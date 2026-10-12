@@ -81,6 +81,21 @@ export interface Todo {
   deletedAt: string | null;
 }
 
+export interface GroceryItem {
+  id: string;
+  name: string;
+  /** minúsculas, sin tildes: identifica el artículo en el historial */
+  nameKey: string;
+  category: import("./groceries").GroceryCategory;
+  onList: boolean;
+  quantity: string | null;
+  note: string | null;
+  /** tachado en la compra actual */
+  checkedAt: string | null;
+  timesBought: number;
+  lastBoughtAt: string | null;
+}
+
 export interface AppState {
   version: 1;
   me: string;
@@ -89,6 +104,8 @@ export interface AppState {
   lists: TaskList[];
   tasks: Task[];
   todos: Todo[];
+  /** lista de compras e historial (Súper) */
+  groceries: GroceryItem[];
   /** puede abrir el panel de administración */
   isSuperAdmin?: boolean;
 }

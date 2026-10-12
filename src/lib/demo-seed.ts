@@ -126,5 +126,6 @@ export function demoState(now = new Date()): AppState {
       todo("p7", "Desarmar las cajas de la mudanza", "📦", "mari", false, true),
       todo("p8", "Revisar la fuga del grifo", "🔧", "andres", false, true),
     ],
+    groceries: [],
   };
 }
