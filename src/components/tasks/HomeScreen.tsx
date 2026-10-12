@@ -29,6 +29,7 @@ export function HomeScreen() {
   const filters: { id: HomeFilter; label: string }[] = [
     { id: "all", label: "Todas" },
     { id: "mine", label: "Mías" },
+    ...(state?.members.filter((m) => m.id !== state.me).map((m) => ({ id: `person:${m.id}` as HomeFilter, label: `${m.emoji} ${m.name}` })) ?? []),
     { id: "today", label: "Hoy" },
     ...(state?.lists.slice(1).map((l) => ({ id: `list:${l.id}` as HomeFilter, label: `${l.emoji} ${l.name}` })) ?? []),
   ];

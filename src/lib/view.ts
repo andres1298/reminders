@@ -29,7 +29,7 @@ export function viewTask(state: AppState, task: Task, now: Date): TaskView | nul
 
 const RANK: Record<TaskStatus, number> = { overdue: 0, soon: 1, ok: 2 };
 
-export type HomeFilter = "all" | "mine" | "today" | `list:${string}`;
+export type HomeFilter = "all" | "mine" | "today" | `person:${string}` | `list:${string}`;
 
 export function homeTasks(state: AppState, now: Date, filter: HomeFilter): TaskView[] {
   const tz = state.household.timeZone;
@@ -40,6 +40,7 @@ export function homeTasks(state: AppState, now: Date, filter: HomeFilter): TaskV
     .filter((v) => {
       if (filter === "all") return true;
       if (filter === "mine") return currentAssignee(v.task.assignment) === state.me;
+      if (filter.startsWith("person:")) return currentAssignee(v.task.assignment) === filter.slice(7);
       if (filter === "today")
         return v.status === "overdue" || differenceInCalendarDays(new TZDate(+new Date(v.task.nextDueAt!), tz), new TZDate(+now, tz)) === 0;
       return v.task.listId === filter.slice(5);
