@@ -15,3 +15,10 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 - La recurrencia se calcula en `src/lib/schedule.ts` (zona horaria del hogar). No la dupliques en SQL ni en componentes.
 - Los estilos de componentes viven en `src/styles/lukas.css` (capa `components`). No uses la utilidad `ring` de Tailwind: `.ring` es el anillo de progreso.
 - UI en español; nunca registres qué cuenta tocó "Hecha" (solo el crédito).
+
+## Publicación y migraciones de Supabase
+
+- Una vez que Andrés aprueba los cambios y pide subirlos a `main`, esa autorización incluye aplicar las migraciones de Supabase correspondientes; no pedir una segunda confirmación para ejecutarlas.
+- Antes de mergear a `main`, ejecutar los checks de este archivo y revisar el historial y el esquema remoto. Aplicar solo las migraciones pendientes de los cambios aprobados, con la conexión de Supabase, y verificar su resultado. Si una migración ya se aplicó, no repetirla.
+- El proyecto de esta app es `lukas-reminders` (`xijydcpyowttxfrbsgwy`). Mantener sincronizados el archivo local y la versión registrada en el historial remoto.
+- Coordinar el orden de migración y publicación según la compatibilidad del cambio. Si una migración necesaria falla, resolverla antes de dar la publicación por terminada e informar el estado.

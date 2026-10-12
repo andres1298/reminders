@@ -688,3 +688,9 @@ Flujo propuesto: `mobile-design-system` (iOS) → tokens y catálogo → `impecc
 ## 18. Siguiente paso (histórico)
 
 El spec queda listo para pasar a diseño: generar el sistema de diseño (tokens + catálogo de componentes) y un prototipo de Inicio, detalle y crear tarea para validarlo antes de programar.
+
+## Actualización: alertas anticipadas (12/10/2026)
+- Tareas: toggle opcional «Agregar alerta» al crear/editar, además del aviso al vencimiento.
+- Pendientes: fecha y hora opcionales en la zona horaria del hogar, con el mismo toggle. Se pueden editar desde sus acciones. Sin fecha siguen siendo captura rápida.
+- Anticipos fijos: 15 y 30 minutos, 1 y 2 horas, 1, 2 y 3 días. Solo se ofrecen anticipos estrictamente menores al tiempo restante; una alerta nunca se programa para ahora ni para el pasado. Si cambia la fecha o pasa el tiempo, una selección inválida requiere elegir otra o apagar la alerta.
+- Envío push por el cron existente al responsable o a todo el hogar para «Cualquiera»; respeta preferencias y vacaciones. Los anticipos tienen su propia clave de deduplicación por ocurrencia. Los pendientes hechos/borrados no generan avisos y sus alertas abren /pendientes.

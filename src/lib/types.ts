@@ -59,6 +59,7 @@ export interface Task {
   schedule: Schedule;
   /** "HH:mm" */
   dueTime: string;
+  alertMinutes?: number | null;
   /** YYYY-MM-DD */
   startsOn: string;
   assignment: Assignment;
@@ -76,6 +77,8 @@ export interface Todo {
   /** null = Cualquiera */
   assigneeId: string | null;
   soon: boolean;
+  dueAt?: string | null;
+  alertMinutes?: number | null;
   doneAt: string | null;
   createdAt: string;
   deletedAt: string | null;

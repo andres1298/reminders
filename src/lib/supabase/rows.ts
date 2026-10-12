@@ -36,6 +36,7 @@ export interface TaskRow {
   anchor: Anchor;
   /** "HH:mm:ss" */
   due_time: string;
+  alert_minutes?: number | null;
   starts_on: string;
   ends_on: string | null;
   color: string | null;
@@ -77,6 +78,8 @@ export interface TodoRow {
   emoji: string;
   assignee_id: string | null;
   soon: boolean;
+  due_at?: string | null;
+  alert_minutes?: number | null;
   done_at: string | null;
   deleted_at: string | null;
   created_by: string;

@@ -83,6 +83,7 @@ export function taskFromRow(r: TaskRow, rotation: RotationRow[], events: EventRo
     color: r.color && (CARD_COLORS as readonly string[]).includes(r.color) ? (r.color as CardColor) : "none",
     schedule: scheduleFromRow(r),
     dueTime: r.due_time.slice(0, 5),
+    alertMinutes: r.alert_minutes ?? null,
     startsOn: r.starts_on,
     assignment: assignmentFor(r.assignment_mode, r.current_assignee_id, order),
     cycleStartedAt: r.cycle_started_at,
@@ -97,7 +98,7 @@ export function taskFromRow(r: TaskRow, rotation: RotationRow[], events: EventRo
 export type TaskWrite = Pick<
   TaskRow,
   | "id" | "household_id" | "list_id" | "emoji" | "title" | "description" | "schedule_type" | "schedule" | "anchor"
-  | "due_time" | "starts_on" | "color" | "assignment_mode" | "current_assignee_id" | "cycle_started_at"
+  | "alert_minutes" | "due_time" | "starts_on" | "color" | "assignment_mode" | "current_assignee_id" | "cycle_started_at"
   | "next_due_at" | "completed_at" | "created_by"
 >;
 
@@ -112,6 +113,7 @@ export function taskToRow(t: Task, householdId: string, userId: string): TaskWri
     description: t.description || null,
     ...scheduleToRow(t.schedule),
     due_time: t.dueTime,
+    alert_minutes: t.alertMinutes ?? null,
     starts_on: t.startsOn,
     color: t.color === "none" ? null : t.color,
     assignment_mode: a.mode,
@@ -134,6 +136,8 @@ export function todoFromRow(r: TodoRow): Todo {
     emoji: r.emoji,
     assigneeId: r.assignee_id,
     soon: r.soon,
+    dueAt: r.due_at ?? null,
+    alertMinutes: r.alert_minutes ?? null,
     doneAt: r.done_at,
     createdAt: r.created_at,
     deletedAt: r.deleted_at,
@@ -148,6 +152,8 @@ export function todoToRow(t: Todo, householdId: string, userId: string): Omit<To
     emoji: t.emoji,
     assignee_id: t.assigneeId,
     soon: t.soon,
+    due_at: t.dueAt ?? null,
+    alert_minutes: t.alertMinutes ?? null,
     done_at: t.doneAt,
     created_by: userId,
     created_at: t.createdAt,

@@ -2,6 +2,7 @@
  * Task operations as pure functions over AppState (same semantics as the SQL
  * functions in supabase/migrations: credit, rotation, "ya estaba hecha", undo).
  */
+import { validAlert } from "./alerts";
 import {
   firstDue,
   nextDueAfterCompletion,
@@ -133,12 +134,14 @@ export interface TaskInput {
   color: CardColor;
   schedule: Schedule;
   dueTime: string;
+  alertMinutes?: number | null;
   startsOn: string;
   assignment: Assignment;
 }
 
 export function createTask(state: AppState, input: TaskInput, now: Date): { state: AppState; task: Task } {
   const due = firstDue(scheduleContext(state, input), now);
+  if (!validAlert(input.alertMinutes, due, now)) throw new Error("invalid_alert");
   const task: Task = {
     ...input,
     id: newId(),
@@ -159,6 +162,7 @@ export function updateTask(state: AppState, id: string, input: TaskInput, now: D
   const nextDueAt = scheduleChanged
     ? firstDue(scheduleContext(state, input), new Date(Math.min(+now, +new Date(t.cycleStartedAt)))).toISOString()
     : t.nextDueAt;
+  if (!validAlert(input.alertMinutes, nextDueAt, now)) throw new Error("invalid_alert");
   return replaceTask(state, { ...t, ...input, nextDueAt, completedAt: scheduleChanged ? null : t.completedAt });
 }
 
@@ -182,13 +186,14 @@ const TODO_EMOJI: [RegExp, string][] = [
 ];
 export const todoEmoji = (text: string) => TODO_EMOJI.find(([r]) => r.test(text.toLowerCase()))?.[1] ?? "📝";
 
-export function addTodo(state: AppState, text: string, assigneeId: string | null, soon: boolean, now: Date): { state: AppState; todo: Todo } {
+export function addTodo(state: AppState, text: string, assigneeId: string | null, soon: boolean, now: Date, alert: Pick<Todo, "dueAt" | "alertMinutes"> = {}): { state: AppState; todo: Todo } {
   const clean = text.trim().slice(0, 80);
   if (!clean) throw new Error("empty_todo");
-  const todo: Todo = { id: newId(), text: clean, emoji: todoEmoji(clean), assigneeId, soon, doneAt: null, createdAt: now.toISOString(), deletedAt: null };
+  if (!validAlert(alert.alertMinutes, alert.dueAt ?? null, now)) throw new Error("invalid_alert");
+  const todo: Todo = { ...alert, id: newId(), text: clean, emoji: todoEmoji(clean), assigneeId, soon, doneAt: null, createdAt: now.toISOString(), deletedAt: null };
   return { state: { ...state, todos: [todo, ...state.todos] }, todo };
 }
 
-export function updateTodo(state: AppState, id: string, patch: Partial<Pick<Todo, "doneAt" | "soon" | "assigneeId" | "deletedAt" | "text">>): AppState {
+export function updateTodo(state: AppState, id: string, patch: Partial<Pick<Todo, "doneAt" | "soon" | "assigneeId" | "deletedAt" | "text" | "dueAt" | "alertMinutes">>): AppState {
   return { ...state, todos: state.todos.map((t) => (t.id === id ? { ...t, ...patch } : t)) };
 }

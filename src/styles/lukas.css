@@ -617,3 +617,11 @@ button.row:active,a.row:active{background:var(--fill-1)}
   .lukas-sprout .sp-stem{stroke-dashoffset:0}.lukas-sprout .sp-leaf{transform:none}
   .skeleton::after{animation:none!important;opacity:.5}
 }
+
+.alert-picker{width:100%;padding:12px 0}
+.alert-picker__options{display:flex;flex-wrap:wrap;gap:8px;margin:8px 0}
+.todo-schedule{padding:0 16px 12px;display:grid;gap:8px}
+.todo-schedule .field__label{margin-bottom:4px}
+.quick-add .todo-schedule .input{width:100%;padding:0 var(--sp-12);border-radius:var(--r-md);background:var(--surface-2);border:2px solid transparent;font-weight:500}
+.quick-add .todo-schedule .input:focus{border-color:var(--ink);background:var(--surface)}
+.todo__meta{flex-wrap:wrap}

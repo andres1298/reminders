@@ -50,3 +50,29 @@ describe("avisos push", () => {
     expect(planDueNotifications({ ...base, prefs: [{ user_id: "a", push: false, per_task: true }], tasks: [basura] })).toEqual([]);
   });
 });
+
+describe("alertas anticipadas", () => {
+  const task = { ...basura, next_due_at: "2026-10-13T03:00:00Z", alert_minutes: 120 };
+  it("envía el anticipo una sola vez y conserva el aviso al vencimiento", () => {
+    const early = planDueNotifications({ ...base, tasks: [task] });
+    expect(early).toHaveLength(2);
+    expect(early[0].payload.body).toContain("toca en 2 horas");
+    expect(early[0].occurrenceKey).toContain(":before-120");
+    const alreadySent = new Set([`a|${early[0].occurrenceKey}`]);
+    expect(planDueNotifications({ ...base, tasks: [task], alreadySent })).toEqual([]);
+    const due = planDueNotifications({ ...base, tasks: [task], alreadySent, now: new Date(task.next_due_at) });
+    expect(due).toHaveLength(2);
+    expect(due[0].payload.body).toContain("Toca ahora");
+  });
+  it("no envía anticipos futuros ni de una ocurrencia recién creada", () => {
+    expect(planDueNotifications({ ...base, tasks: [{ ...task, next_due_at: "2026-10-13T03:01:00Z" }] })).toEqual([]);
+    expect(planDueNotifications({ ...base, tasks: [{ ...task, cycle_started_at: now.toISOString() }] })).toEqual([]);
+  });
+  it("pendientes abren su lista y no registran un id de tarea", () => {
+    const todo = { ...task, source: "todo" as const };
+    const d = planDueNotifications({ ...base, tasks: [todo] });
+    expect(d[0].taskId).toBeNull();
+    expect(d[0].payload.url).toBe("/pendientes");
+    expect(planDueNotifications({ ...base, tasks: [todo], now: new Date(task.next_due_at) })).toEqual([]);
+  });
+});

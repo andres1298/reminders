@@ -4,6 +4,7 @@
  * "Cualquiera"), una sola vez por ocurrencia y canal. Posponer crea una
  * ocurrencia nueva (otro vencimiento) y por eso vuelve a avisar.
  */
+import { ALERT_OPTIONS } from "../alerts";
 import { TZDate } from "@date-fns/tz";
 
 export interface DueTaskRow {
@@ -12,6 +13,9 @@ export interface DueTaskRow {
   emoji: string;
   title: string;
   next_due_at: string;
+  alert_minutes?: number | null;
+  source?: "todo";
+  cycle_started_at?: string;
   assignment_mode: "anyone" | "fixed" | "rotation";
   current_assignee_id: string | null;
 }
@@ -47,6 +51,7 @@ export interface PushPayload {
 }
 export interface Delivery {
   userId: string;
+  taskId: string | null;
   subscription: SubscriptionRow;
   payload: PushPayload;
   occurrenceKey: string;
@@ -79,7 +84,13 @@ export function planDueNotifications(input: {
 
   for (const t of input.tasks) {
     const due = new Date(t.next_due_at);
-    if (+due > +now || +now - +due > CATCH_UP_MS) continue;
+    const minutes = t.alert_minutes;
+    const early = +due > +now && minutes != null && ALERT_OPTIONS.some((o) => o.minutes === minutes);
+    const alertAt = early ? +due - minutes! * 60_000 : +due;
+    if (t.source === "todo" && !early) continue;
+    if (alertAt > +now || +now - alertAt > CATCH_UP_MS) continue;
+    // No enviar anticipos que quedaron antes de crear/completar la ocurrencia.
+    if (early && t.cycle_started_at && alertAt <= +new Date(t.cycle_started_at)) continue;
     const h = households.get(t.household_id);
     if (!h || onVacation(h, now)) continue;
 
@@ -91,7 +102,7 @@ export function planDueNotifications(input: {
     const assignee = members.find((m) => m.user_id === t.current_assignee_id);
     const local = new TZDate(+due, h.timezone);
     const hhmm = `${local.getHours()}:${String(local.getMinutes()).padStart(2, "0")}`;
-    const key = occurrenceKey(t.id, t.next_due_at);
+    const key = `${occurrenceKey(t.id, t.next_due_at)}${early ? `:before-${minutes}` : ""}`;
 
     for (const r of recipients) {
       const p = prefs.get(r.user_id);
@@ -99,12 +110,14 @@ export function planDueNotifications(input: {
       if (input.alreadySent.has(`${r.user_id}|${key}`)) continue;
       const payload: PushPayload = {
         title: `${t.emoji} ${t.title}`,
-        body: assignee ? `Toca ahora (${hhmm}) · le toca a ${assignee.display_name}` : `Toca ahora (${hhmm}) · cualquiera del hogar`,
-        url: `/t/${t.id}`,
+        body: early
+          ? `Recordatorio: toca en ${ALERT_OPTIONS.find((o) => o.minutes === minutes)!.label} (${hhmm}) · ${assignee ? `le toca a ${assignee.display_name}` : "cualquiera del hogar"}`
+          : assignee ? `Toca ahora (${hhmm}) · le toca a ${assignee.display_name}` : `Toca ahora (${hhmm}) · cualquiera del hogar`,
+        url: t.source === "todo" ? "/pendientes" : `/t/${t.id}`,
         tag: `task-${t.id}`,
       };
       for (const s of input.subscriptions.filter((x) => x.user_id === r.user_id)) {
-        out.push({ userId: r.user_id, subscription: s, payload, occurrenceKey: key });
+        out.push({ userId: r.user_id, taskId: t.source === "todo" ? null : t.id, subscription: s, payload, occurrenceKey: key });
       }
     }
   }

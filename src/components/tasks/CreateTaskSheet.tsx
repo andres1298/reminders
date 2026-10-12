@@ -10,6 +10,10 @@ import { useSync } from "@/components/app/DataProvider";
 import { dueLabel } from "@/lib/status";
 import { CARD_COLORS, type Assignment, type CardColor } from "@/lib/types";
 import { scheduleText } from "@/lib/view";
+import { AlertPicker, useAlertNow } from "@/components/ui/AlertPicker";
+import { validAlert } from "@/lib/alerts";
+import { firstDue } from "@/lib/schedule";
+import { scheduleContext } from "@/lib/tasks";
 import { Sheet } from "@/components/ui/Sheet";
 import { Segmented } from "@/components/ui/Segmented";
 import { Avatar } from "@/components/ui/Avatar";
@@ -54,6 +58,7 @@ interface Form {
   /** YYYY-MM-DD: primer día en que puede tocar (no aplica a "Una vez"). */
   startsOn: string;
   time: string;
+  alertMinutes: number | null;
   who: string; // "anyone" | member id
   rotation: boolean;
   listId: string;
@@ -80,7 +85,7 @@ function initialForm(editId?: string): Form {
     emoji: "✨", userEmoji: false, title: "", description: "", kind: "interval", every: 3, unit: "day", anchor: "completion",
     weekdays: [2, 4], everyWeeks: 1, day: 3, date: todayIn(s.household.timeZone),
     startsOn: todayIn(s.household.timeZone), time: "09:00", who: "anyone", rotation: false,
-    listId: s.lists[0]?.id ?? "", color: "none",
+    listId: s.lists[0]?.id ?? "", color: "none", alertMinutes: null,
   };
   const t = editId ? s.tasks.find((x) => x.id === editId) : undefined;
   if (!t) return base;
@@ -93,7 +98,7 @@ function initialForm(editId?: string): Form {
     ...(sc.type === "monthly" ? { day: sc.day } : {}),
     ...(sc.type === "once" ? { date: sc.date } : {}),
     startsOn: t.startsOn,
-    time: t.dueTime,
+    time: t.dueTime, alertMinutes: t.alertMinutes ?? null,
     who: t.assignment.mode === "anyone" ? "anyone" : t.assignment.mode === "fixed" ? t.assignment.userId : t.assignment.current,
     rotation: t.assignment.mode === "rotation",
     listId: t.listId, color: t.color,
@@ -128,9 +133,18 @@ function CreateTaskForm({ editId, onOpenChange, onSaved }: { editId?: string; on
   const [emojiQuery, setEmojiQuery] = useState("");
   const set = <K extends keyof Form>(k: K, v: Form[K]) => setF((x) => ({ ...x, [k]: v }));
 
+  const alertNow = useAlertNow();
   const schedule = toSchedule(f);
+  const before = editId ? state.tasks.find((t) => t.id === editId) : undefined;
+  const previewInput = { schedule, alertMinutes: f.alertMinutes, dueTime: f.time, startsOn: f.kind === "once" ? before?.startsOn ?? todayIn(state.household.timeZone) : f.startsOn };
+  const unchanged = before && JSON.stringify(before.schedule) === JSON.stringify(schedule) && before.dueTime === f.time && before.startsOn === previewInput.startsOn;
+  let previewDue: string | null = null;
+  try {
+    previewDue = unchanged ? before.nextDueAt : firstDue(scheduleContext(state, previewInput), before ? new Date(Math.min(+alertNow, +new Date(before.cycleStartedAt))) : alertNow).toISOString();
+  } catch { /* fecha incompleta o sin días seleccionados */ }
+
   const today = todayIn(state.household.timeZone);
-  const valid = f.title.trim().length > 0 && !(f.kind === "weekly" && f.weekdays.length === 0);
+  const valid = f.title.trim().length > 0 && !(f.kind === "weekly" && f.weekdays.length === 0) && (unchanged || !!previewDue) && validAlert(f.alertMinutes, previewDue, alertNow);
   const whoText = f.rotation
     ? `Rotan ${state.members.map((m) => m.name).join(" y ")}`
     : f.who === "anyone" ? "Cualquiera" : state.members.find((m) => m.id === f.who)?.name ?? "";
@@ -151,13 +165,13 @@ function CreateTaskForm({ editId, onOpenChange, onSaved }: { editId?: string; on
   }
 
   function save() {
-    if (!valid) return;
+    if (!valid || !validAlert(f.alertMinutes, previewDue, new Date())) return;
     const assignment: Assignment = f.rotation
       ? { mode: "rotation", order: state.members.map((m) => m.id), current: f.who === "anyone" ? state.members[0].id : f.who }
       : f.who === "anyone" ? { mode: "anyone" } : { mode: "fixed", userId: f.who };
     const input: TaskInput = {
       emoji: f.emoji, title: f.title.trim(), description: f.description.trim(), listId: f.listId, color: f.color,
-      schedule, dueTime: f.time, startsOn: f.kind === "once" ? today : f.startsOn, assignment,
+      schedule, alertMinutes: f.alertMinutes, dueTime: f.time, startsOn: f.kind === "once" ? today : f.startsOn, assignment,
     };
     const now = new Date();
     if (editId) {
@@ -321,6 +335,10 @@ function CreateTaskForm({ editId, onOpenChange, onSaved }: { editId?: string; on
                 onClick={(e) => { try { e.currentTarget.showPicker(); } catch { /* sin picker */ } }} />
             </label>
           </div>
+        </div>
+
+        <div className="sheet-section">
+          <AlertPicker due={previewDue} value={f.alertMinutes} onChange={(v) => set("alertMinutes", v)} now={alertNow} />
         </div>
 
         <div className="sheet-section">

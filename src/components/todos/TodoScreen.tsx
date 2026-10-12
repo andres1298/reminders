@@ -8,11 +8,27 @@ import { addTodo, updateTodo } from "@/lib/tasks";
 import { HOGAR, type Todo } from "@/lib/types";
 import { LukasArt } from "@/components/lukas/LukasArt";
 import { Icon } from "@/components/ui/Icon";
+import { AlertPicker, useAlertNow } from "@/components/ui/AlertPicker";
+import { validAlert, ALERT_OPTIONS } from "@/lib/alerts";
+import { firstDue } from "@/lib/schedule";
+import { TZDate } from "@date-fns/tz";
 import { Sheet } from "@/components/ui/Sheet";
 import { useToast } from "@/components/ui/Toast";
 import { useSync } from "@/components/app/DataProvider";
 
 type Filter = "all" | "mine" | "soon";
+
+function todoDue(value: string, timeZone: string): string | null {
+  if (!value) return null;
+  return firstDue({ schedule: { type: "once", date: value.slice(0, 10) }, dueTime: value.slice(11, 16), startsOn: value.slice(0, 10), timeZone }, new Date(0)).toISOString();
+}
+
+function localDateTime(instant: string | null | undefined, timeZone: string): string {
+  if (!instant) return "";
+  const d = new TZDate(+new Date(instant), timeZone);
+  const pad = (v: number) => String(v).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
 
 export function TodoScreen() {
   const state = useAppState();
@@ -22,6 +38,12 @@ export function TodoScreen() {
   const [optsOpen, setOptsOpen] = useState(false);
   const [who, setWho] = useState<string | null>(null);
   const [soon, setSoon] = useState(false);
+  const [dateTime, setDateTime] = useState("");
+  const [alertMinutes, setAlertMinutes] = useState<number | null>(null);
+  const alertNow = useAlertNow();
+  const dueAt = state ? todoDue(dateTime, state.household.timeZone) : null;
+  const alertValid = validAlert(alertMinutes, dueAt, alertNow);
+
   const [filter, setFilter] = useState<Filter>("all");
   const [checking, setChecking] = useState<Set<string>>(new Set());
   const [actionsFor, setActionsFor] = useState<string | null>(null);
@@ -41,17 +63,19 @@ export function TodoScreen() {
 
   function submit(e: FormEvent) {
     e.preventDefault();
-    if (!text.trim()) return;
+    if (!text.trim() || !validAlert(alertMinutes, dueAt, new Date())) return;
     let added: Todo | undefined;
     sync.run(
       (s) => {
-        const r = addTodo(s, text, who, soon, new Date());
+        const r = addTodo(s, text, who, soon, new Date(), { dueAt, alertMinutes });
         added = r.todo;
         return r.state;
       },
       (db, s) => insertTodo(db, added!, s.household.id, s.me),
     );
     setText("");
+    setDateTime("");
+    setAlertMinutes(null);
     if (filter !== "all" && !((filter === "soon" && soon) || (filter === "mine" && who === getState().me))) setFilter("all");
   }
 
@@ -95,6 +119,8 @@ export function TodoScreen() {
           <span className="todo__text">{t.text}</span>
           <span className="todo__meta">
             {m ? `${m.emoji} ${m.name}` : `${HOGAR.emoji} Cualquiera`}
+            {t.dueAt && <span>{new Intl.DateTimeFormat("es", { timeZone: state?.household.timeZone, dateStyle: "short", timeStyle: "short" }).format(new Date(t.dueAt))}</span>}
+            {t.alertMinutes != null && <span>Alerta {ALERT_OPTIONS.find((o) => o.minutes === t.alertMinutes)?.label} antes</span>}
             {t.soon && !t.doneAt && <span className="tag-soon">pronto</span>}
           </span>
         </button>
@@ -111,7 +137,7 @@ export function TodoScreen() {
             <span className="skeleton skeleton--line" style={{ display: "block", width: "60%", height: 16, marginTop: 4 }} />
           ) : open.length ? (
             <>
-              <b>{open.length} por hacer</b>. Sin fecha: se hacen cuando se pueda.
+              <b>{open.length} por hacer</b>. Con fecha o para cuando se pueda.
             </>
           ) : (
             "Todo hecho en casa."
@@ -131,7 +157,7 @@ export function TodoScreen() {
               onFocus={() => setOptsOpen(true)}
               onChange={(e) => setText(e.target.value)}
             />
-            <button className="icon-btn icon-btn--ink" type="submit" aria-label="Agregar pendiente" disabled={!text.trim()}>
+            <button className="icon-btn icon-btn--ink" type="submit" aria-label="Agregar pendiente" disabled={!text.trim() || !alertValid}>
               <Icon name="plus" />
             </button>
           </div>
@@ -144,6 +170,13 @@ export function TodoScreen() {
             ))}
             <button type="button" className="chip" aria-pressed={soon} onClick={() => setSoon((x) => !x)}>Pronto</button>
           </div>
+          {optsOpen && <div className="todo-schedule">
+            <label className="field">
+              <span className="field__label">Fecha y hora (opcional)</span>
+              <input className="input" type="datetime-local" value={dateTime} onChange={(e) => setDateTime(e.target.value)} />
+            </label>
+            <AlertPicker due={dueAt} value={alertMinutes} onChange={setAlertMinutes} now={alertNow} />
+          </div>}
         </form>
 
         <nav className="filters" aria-label="Filtros de pendientes">
@@ -226,6 +259,20 @@ export function TodoScreen() {
                 <Icon name="trash" size="md" />Borrar
               </button>
             </div>
+            {!current.doneAt && <div className="todo-schedule">
+              <label className="field">
+                <span className="field__label">Fecha y hora (opcional)</span>
+                <input className="input" type="datetime-local" value={localDateTime(current.dueAt, state.household.timeZone)}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    const due = todoDue(v, state.household.timeZone);
+                    const minutes = validAlert(current.alertMinutes, due, new Date()) ? current.alertMinutes ?? null : null;
+                    patch(current.id, { dueAt: due, alertMinutes: minutes }, { due_at: due, alert_minutes: minutes });
+                  }} />
+              </label>
+              <AlertPicker due={current.dueAt ?? null} value={current.alertMinutes ?? null} now={alertNow}
+                onChange={(v) => patch(current.id, { alertMinutes: v }, { alert_minutes: v })} />
+            </div>}
             <div className="action-sheet__group">
               <button className="action-sheet__btn action-sheet__btn--cancel" onClick={closeActions}>Cancelar</button>
             </div>
