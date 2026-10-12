@@ -5,6 +5,9 @@
 html{background:var(--bg)}
 body{min-height:100dvh}
 .app-col{position:relative;width:100%;max-width:480px;margin:0 auto;min-height:100dvh}
+/* cada pantalla es opaca y de alto completo: en la transición la nueva tapa a la vieja aunque
+   iOS no la desvanezca (antes el detalle era transparente y se veía Inicio debajo ~medio segundo) */
+.app-col>main{min-height:100dvh;background:var(--bg)}
 .pad-tab{height:calc(var(--tabbar-h) + var(--safe-bottom) + 40px)}
 
 /* Inicio */
@@ -74,6 +77,7 @@ body{min-height:100dvh}
 .sheet-section>.field__label{display:block;margin-bottom:10px}
 .sheet-row{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:48px}
 .sheet-row .lbl{font:600 15px/1.2 var(--font-text)}
+.sheet-rows{display:grid;gap:12px}
 .well-wrap{display:flex;flex-direction:column;align-items:center;gap:6px;padding:4px 0 2px}
 .emoji-panel{display:grid;grid-template-rows:0fr;transition:grid-template-rows var(--dur-3) var(--ease-out)}
 .emoji-panel.is-open{grid-template-rows:1fr}
@@ -160,14 +164,13 @@ html,body{overscroll-behavior-x:none;overflow-x:clip}
 ::view-transition-image-pair(.morph){animation-name:via-blur}
 @keyframes via-blur{30%{filter:blur(2px)}}
 ::view-transition-old(.nav-forward){--slide-offset:-60px;animation:150ms ease-in both vt-fade reverse,400ms var(--ease-out) both vt-slide reverse}
-::view-transition-new(.nav-forward){--slide-offset:60px;animation:210ms ease-out 150ms both vt-fade,400ms var(--ease-out) both vt-slide}
+::view-transition-new(.nav-forward){--slide-offset:60px;animation:200ms ease-out both vt-fade,400ms var(--ease-out) both vt-slide}
 ::view-transition-old(.nav-back){--slide-offset:60px;animation:150ms ease-in both vt-fade reverse,400ms var(--ease-out) both vt-slide reverse}
-::view-transition-new(.nav-back){--slide-offset:-60px;animation:210ms ease-out 150ms both vt-fade,400ms var(--ease-out) both vt-slide}
+::view-transition-new(.nav-back){--slide-offset:-60px;animation:200ms ease-out both vt-fade,400ms var(--ease-out) both vt-slide}
 @keyframes vt-fade{from{opacity:0}to{opacity:1}}
 @keyframes vt-slide{from{translate:var(--slide-offset)}to{translate:0}}
-/* Con cacheComponents la pantalla anterior queda oculta (no sale), así que va en la captura de root.
-   Sin animación y con el plus-lighter del navegador se veían las dos encimadas hasta que terminaba el morph:
-   mezcla normal para que la nueva (opaca) tape a la vieja desde el primer cuadro. */
+/* root no anima: con el plus-lighter del navegador lo que quedara en la captura vieja se vería encima
+   de la nueva hasta el final; con mezcla normal la nueva (opaca) la tapa desde el primer cuadro. */
 ::view-transition-old(root),::view-transition-new(root){animation:none;mix-blend-mode:normal}
 html.vt-theme::view-transition-new(root){animation:vt-reveal 520ms var(--ease-in-out) both}
 @keyframes vt-reveal{from{clip-path:circle(0 at var(--rx,50%) var(--ry,50%))}to{clip-path:circle(150% at var(--rx,50%) var(--ry,50%))}}
