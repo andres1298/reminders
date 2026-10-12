@@ -153,3 +153,20 @@ describe("taskToRow", () => {
     expect(taskToRow(t, "h1", "u1").list_id).toBeNull();
   });
 });
+
+describe("isSuperAdmin", () => {
+  const rows = {
+    me: "u1",
+    household: { id: "h1", name: "Casa", emoji: "🏡", timezone: "America/Costa_Rica" },
+    members: [],
+    lists: [],
+    tasks: [],
+    rotation: [],
+    events: [],
+    todos: [],
+  };
+  it("llega a AppState", () => {
+    expect(buildState({ ...rows, isSuperAdmin: true }).isSuperAdmin).toBe(true);
+    expect(buildState(rows).isSuperAdmin).toBe(false);
+  });
+});

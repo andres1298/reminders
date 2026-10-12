@@ -4,7 +4,9 @@
  */
 import type { Schedule } from "../schedule";
 import { CARD_COLORS, type AppState, type Assignment, type CardColor, type Task, type TaskEvent, type Todo } from "../types";
-import type { EventRow, HouseholdRow, ListRow, MemberRow, RotationRow, TaskRow, TodoRow } from "./rows";
+import { CATEGORIES, type GroceryCategory } from "../groceries";
+import type { GroceryItem } from "../types";
+import type { EventRow, GroceryRow, HouseholdRow, ListRow, MemberRow, RotationRow, TaskRow, TodoRow } from "./rows";
 
 /** Eventos por tarea que se traen para el historial y "Deshacer". */
 const HISTORY_PER_TASK = 20;
@@ -161,6 +163,8 @@ export interface SnapshotRows {
   rotation: RotationRow[];
   events: EventRow[];
   todos: TodoRow[];
+  groceries?: GroceryRow[];
+  isSuperAdmin?: boolean;
 }
 
 export function buildState(input: SnapshotRows): AppState {
@@ -174,6 +178,8 @@ export function buildState(input: SnapshotRows): AppState {
     lists,
     tasks: input.tasks.map((t) => taskFromRow(t, input.rotation, input.events, defaultListId)),
     todos: input.todos.map(todoFromRow),
+    groceries: (input.groceries ?? []).map(groceryFromRow),
+    isSuperAdmin: !!input.isSuperAdmin,
   };
 }
 
@@ -184,4 +190,20 @@ export function changedColumns<T extends object>(before: T, after: T): Partial<T
     if (JSON.stringify(before[k]) !== JSON.stringify(after[k])) out[k] = after[k];
   }
   return out;
+}
+
+export function groceryFromRow(r: GroceryRow): GroceryItem {
+  const category = (CATEGORIES.some((c) => c.key === r.category) ? r.category : "other") as GroceryCategory;
+  return {
+    id: r.id,
+    name: r.name,
+    nameKey: r.name_key,
+    category,
+    onList: r.on_list,
+    quantity: r.quantity,
+    note: r.note,
+    checkedAt: r.checked_at,
+    timesBought: Number(r.times_bought) || 0,
+    lastBoughtAt: r.last_bought_at,
+  };
 }

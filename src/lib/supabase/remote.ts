@@ -4,7 +4,7 @@
  * schedule.ts (vía tasks.ts): aquí no se calcula recurrencia.
  */
 import type { SupabaseClient } from "@supabase/supabase-js";
-import type { Task, Todo } from "../types";
+import type { GroceryItem, Task, Todo } from "../types";
 import { changedColumns, rotationRows, taskToRow, todoToRow } from "./mapping";
 
 async function ok(p: PromiseLike<{ error: unknown }>) {
@@ -61,3 +61,35 @@ export const patchTodo = (
 export const rpcDeleteTodo = (db: SupabaseClient, id: string) => ok(db.rpc("delete_todo", { p_todo: id }));
 
 export const rpcRestoreTodo = (db: SupabaseClient, id: string) => ok(db.rpc("restore_todo", { p_todo: id }));
+
+// --- Súper -------------------------------------------------------------------------
+
+/** Agregar a la lista (crea el artículo o trae de vuelta el del historial con el mismo nombre). */
+export const rpcAddGrocery = (db: SupabaseClient, item: GroceryItem, householdId: string) =>
+  ok(
+    db.rpc("add_grocery", {
+      p_id: item.id,
+      p_household: householdId,
+      p_name: item.name,
+      p_name_key: item.nameKey,
+      p_category: item.category,
+      p_quantity: item.quantity,
+      p_note: item.note,
+    }),
+  );
+
+export async function patchGrocery(
+  db: SupabaseClient,
+  id: string,
+  patch: { on_list?: boolean; quantity?: string | null; note?: string | null; category?: string; checked_at?: string | null },
+): Promise<void> {
+  const { data, error } = await db.from("grocery_items").update(patch).eq("id", id).select("id");
+  if (error) throw error;
+  // 0 filas = ya no existe (borrado en otro teléfono): que se note y se recargue, no perderlo en silencio
+  if (!data?.length) throw { message: "not_found" };
+}
+
+export const rpcFinishShopping = (db: SupabaseClient, householdId: string) => ok(db.rpc("finish_shopping", { p_household: householdId }));
+
+export const rpcSetGroceryDeleted = (db: SupabaseClient, id: string, deleted: boolean) =>
+  ok(db.rpc("set_grocery_deleted", { p_id: id, p_deleted: deleted }));

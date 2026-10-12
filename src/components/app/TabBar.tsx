@@ -8,12 +8,12 @@ import { Icon, type IconName } from "@/components/ui/Icon";
 const TABS: { href: string; label: string; icon: IconName }[] = [
   { href: "/", label: "Inicio", icon: "home" },
   { href: "/pendientes", label: "Pendientes", icon: "todo" },
+  { href: "/super", label: "Súper", icon: "cart" },
   { href: "/gestionar", label: "Gestionar", icon: "manage" },
-  { href: "/estadisticas", label: "Estadísticas", icon: "stats" },
   { href: "/ajustes", label: "Ajustes", icon: "settings" },
 ];
 
-/** Tab bar flotante tipo pill (Inicio · Pendientes · Gestionar · Estadísticas · Ajustes). */
+/** Tab bar flotante tipo pill (Inicio · Pendientes · Súper · Gestionar · Ajustes). */
 export function TabBar() {
   const pathname = usePathname();
   const state = useAppState();

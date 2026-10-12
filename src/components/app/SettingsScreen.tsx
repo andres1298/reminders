@@ -1,4 +1,7 @@
 "use client";
+import Link from "next/link";
+import { useAppState } from "@/lib/store";
+import { Icon } from "@/components/ui/Icon";
 import { useSyncExternalStore } from "react";
 import { Segmented } from "@/components/ui/Segmented";
 import { InstallCard } from "./pwa";
@@ -8,6 +11,7 @@ import { HouseholdCard } from "./HouseholdCard";
 import { applyTheme, readThemePreference, subscribeTheme } from "@/lib/theme";
 
 export function SettingsScreen() {
+  const state = useAppState();
   const theme = useSyncExternalStore(subscribeTheme, readThemePreference, () => "light" as const);
   return (
     <main aria-label="Ajustes">
@@ -18,6 +22,32 @@ export function SettingsScreen() {
       <AccountCard />
       <div className="section-header">Hogar</div>
       <HouseholdCard />
+      {state?.isSuperAdmin && (
+        <>
+          <div style={{ height: 12 }} />
+          <div className="list list--inset">
+            <Link className="row row--lead" href="/admin">
+              <span className="row__lead"><Icon name="lock" size="md" /></span>
+              <span className="row__main">
+                <span className="row__title">Panel de administración</span>
+                <span className="row__sub">Crear hogares y administrar personas</span>
+              </span>
+              <Icon name="chevron-right" className="row__chev" />
+            </Link>
+          </div>
+        </>
+      )}
+      <div style={{ height: 12 }} />
+      <div className="list list--inset">
+        <Link className="row row--lead" href="/estadisticas">
+          <span className="row__lead"><Icon name="stats" size="md" /></span>
+          <span className="row__main">
+            <span className="row__title">Estadísticas</span>
+            <span className="row__sub">Quién hizo qué en el hogar</span>
+          </span>
+          <Icon name="chevron-right" className="row__chev" />
+        </Link>
+      </div>
       <div className="section-header">App</div>
       <InstallCard />
       <div style={{ height: 12 }} />

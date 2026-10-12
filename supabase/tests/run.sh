@@ -18,5 +18,6 @@ psql=(psql -h /tmp -p "$port" -U postgres -v ON_ERROR_STOP=1 -q -X)
 "${psql[@]}" -c "create database lukas_test" >/dev/null
 "${psql[@]}" -d lukas_test -f "$here/00_supabase_stub.sql" >/dev/null
 for m in "$here"/../migrations/*.sql; do "${psql[@]}" -d lukas_test -f "$m" >/dev/null; done
-"${psql[@]}" -d lukas_test -f "$here/rls_and_rpc.test.sql"
+# en una sola sesión: super_admin.test.sql reutiliza la tabla temporal ids
+"${psql[@]}" -d lukas_test -f "$here/rls_and_rpc.test.sql" -f "$here/super_admin.test.sql" -f "$here/groceries.test.sql"
 echo "ok · migraciones y pruebas SQL"

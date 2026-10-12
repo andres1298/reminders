@@ -7,6 +7,7 @@ import { Avatar } from "@/components/ui/Avatar";
 import { Icon } from "@/components/ui/Icon";
 import { useToast } from "@/components/ui/Toast";
 import { useSync } from "./DataProvider";
+import { InviteLink } from "./InviteLink";
 
 interface Pending {
   id: string;
@@ -56,23 +57,6 @@ export function HouseholdCard() {
     setLink(r.url);
   }
 
-  async function share(url: string) {
-    try {
-      await navigator.share({ title: "Lukas", text: `Únete a ${state?.household.emoji} ${state?.household.name} en Lukas`, url });
-    } catch (e) {
-      if ((e as Error).name !== "AbortError") void copy(url);
-    }
-  }
-
-  async function copy(url: string) {
-    try {
-      await navigator.clipboard.writeText(url);
-      toast("Enlace copiado. Vence en 7 días.", { paw: true });
-    } catch {
-      toast("No se pudo copiar: mantén presionado el enlace para copiarlo.");
-    }
-  }
-
   async function revoke(id: string) {
     const { error } = await sync.db.from("invitations").update({ revoked_at: new Date().toISOString() }).eq("id", id);
     if (error) return toast("No se pudo revocar. Intenta otra vez");
@@ -104,23 +88,7 @@ export function HouseholdCard() {
         )}
       </div>
       {link && (
-        <div className="list list--inset invite-link">
-          <div className="row" style={{ flexDirection: "column", alignItems: "stretch", gap: 10, padding: "14px 16px" }}>
-            <span className="row__title">Enlace listo</span>
-            <span className="row__sub invite-link__url">{link}</span>
-            <span style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              {typeof navigator !== "undefined" && "share" in navigator && (
-                <button className="btn btn--filled btn--sm" onClick={() => share(link)}>
-                  <Icon name="share" size="sm" />Compartir
-                </button>
-              )}
-              <button className="btn btn--bordered btn--sm" onClick={() => copy(link)}>
-                <Icon name="copy" size="sm" />Copiar
-              </button>
-              <button className="btn btn--plain btn--sm" onClick={() => setLink(null)}>Listo</button>
-            </span>
-          </div>
-        </div>
+        <InviteLink url={link} title={`Únete a ${state.household.emoji} ${state.household.name} en Lukas`} onDone={() => setLink(null)} />
       )}
       {isAdmin && pending.length > 0 && (
         <>
