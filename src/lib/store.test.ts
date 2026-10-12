@@ -25,6 +25,14 @@ describe("store", () => {
     expect(getState().me).toBe("u1");
   });
 
+  it("una caché de antes de la lista de compras se lee con groceries vacío", () => {
+    const { groceries: _drop, ...old } = { ...demoState(), me: "u3" };
+    void _drop;
+    mem.set("lukas-cache-u3", JSON.stringify(old));
+    startSession("u3");
+    expect(getState().groceries).toEqual([]);
+  });
+
   it("sin caché no hay estado todavía", () => {
     startSession("u2");
     expect(getState()).toBeNull();

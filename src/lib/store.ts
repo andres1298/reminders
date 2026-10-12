@@ -22,7 +22,8 @@ function readCache(id: string): AppState | null {
   try {
     const raw = localStorage.getItem(cacheKey(id));
     const parsed = raw ? (JSON.parse(raw) as AppState) : null;
-    return parsed?.version === 1 && parsed.me === id ? parsed : null;
+    // cachés de antes de la lista de compras no traen groceries
+    return parsed?.version === 1 && parsed.me === id ? { ...parsed, groceries: parsed.groceries ?? [] } : null;
   } catch {
     return null;
   }

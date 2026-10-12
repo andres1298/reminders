@@ -82,3 +82,16 @@ export interface TodoRow {
   created_by: string;
   created_at: string;
 }
+
+export interface GroceryRow {
+  id: string;
+  name: string;
+  name_key: string;
+  category: string;
+  on_list: boolean;
+  quantity: string | null;
+  note: string | null;
+  checked_at: string | null;
+  times_bought: number;
+  last_bought_at: string | null;
+}

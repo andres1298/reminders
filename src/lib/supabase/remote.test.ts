@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Task } from "../types";
-import { rpcComplete, saveTask } from "./remote";
+import { rpcAddGrocery, rpcComplete, saveTask } from "./remote";
 
 type Call = [string, ...unknown[]];
 
@@ -98,6 +98,18 @@ describe("remote", () => {
     const { db, calls } = fakeDb();
     await saveTask(db, task, "h1", "u1", task);
     expect(calls).toEqual([]);
+  });
+
+  it("rpcAddGrocery manda los 7 parámetros de add_grocery", async () => {
+    const { db, calls } = fakeDb();
+    await rpcAddGrocery(
+      db,
+      { id: "g1", name: "Leche", nameKey: "leche", category: "dairy", onList: true, quantity: "2", note: null, checkedAt: null, timesBought: 0, lastBoughtAt: null },
+      "h1",
+    );
+    expect(calls).toEqual([
+      ["rpc", "add_grocery", { p_id: "g1", p_household: "h1", p_name: "Leche", p_name_key: "leche", p_category: "dairy", p_quantity: "2", p_note: null }],
+    ]);
   });
 
   it("lanza el error de Supabase", async () => {
